@@ -1,1 +1,6 @@
 .aiteam/
+local.properties
+.gradle/
+build/
+*.iml
+.idea/
