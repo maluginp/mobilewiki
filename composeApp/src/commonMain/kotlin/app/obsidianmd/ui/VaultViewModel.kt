@@ -28,7 +28,7 @@ class VaultViewModel(
     private val scope: CoroutineScope,
     private val io: CoroutineDispatcher,
     private val gitSync: app.obsidianmd.sync.GitSync? = null,
-    private val syncConfig: app.obsidianmd.sync.SyncConfig? = null,
+    private val syncConfigProvider: () -> app.obsidianmd.sync.SyncConfig? = { null },
     private val resolver: app.obsidianmd.sync.UiConflictResolver = app.obsidianmd.sync.UiConflictResolver(),
 ) {
     private val _state = MutableStateFlow(VaultState())
@@ -39,7 +39,7 @@ class VaultViewModel(
     val pendingConflict: StateFlow<app.obsidianmd.sync.MdConflict?> = resolver.pending
 
     fun sync() {
-        val cfg = syncConfig
+        val cfg = syncConfigProvider()
         val engine = gitSync
         if (cfg == null || engine == null) {
             _syncStatus.value = SyncStatus.Done(

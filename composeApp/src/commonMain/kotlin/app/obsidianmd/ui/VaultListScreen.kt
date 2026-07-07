@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,9 +24,13 @@ fun VaultListScreen(
     syncStatus: SyncStatus,
     onSync: () -> Unit,
     onOpen: (MdFile) -> Unit,
+    onOpenSettings: () -> Unit,
 ) {
     Column(Modifier.fillMaxSize()) {
         Button(onClick = onSync, modifier = Modifier.padding(16.dp)) { Text("Синхронизировать") }
+        TextButton(onClick = onOpenSettings, modifier = Modifier.padding(horizontal = 16.dp)) {
+            Text("Настройки")
+        }
         Text(syncStatusText(syncStatus), Modifier.padding(horizontal = 16.dp))
         if (state.files.isEmpty()) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("Нет файлов") }
