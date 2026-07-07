@@ -28,7 +28,26 @@ class JGitSync(
                     .close()
                 return@withContext SyncResult.Cloned
             }
-            SyncResult.UpToDate
+            Git.open(dir).use { git ->
+                git.add().addFilepattern(".").call()
+                git.add().addFilepattern(".").setUpdate(true).call()
+                val committedLocal = if (!git.status().call().isClean) {
+                    git.commit()
+                        .setMessage("obsidian-md sync")
+                        .setAuthor(config.authorName, config.authorEmail)
+                        .setCommitter(config.authorName, config.authorEmail)
+                        .call()
+                    true
+                } else {
+                    false
+                }
+                if (committedLocal) {
+                    git.push().setRemote("origin").setCredentialsProvider(creds).call()
+                    SyncResult.Synced(pushed = true, conflictsResolved = 0)
+                } else {
+                    SyncResult.UpToDate
+                }
+            }
         } catch (e: Exception) {
             SyncResult.Failed(e.message ?: e.toString())
         }
