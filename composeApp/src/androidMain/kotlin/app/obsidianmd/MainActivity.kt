@@ -20,6 +20,8 @@ import app.obsidianmd.auth.GitHubDeviceAuth
 import app.obsidianmd.sync.JGitSync
 import app.obsidianmd.sync.SyncConfig
 import app.obsidianmd.sync.UiConflictResolver
+import app.obsidianmd.settings.SettingsViewModel
+import app.obsidianmd.settings.SharedPrefsRepoSettingsStore
 import app.obsidianmd.ui.LoginScreen
 import app.obsidianmd.ui.VaultViewModel
 import io.ktor.client.HttpClient
@@ -33,6 +35,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val store = EncryptedTokenStore(applicationContext)
+        val settingsStore = SharedPrefsRepoSettingsStore(applicationContext)
+        val settingsVm = SettingsViewModel(settingsStore)
         val repo = createRepository(applicationContext)
         val root = vaultRoot(applicationContext)
 
@@ -58,15 +62,17 @@ class MainActivity : ComponentActivity() {
                             },
                         )
                     } else {
-                        val syncConfig = BuildConfig.SYNC_REMOTE_URL.takeIf { it.isNotBlank() }?.let {
-                            SyncConfig(remoteUrl = it, localPath = root.toString(), token = store.get())
-                        }
                         val vm = VaultViewModel(
                             repo, lifecycleScope, Dispatchers.IO,
-                            gitSync = JGitSync(), syncConfig = syncConfig,
+                            gitSync = JGitSync(),
+                            syncConfigProvider = {
+                                settingsStore.getRemoteUrl()?.takeIf { it.isNotBlank() }?.let { url ->
+                                    SyncConfig(remoteUrl = url, localPath = root.toString(), token = store.get())
+                                }
+                            },
                             resolver = UiConflictResolver(),
                         )
-                        App(vm)
+                        App(vm, settingsVm)
                     }
                 }
             }
