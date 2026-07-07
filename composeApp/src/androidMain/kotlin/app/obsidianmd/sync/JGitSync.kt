@@ -41,12 +41,29 @@ class JGitSync(
                 } else {
                     false
                 }
-                if (committedLocal) {
+                git.fetch().setRemote("origin").setDepth(1)
+                    .setCredentialsProvider(creds).call()
+                val remoteRef = git.repository.findRef("refs/remotes/origin/${config.branch}")
+                    ?: return@use SyncResult.Failed("no remote branch ${config.branch}")
+
+                val merge = git.merge()
+                    .include(remoteRef)
+                    .setCommit(true)
+                    .call()
+
+                val shouldPush = committedLocal ||
+                    merge.mergeStatus == org.eclipse.jgit.api.MergeResult.MergeStatus.MERGED
+                val pushed = if (shouldPush) {
                     git.push().setRemote("origin").setCredentialsProvider(creds).call()
-                    SyncResult.Synced(pushed = true, conflictsResolved = 0)
+                    true
                 } else {
-                    SyncResult.UpToDate
+                    false
                 }
+
+                val upToDate = !committedLocal && !pushed &&
+                    merge.mergeStatus == org.eclipse.jgit.api.MergeResult.MergeStatus.ALREADY_UP_TO_DATE
+                if (upToDate) SyncResult.UpToDate
+                else SyncResult.Synced(pushed = pushed, conflictsResolved = 0)
             }
         } catch (e: Exception) {
             SyncResult.Failed(e.message ?: e.toString())

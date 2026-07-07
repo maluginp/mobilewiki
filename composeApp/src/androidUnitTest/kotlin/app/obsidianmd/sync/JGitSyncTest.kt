@@ -40,4 +40,22 @@ class JGitSyncTest {
         assertTrue(readFromServer(bare, "welcome.md").contains("local edit"),
             "правка должна оказаться на сервере (push из shallow-клона)")
     }
+
+    @Test
+    fun merges_remote_and_local_without_conflict() = runTest {
+        val bare = createSeededBareRepo()
+        val local = newLocalDir()
+        val sync = JGitSync()
+        val cfg = config(bare, local)
+        sync.sync(cfg) // clone
+
+        pushRemoteChange(bare, "remote.md", "# Remote\n")           // сервер: новый файл
+        File(local, "welcome.md").writeText("# Welcome\n\nlocal\n") // локально: другой файл
+
+        val result = sync.sync(cfg)
+
+        assertTrue(result is SyncResult.Synced)
+        assertTrue(File(local, "remote.md").exists(), "серверный файл подтянут")
+        assertTrue(File(local, "welcome.md").readText().contains("local"), "локальная правка цела")
+    }
 }
