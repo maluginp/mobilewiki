@@ -78,6 +78,35 @@ class VaultViewModelTest {
         assertEquals(listOf("a.md"), model.state.value.files.map { it.name })
     }
 
+    private class ConflictingGitSync : app.obsidianmd.sync.GitSync {
+        override suspend fun sync(
+            config: app.obsidianmd.sync.SyncConfig,
+            resolver: app.obsidianmd.sync.ConflictResolver,
+        ): app.obsidianmd.sync.SyncResult {
+            resolver.resolve(app.obsidianmd.sync.MdConflict("note.md", "L", "S"))
+            return app.obsidianmd.sync.SyncResult.Synced(pushed = true, conflictsResolved = 1)
+        }
+    }
+
+    @Test
+    fun sync_conflict_exposes_pending_then_resolves() = runTest {
+        val fs = FakeFileSystem(); fs.createDirectories(root)
+        val resolver = app.obsidianmd.sync.UiConflictResolver()
+        val model = VaultViewModel(
+            VaultRepository(fs, root), this, StandardTestDispatcher(testScheduler),
+            gitSync = ConflictingGitSync(), syncConfig = syncConfig(), resolver = resolver,
+        )
+        model.sync()
+        advanceUntilIdle()
+        assertEquals("note.md", model.pendingConflict.value?.path)
+        assertEquals(SyncStatus.Running, model.syncStatus.value)
+
+        model.resolveConflict(app.obsidianmd.sync.Resolution.USE_SERVER)
+        advanceUntilIdle()
+        assertTrue(model.syncStatus.value is SyncStatus.Done)
+        assertNull(model.pendingConflict.value)
+    }
+
     @Test
     fun sync_without_config_fails_without_calling_engine() = runTest {
         val fs = FakeFileSystem(); fs.createDirectories(root)
