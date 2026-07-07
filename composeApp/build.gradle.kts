@@ -68,7 +68,7 @@ android {
         versionCode = 1
         versionName = "0.1.0"
         buildConfigField("String", "SYNC_REMOTE_URL", "\"${localProp("sync.remoteUrl")}\"")
-        buildConfigField("String", "SYNC_TOKEN", "\"${localProp("sync.token")}\"")
+        buildConfigField("String", "GITHUB_CLIENT_ID", "\"${localProp("github.clientId")}\"")
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
