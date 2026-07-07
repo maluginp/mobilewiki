@@ -22,7 +22,6 @@ class JGitSync(
                     .setBranch(config.branch)
                     .setBranchesToClone(listOf("refs/heads/${config.branch}"))
                     .setCloneAllBranches(false)
-                    .setDepth(1)
                     .setCredentialsProvider(creds)
                     .call()
                     .close()
@@ -41,7 +40,7 @@ class JGitSync(
                 } else {
                     false
                 }
-                git.fetch().setRemote("origin").setDepth(1)
+                git.fetch().setRemote("origin")
                     .setCredentialsProvider(creds).call()
                 val remoteRef = git.repository.findRef("refs/remotes/origin/${config.branch}")
                     ?: return@use SyncResult.Failed("no remote branch ${config.branch}")
@@ -51,7 +50,29 @@ class JGitSync(
                     .setCommit(true)
                     .call()
 
-                val shouldPush = committedLocal ||
+                // «Сервер выигрывает»: только конфликтующие пути берём с сервера (theirs),
+                // неконфликтующие локальные правки сохраняются обычным merge.
+                var conflictsResolved = 0
+                var resolvedMerge = false
+                if (merge.mergeStatus == org.eclipse.jgit.api.MergeResult.MergeStatus.CONFLICTING) {
+                    val conflicting = merge.conflicts?.keys ?: emptySet()
+                    conflictsResolved = conflicting.size
+                    conflicting.forEach { path ->
+                        git.checkout()
+                            .setStage(org.eclipse.jgit.api.CheckoutCommand.Stage.THEIRS)
+                            .addPath(path)
+                            .call()
+                    }
+                    git.add().addFilepattern(".").call()
+                    git.commit()
+                        .setMessage("obsidian-md sync (server wins)")
+                        .setAuthor(config.authorName, config.authorEmail)
+                        .setCommitter(config.authorName, config.authorEmail)
+                        .call()
+                    resolvedMerge = true
+                }
+
+                val shouldPush = committedLocal || resolvedMerge ||
                     merge.mergeStatus == org.eclipse.jgit.api.MergeResult.MergeStatus.MERGED
                 val pushed = if (shouldPush) {
                     git.push().setRemote("origin").setCredentialsProvider(creds).call()
@@ -63,7 +84,7 @@ class JGitSync(
                 val upToDate = !committedLocal && !pushed &&
                     merge.mergeStatus == org.eclipse.jgit.api.MergeResult.MergeStatus.ALREADY_UP_TO_DATE
                 if (upToDate) SyncResult.UpToDate
-                else SyncResult.Synced(pushed = pushed, conflictsResolved = 0)
+                else SyncResult.Synced(pushed = pushed, conflictsResolved = conflictsResolved)
             }
         } catch (e: Exception) {
             SyncResult.Failed(e.message ?: e.toString())

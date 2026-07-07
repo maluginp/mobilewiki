@@ -16,13 +16,24 @@ class JGitSyncTest {
     )
 
     @Test
-    fun first_sync_shallow_clones() = runTest {
+    fun first_sync_clones() = runTest {
         val bare = createSeededBareRepo()
         val local = newLocalDir()
         val result = JGitSync().sync(config(bare, local))
         assertEquals(SyncResult.Cloned, result)
         assertTrue(File(local, "welcome.md").exists())
-        assertTrue(File(local, ".git/shallow").exists(), "должен быть shallow-клон")
+        assertTrue(!File(local, ".git/shallow").exists(), "полный клон (не shallow)")
+    }
+
+    @Test
+    fun no_changes_returns_up_to_date() = runTest {
+        val bare = createSeededBareRepo()
+        val local = newLocalDir()
+        val sync = JGitSync()
+        val cfg = config(bare, local)
+        sync.sync(cfg) // clone
+        val result = sync.sync(cfg) // без изменений
+        assertEquals(SyncResult.UpToDate, result)
     }
 
     @Test
@@ -57,5 +68,24 @@ class JGitSyncTest {
         assertTrue(result is SyncResult.Synced)
         assertTrue(File(local, "remote.md").exists(), "серверный файл подтянут")
         assertTrue(File(local, "welcome.md").readText().contains("local"), "локальная правка цела")
+    }
+
+    @Test
+    fun conflict_server_wins_and_counts() = runTest {
+        val bare = createSeededBareRepo()
+        val local = newLocalDir()
+        val sync = JGitSync()
+        val cfg = config(bare, local)
+        sync.sync(cfg) // clone
+
+        pushRemoteChange(bare, "welcome.md", "# Welcome\n\nSERVER\n") // сервер правит welcome.md
+        File(local, "welcome.md").writeText("# Welcome\n\nLOCAL\n")    // локально тот же файл иначе
+
+        val result = sync.sync(cfg)
+
+        assertTrue(result is SyncResult.Synced)
+        assertEquals(1, (result as SyncResult.Synced).conflictsResolved)
+        assertTrue(File(local, "welcome.md").readText().contains("SERVER"), "серверная версия победила")
+        assertTrue(!File(local, "welcome.md").readText().contains("LOCAL"), "локальная версия перезаписана")
     }
 }
