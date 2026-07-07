@@ -1,9 +1,17 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
 }
+
+val localProps = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+fun localProp(key: String): String = localProps.getProperty(key, "")
 
 kotlin {
     androidTarget {
@@ -44,12 +52,16 @@ android {
     namespace = "app.obsidianmd"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
+    buildFeatures { buildConfig = true }
+
     defaultConfig {
         applicationId = "app.obsidianmd"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.compileSdk.get().toInt()
         versionCode = 1
         versionName = "0.1.0"
+        buildConfigField("String", "SYNC_REMOTE_URL", "\"${localProp("sync.remoteUrl")}\"")
+        buildConfigField("String", "SYNC_TOKEN", "\"${localProp("sync.token")}\"")
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
