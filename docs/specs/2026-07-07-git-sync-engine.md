@@ -42,10 +42,25 @@ sealed interface SyncResult {
     data class Failed(val reason: String) : SyncResult
 }
 
+data class MdConflict(val path: String, val local: String, val server: String)
+enum class Resolution { USE_LOCAL, USE_SERVER }
+fun interface ConflictResolver {
+    suspend fun resolve(conflict: MdConflict): Resolution
+}
+
 interface GitSync {
-    suspend fun sync(config: SyncConfig): SyncResult
+    suspend fun sync(config: SyncConfig, resolver: ConflictResolver): SyncResult
 }
 ```
+
+## Разрешение конфликтов (обновлено)
+- Конфликт в **`.md`-файле** → движок вызывает `resolver.resolve(MdConflict(path, local, server))`
+  и применяет выбор: `USE_LOCAL` (оставить локальную) или `USE_SERVER` (взять серверную).
+  Движок headless — сам диалог рисует UI-слой (отдельный слайс); здесь резолвер приходит
+  параметром и в тестах подставляется фейковым.
+- Конфликт в **не-`.md`** → всегда серверная версия (theirs), резолвер не вызывается.
+- `local`/`server` для `MdConflict` читаются из деревьев коммитов (ours = HEAD, theirs =
+  origin/branch) по пути файла.
 
 ## Поток `sync()`
 1. **Нет локального репо** (папки `.git` нет) → shallow clone: `CloneCommand` с

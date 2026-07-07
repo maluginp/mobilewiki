@@ -16,6 +16,14 @@ sealed interface SyncResult {
     data class Failed(val reason: String) : SyncResult
 }
 
+data class MdConflict(val path: String, val local: String, val server: String)
+
+enum class Resolution { USE_LOCAL, USE_SERVER }
+
+fun interface ConflictResolver {
+    suspend fun resolve(conflict: MdConflict): Resolution
+}
+
 interface GitSync {
-    suspend fun sync(config: SyncConfig): SyncResult
+    suspend fun sync(config: SyncConfig, resolver: ConflictResolver): SyncResult
 }
