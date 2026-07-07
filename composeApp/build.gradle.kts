@@ -26,10 +26,15 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.lifecycle.runtime)
             implementation(libs.kotlinx.coroutines.android)
+            implementation(libs.jgit)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
             implementation(libs.okio.fakefilesystem)
+            implementation(libs.kotlinx.coroutines.test)
+        }
+        androidUnitTest.dependencies {
+            implementation(kotlin("test"))
             implementation(libs.kotlinx.coroutines.test)
         }
     }
