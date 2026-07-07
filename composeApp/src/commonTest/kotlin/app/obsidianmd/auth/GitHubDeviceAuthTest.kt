@@ -41,4 +41,33 @@ class GitHubDeviceAuthTest {
         assertEquals(5, result.interval)
         assertEquals(900, result.expiresIn)
     }
+
+    private val da = DeviceAuthorization("dc", "UC", "https://github.com/login/device", interval = 1, expiresIn = 100)
+
+    @Test
+    fun poll_pending_then_success() = runTest {
+        val http = clientReturning(
+            """{"error":"authorization_pending"}""",
+            """{"error":"authorization_pending"}""",
+            """{"access_token":"gho_abc"}""",
+        )
+        val result = GitHubDeviceAuth(http, "c").poll(da)
+        assertEquals(AuthResult.Success("gho_abc"), result)
+    }
+
+    @Test
+    fun poll_slow_down_then_success() = runTest {
+        val http = clientReturning(
+            """{"error":"slow_down"}""",
+            """{"access_token":"gho_x"}""",
+        )
+        assertEquals(AuthResult.Success("gho_x"), GitHubDeviceAuth(http, "c").poll(da))
+    }
+
+    @Test
+    fun poll_expired_token_fails() = runTest {
+        val http = clientReturning("""{"error":"expired_token"}""")
+        val result = GitHubDeviceAuth(http, "c").poll(da)
+        assertEquals(AuthResult.Failed("expired_token"), result)
+    }
 }

@@ -48,8 +48,24 @@ class GitHubDeviceAuth(
         }.body()
 
     override suspend fun poll(auth: DeviceAuthorization): AuthResult {
-        // реализуется в Task 2
-        delay(0)
-        return AuthResult.Failed("not implemented")
+        var interval = auth.interval
+        var waited = 0
+        while (waited <= auth.expiresIn) {
+            delay(interval * 1000L)
+            waited += interval
+            val resp: TokenResponse = http.post("https://github.com/login/oauth/access_token") {
+                headers { append(HttpHeaders.Accept, "application/json") }
+                parameter("client_id", clientId)
+                parameter("device_code", auth.deviceCode)
+                parameter("grant_type", "urn:ietf:params:oauth:grant-type:device_code")
+            }.body()
+            when {
+                resp.accessToken != null -> return AuthResult.Success(resp.accessToken)
+                resp.error == "authorization_pending" -> Unit
+                resp.error == "slow_down" -> interval += 5
+                else -> return AuthResult.Failed(resp.error ?: "unknown")
+            }
+        }
+        return AuthResult.Failed("expired")
     }
 }
