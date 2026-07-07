@@ -17,13 +17,50 @@ data class VaultState(
     val loading: Boolean = false,
 )
 
+sealed interface SyncStatus {
+    data object Idle : SyncStatus
+    data object Running : SyncStatus
+    data class Done(val result: app.obsidianmd.sync.SyncResult) : SyncStatus
+}
+
 class VaultViewModel(
     private val repo: VaultRepository,
     private val scope: CoroutineScope,
     private val io: CoroutineDispatcher,
+    private val gitSync: app.obsidianmd.sync.GitSync? = null,
+    private val syncConfig: app.obsidianmd.sync.SyncConfig? = null,
+    private val resolver: app.obsidianmd.sync.UiConflictResolver = app.obsidianmd.sync.UiConflictResolver(),
 ) {
     private val _state = MutableStateFlow(VaultState())
     val state: StateFlow<VaultState> = _state.asStateFlow()
+
+    private val _syncStatus = MutableStateFlow<SyncStatus>(SyncStatus.Idle)
+    val syncStatus: StateFlow<SyncStatus> = _syncStatus.asStateFlow()
+    val pendingConflict: StateFlow<app.obsidianmd.sync.MdConflict?> = resolver.pending
+
+    fun sync() {
+        val cfg = syncConfig
+        val engine = gitSync
+        if (cfg == null || engine == null) {
+            _syncStatus.value = SyncStatus.Done(
+                app.obsidianmd.sync.SyncResult.Failed("репозиторий не настроен"),
+            )
+            return
+        }
+        scope.launch {
+            _syncStatus.value = SyncStatus.Running
+            val result = engine.sync(cfg, resolver)
+            if (result !is app.obsidianmd.sync.SyncResult.Failed) {
+                val files = withContext(io) { repo.listMarkdownFiles() }
+                _state.value = _state.value.copy(files = files)
+            }
+            _syncStatus.value = SyncStatus.Done(result)
+        }
+    }
+
+    fun resolveConflict(resolution: app.obsidianmd.sync.Resolution) {
+        resolver.choose(resolution)
+    }
 
     fun refresh() {
         scope.launch {
