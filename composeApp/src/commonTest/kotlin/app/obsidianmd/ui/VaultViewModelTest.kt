@@ -66,7 +66,7 @@ class VaultViewModelTest {
         val fake = FakeGitSync(app.obsidianmd.sync.SyncResult.Synced(pushed = true, conflictsResolved = 0))
         val model = VaultViewModel(
             VaultRepository(fs, root), this, StandardTestDispatcher(testScheduler),
-            gitSync = fake, syncConfig = syncConfig(),
+            gitSync = fake, syncConfigProvider = { syncConfig() },
         )
         model.sync()
         advanceUntilIdle()
@@ -94,7 +94,7 @@ class VaultViewModelTest {
         val resolver = app.obsidianmd.sync.UiConflictResolver()
         val model = VaultViewModel(
             VaultRepository(fs, root), this, StandardTestDispatcher(testScheduler),
-            gitSync = ConflictingGitSync(), syncConfig = syncConfig(), resolver = resolver,
+            gitSync = ConflictingGitSync(), syncConfigProvider = { syncConfig() }, resolver = resolver,
         )
         model.sync()
         advanceUntilIdle()
@@ -113,7 +113,7 @@ class VaultViewModelTest {
         val fake = FakeGitSync(app.obsidianmd.sync.SyncResult.Cloned)
         val model = VaultViewModel(
             VaultRepository(fs, root), this, StandardTestDispatcher(testScheduler),
-            gitSync = fake, syncConfig = null,
+            gitSync = fake, syncConfigProvider = { null },
         )
         model.sync()
         advanceUntilIdle()
