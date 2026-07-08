@@ -17,17 +17,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun SettingsScreen(currentUrl: String, onSave: (String) -> Unit, onBack: () -> Unit) {
-    var text by remember(currentUrl) { mutableStateOf(currentUrl) }
+fun SettingsScreen(
+    currentUrl: String,
+    onSave: (String) -> Unit,
+    openRouterKey: String,
+    onSaveKey: (String) -> Unit,
+    onBack: () -> Unit,
+) {
+    var url by remember(currentUrl) { mutableStateOf(currentUrl) }
+    var key by remember(openRouterKey) { mutableStateOf(openRouterKey) }
     Column(Modifier.fillMaxSize().padding(16.dp)) {
         TextButton(onClick = onBack) { Text("← Назад") }
+
         Text("URL репозитория")
         OutlinedTextField(
-            value = text,
-            onValueChange = { text = it },
+            value = url,
+            onValueChange = { url = it },
             singleLine = true,
             modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
         )
-        Button(onClick = { onSave(text) }) { Text("Сохранить") }
+        Button(onClick = { onSave(url) }) { Text("Сохранить") }
+
+        Text("Ключ OpenRouter", Modifier.padding(top = 24.dp))
+        OutlinedTextField(
+            value = key,
+            onValueChange = { key = it },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+        )
+        Button(onClick = { onSaveKey(key) }) { Text("Сохранить ключ") }
     }
 }

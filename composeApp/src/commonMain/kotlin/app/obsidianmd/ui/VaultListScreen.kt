@@ -3,6 +3,7 @@ package app.obsidianmd.ui
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -29,11 +30,17 @@ fun VaultListScreen(
     query: String,
     results: List<MdFile>,
     onSearch: (String) -> Unit,
+    onOpenAi: () -> Unit,
 ) {
     Column(Modifier.fillMaxSize()) {
         Button(onClick = onSync, modifier = Modifier.padding(16.dp)) { Text("Синхронизировать") }
-        TextButton(onClick = onOpenSettings, modifier = Modifier.padding(horizontal = 16.dp)) {
-            Text("Настройки")
+        Row {
+            TextButton(onClick = onOpenSettings, modifier = Modifier.padding(horizontal = 16.dp)) {
+                Text("Настройки")
+            }
+            TextButton(onClick = onOpenAi, modifier = Modifier.padding(horizontal = 16.dp)) {
+                Text("AI")
+            }
         }
         Text(syncStatusText(syncStatus), Modifier.padding(horizontal = 16.dp))
         OutlinedTextField(
