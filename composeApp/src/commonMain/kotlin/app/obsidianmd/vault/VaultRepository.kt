@@ -22,4 +22,14 @@ class VaultRepository(
     fun writeFile(path: String, content: String) {
         fs.write(path.toPath()) { writeUtf8(content) }
     }
+
+    // ponytail: наивный полный скан содержимого, без индекса — ок для личного vault;
+    // индекс, если станет медленно на больших хранилищах.
+    fun search(query: String): List<MdFile> {
+        if (query.isBlank()) return emptyList()
+        val q = query.lowercase()
+        return listMarkdownFiles().filter { f ->
+            f.name.lowercase().contains(q) || readFile(f.path).lowercase().contains(q)
+        }
+    }
 }

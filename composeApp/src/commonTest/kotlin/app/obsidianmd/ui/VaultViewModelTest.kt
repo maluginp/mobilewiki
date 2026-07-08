@@ -44,6 +44,21 @@ class VaultViewModelTest {
     }
 
     @Test
+    fun search_updates_query_and_results() = runTest {
+        val fs = FakeFileSystem()
+        fs.createDirectories(root)
+        fs.write(root / "a.md") { writeUtf8("важный проект") }
+        fs.write(root / "b.md") { writeUtf8("ничего") }
+        val model = VaultViewModel(VaultRepository(fs, root), this, StandardTestDispatcher(testScheduler))
+
+        model.search("проект")
+        advanceUntilIdle()
+
+        assertEquals("проект", model.state.value.query)
+        assertEquals(listOf("a.md"), model.state.value.results.map { it.name })
+    }
+
+    @Test
     fun save_file_persists_and_updates_content() = runTest {
         val fs = FakeFileSystem()
         fs.createDirectories(root)

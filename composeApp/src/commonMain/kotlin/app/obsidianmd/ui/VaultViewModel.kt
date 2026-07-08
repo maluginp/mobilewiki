@@ -15,6 +15,8 @@ data class VaultState(
     val selected: MdFile? = null,
     val content: String = "",
     val loading: Boolean = false,
+    val query: String = "",
+    val results: List<MdFile> = emptyList(),
 )
 
 sealed interface SyncStatus {
@@ -85,6 +87,13 @@ class VaultViewModel(
         scope.launch {
             withContext(io) { repo.writeFile(path, content) }
             _state.value = _state.value.copy(content = content)
+        }
+    }
+
+    fun search(query: String) {
+        scope.launch {
+            val results = withContext(io) { repo.search(query) }
+            _state.value = _state.value.copy(query = query, results = results)
         }
     }
 }
