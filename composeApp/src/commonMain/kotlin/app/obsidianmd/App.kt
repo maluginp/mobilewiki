@@ -38,7 +38,11 @@ fun App(vm: VaultViewModel, settingsVm: SettingsViewModel) {
                     onOpen = vm::open,
                     onOpenSettings = { showSettings = true },
                 )
-                else -> MarkdownScreen(state.content, onBack = vm::back)
+                else -> MarkdownScreen(
+                    content = state.content,
+                    onBack = vm::back,
+                    onSave = { text -> state.selected?.let { vm.saveFile(it.path, text) } },
+                )
             }
             conflict?.let { ConflictDialog(it, onChoose = vm::resolveConflict) }
         }

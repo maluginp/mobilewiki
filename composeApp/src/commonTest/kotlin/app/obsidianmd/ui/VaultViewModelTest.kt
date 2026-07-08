@@ -43,6 +43,22 @@ class VaultViewModelTest {
         assertNull(model.state.value.selected)
     }
 
+    @Test
+    fun save_file_persists_and_updates_content() = runTest {
+        val fs = FakeFileSystem()
+        fs.createDirectories(root)
+        fs.write(root / "a.md") { writeUtf8("old") }
+        val repo = VaultRepository(fs, root)
+        val model = VaultViewModel(repo, this, StandardTestDispatcher(testScheduler))
+        val path = (root / "a.md").toString()
+
+        model.saveFile(path, "новый текст")
+        advanceUntilIdle()
+
+        assertEquals("новый текст", repo.readFile(path))
+        assertEquals("новый текст", model.state.value.content)
+    }
+
     private class FakeGitSync(val result: app.obsidianmd.sync.SyncResult) : app.obsidianmd.sync.GitSync {
         var called = false
         override suspend fun sync(
