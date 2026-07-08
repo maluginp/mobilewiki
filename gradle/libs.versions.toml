@@ -10,6 +10,7 @@ markdown = "0.27.0"
 jgit = "6.10.0.202406032230-r"
 ktor = "2.3.13"
 securityCrypto = "1.1.0-alpha06"
+work = "2.9.1"
 android-compileSdk = "34"
 android-minSdk = "24"
 
@@ -29,6 +30,7 @@ ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negoti
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
 androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "securityCrypto" }
+androidx-work-runtime = { module = "androidx.work:work-runtime-ktx", version.ref = "work" }
 
 [plugins]
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

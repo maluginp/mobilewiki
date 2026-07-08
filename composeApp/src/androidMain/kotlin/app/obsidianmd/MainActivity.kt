@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,6 +51,12 @@ class MainActivity : ComponentActivity() {
             var loggedIn by remember { mutableStateOf(store.get() != null) }
             val authState by authVm.state.collectAsState()
             if (authState is AuthState.Success && !loggedIn) loggedIn = true
+
+            if (loggedIn) {
+                LaunchedEffect(Unit) {
+                    app.obsidianmd.sync.AutoSyncScheduler(applicationContext).schedule()
+                }
+            }
 
             MaterialTheme {
                 Surface {
