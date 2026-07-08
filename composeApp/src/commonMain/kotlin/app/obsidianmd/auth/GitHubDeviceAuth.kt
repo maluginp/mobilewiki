@@ -53,12 +53,18 @@ class GitHubDeviceAuth(
         while (waited <= auth.expiresIn) {
             delay(interval * 1000L)
             waited += interval
-            val resp: TokenResponse = http.post("https://github.com/login/oauth/access_token") {
-                headers { append(HttpHeaders.Accept, "application/json") }
-                parameter("client_id", clientId)
-                parameter("device_code", auth.deviceCode)
-                parameter("grant_type", "urn:ietf:params:oauth:grant-type:device_code")
-            }.body()
+            val resp: TokenResponse = try {
+                http.post("https://github.com/login/oauth/access_token") {
+                    headers { append(HttpHeaders.Accept, "application/json") }
+                    parameter("client_id", clientId)
+                    parameter("device_code", auth.deviceCode)
+                    parameter("grant_type", "urn:ietf:params:oauth:grant-type:device_code")
+                }.body()
+            } catch (e: Exception) {
+                // Временная сетевая ошибка (например, DNS-икота): продолжаем опрос до истечения кода —
+                // пользователь мог уже авторизоваться, токен появится на следующем опросе.
+                continue
+            }
             when {
                 resp.accessToken != null -> return AuthResult.Success(resp.accessToken)
                 resp.error == "authorization_pending" -> Unit

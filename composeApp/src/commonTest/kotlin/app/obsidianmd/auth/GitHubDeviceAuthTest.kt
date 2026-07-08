@@ -70,4 +70,23 @@ class GitHubDeviceAuthTest {
         val result = GitHubDeviceAuth(http, "c").poll(da)
         assertEquals(AuthResult.Failed("expired_token"), result)
     }
+
+    @Test
+    fun poll_tolerates_transient_network_error_then_succeeds() = runTest {
+        var calls = 0
+        val engine = MockEngine {
+            calls++
+            if (calls == 1) throw RuntimeException("dns blip")
+            respond(
+                """{"access_token":"gho_ok"}""",
+                HttpStatusCode.OK,
+                headersOf(HttpHeaders.ContentType, "application/json"),
+            )
+        }
+        val http = HttpClient(engine) {
+            install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
+        }
+        val result = GitHubDeviceAuth(http, "c").poll(da)
+        assertEquals(AuthResult.Success("gho_ok"), result)
+    }
 }
