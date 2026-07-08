@@ -6,3 +6,4 @@
 - 2026-07-07 — UI git-синка (кнопка/статус/диалог) (`sync-ui`): код готов и зелёный на ветке (16 тестов); мост UiConflictResolver↔Compose, .md-конфликт спрашивает выбор, конфиг репо через BuildConfig, авто-сид убран. MR пропущен (remote не настроен).
 - 2026-07-07 — GitHub OAuth Device Flow (`github-oauth-device-flow`): код готов и зелёный (24 теста); Ktor device flow, EncryptedSharedPreferences, экран входа, токен из хранилища в синк, BuildConfig.SYNC_TOKEN убран. MR пропущен (GitHub, не GitLab).
 - 2026-07-07 — Экран настроек репозитория (`repo-settings`): код готов и зелёный (28 тестов); RepoSettingsStore + SettingsScreen, VaultViewModel через syncConfigProvider, BuildConfig.SYNC_REMOTE_URL убран. MR пропущен (GitHub, не GitLab).
+- 2026-07-08 — Автосинк на WorkManager (`autosync`): код готов и зелёный (31 тест); BackgroundSyncRunner (USE_LOCAL в фоне), SyncWorker, периодический AutoSyncScheduler (~30 мин), планирование при входе. MR пропущен (GitHub, не GitLab).
