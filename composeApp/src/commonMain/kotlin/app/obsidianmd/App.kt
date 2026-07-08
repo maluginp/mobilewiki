@@ -37,6 +37,9 @@ fun App(vm: VaultViewModel, settingsVm: SettingsViewModel) {
                     onSync = vm::sync,
                     onOpen = vm::open,
                     onOpenSettings = { showSettings = true },
+                    query = state.query,
+                    results = state.results,
+                    onSearch = vm::search,
                 )
                 else -> MarkdownScreen(
                     content = state.content,
