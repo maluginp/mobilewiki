@@ -80,4 +80,11 @@ class VaultViewModel(
     fun back() {
         _state.value = _state.value.copy(selected = null, content = "")
     }
+
+    fun saveFile(path: String, content: String) {
+        scope.launch {
+            withContext(io) { repo.writeFile(path, content) }
+            _state.value = _state.value.copy(content = content)
+        }
+    }
 }
