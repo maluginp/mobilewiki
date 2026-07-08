@@ -50,4 +50,19 @@ class VaultRepositoryTest {
         repo.writeFile(path, "# Changed")
         assertEquals("# Changed", repo.readFile(path))
     }
+
+    @Test
+    fun search_matches_name_and_content_case_insensitive() {
+        val fs = FakeFileSystem()
+        fs.createDirectories(root)
+        fs.write(root / "todo.md") { writeUtf8("список дел") }
+        fs.write(root / "notes.md") { writeUtf8("важный проект здесь") }
+        fs.write(root / "misc.md") { writeUtf8("ничего") }
+        val repo = VaultRepository(fs, root)
+
+        assertEquals(listOf("notes.md"), repo.search("проект").map { it.name })
+        assertEquals(listOf("todo.md"), repo.search("todo").map { it.name })
+        assertEquals(listOf("todo.md"), repo.search("TODO").map { it.name })
+        assertEquals(emptyList(), repo.search(""))
+    }
 }
