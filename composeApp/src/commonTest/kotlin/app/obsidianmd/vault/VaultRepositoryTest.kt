@@ -52,6 +52,16 @@ class VaultRepositoryTest {
     }
 
     @Test
+    fun path_for_resolves_under_root() {
+        val fs = FakeFileSystem()
+        fs.createDirectories(root)
+        val repo = VaultRepository(fs, root)
+        repo.writeFile(repo.pathFor("x.md"), "hi")
+        assertEquals("hi", repo.readFile(repo.pathFor("x.md")))
+        assertEquals(listOf("x.md"), repo.listMarkdownFiles().map { it.name })
+    }
+
+    @Test
     fun search_matches_name_and_content_case_insensitive() {
         val fs = FakeFileSystem()
         fs.createDirectories(root)

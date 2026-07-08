@@ -23,6 +23,8 @@ class VaultRepository(
         fs.write(path.toPath()) { writeUtf8(content) }
     }
 
+    fun pathFor(name: String): String = (root / name).toString()
+
     // ponytail: наивный полный скан содержимого, без индекса — ок для личного vault;
     // индекс, если станет медленно на больших хранилищах.
     fun search(query: String): List<MdFile> {

@@ -37,7 +37,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val store = EncryptedTokenStore(applicationContext)
         val settingsStore = SharedPrefsRepoSettingsStore(applicationContext)
-        val settingsVm = SettingsViewModel(settingsStore)
+        val apiKeyStore = app.obsidianmd.ai.EncryptedApiKeyStore(applicationContext)
+        val settingsVm = SettingsViewModel(settingsStore, apiKeyStore)
         val repo = createRepository(applicationContext)
         val root = vaultRoot(applicationContext)
 
@@ -79,7 +80,16 @@ class MainActivity : ComponentActivity() {
                             },
                             resolver = UiConflictResolver(),
                         )
-                        App(vm, settingsVm)
+                        val aiVm = apiKeyStore.getKey()?.takeIf { it.isNotBlank() }?.let { key ->
+                            val client = app.obsidianmd.ai.OpenRouterClient(http, key)
+                            app.obsidianmd.ai.AiViewModel(
+                                runAgent = { history, approver ->
+                                    app.obsidianmd.ai.AiAgent(client, repo, approver).ask(history)
+                                },
+                                scope = lifecycleScope,
+                            )
+                        }
+                        App(vm, settingsVm, aiVm)
                     }
                 }
             }
