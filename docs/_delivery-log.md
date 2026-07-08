@@ -9,3 +9,4 @@
 - 2026-07-08 — Автосинк на WorkManager (`autosync`): код готов и зелёный (31 тест); BackgroundSyncRunner (USE_LOCAL в фоне), SyncWorker, периодический AutoSyncScheduler (~30 мин), планирование при входе. MR пропущен (GitHub, не GitLab).
 - 2026-07-08 — Редактирование md (`markdown-editing`): код готов и зелёный (33 теста); VaultRepository.writeFile, VaultViewModel.saveFile, режим правки (просмотр↔редактор) в MarkdownScreen. MR пропущен (GitHub, не GitLab).
 - 2026-07-08 — Поиск по заметкам (`note-search`): код готов и зелёный (35 тестов); VaultRepository.search (имя+содержимое, без регистра), VaultViewModel.search, поле поиска в списке. MR пропущен (GitHub, не GitLab).
+- 2026-07-08 — AI-режим на OpenRouter (`ai-mode`): код готов и зелёный (45 тестов); ApiKeyStore, OpenRouterClient (tool-calling), AiAgent (search/read/write с подтверждением, лимит шагов), AiViewModel, AiChatScreen + диалог подтверждения, ключ в настройках. MR пропущен (GitHub, не GitLab).
