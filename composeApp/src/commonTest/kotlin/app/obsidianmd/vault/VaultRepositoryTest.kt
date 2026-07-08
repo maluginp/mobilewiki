@@ -36,4 +36,18 @@ class VaultRepositoryTest {
         val repo = VaultRepository(fs, root)
         assertEquals("# Hello", repo.readFile((root / "a.md").toString()))
     }
+
+    @Test
+    fun writes_new_and_overwrites_existing() {
+        val fs = FakeFileSystem()
+        fs.createDirectories(root)
+        val repo = VaultRepository(fs, root)
+        val path = (root / "note.md").toString()
+
+        repo.writeFile(path, "# Hi")
+        assertEquals("# Hi", repo.readFile(path))
+
+        repo.writeFile(path, "# Changed")
+        assertEquals("# Changed", repo.readFile(path))
+    }
 }

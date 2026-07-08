@@ -18,4 +18,8 @@ class VaultRepository(
 
     fun readFile(path: String): String =
         fs.read(path.toPath()) { readUtf8() }
+
+    fun writeFile(path: String, content: String) {
+        fs.write(path.toPath()) { writeUtf8(content) }
+    }
 }
