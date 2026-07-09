@@ -59,12 +59,14 @@ fun App(vm: VaultViewModel, settingsVm: SettingsViewModel, aiVm: AiViewModel?) {
         showSettings -> stringResource(Res.string.title_settings)
         showAi -> stringResource(Res.string.title_ai_chat)
         state.selected != null -> state.selected?.name ?: stringResource(Res.string.title_note)
+        !state.atRoot -> state.currentDir.substringAfterLast('/')
         else -> stringResource(Res.string.title_notes)
     }
     val back: (() -> Unit)? = when {
         showSettings -> ({ showSettings = false })
         showAi -> ({ showAi = false })
         state.selected != null -> vm::back
+        !state.atRoot -> vm::upFolder
         else -> null
     }
 
@@ -129,7 +131,8 @@ fun App(vm: VaultViewModel, settingsVm: SettingsViewModel, aiVm: AiViewModel?) {
                     showAi && aiVm == null -> AiUnavailable()
                     state.selected == null -> VaultListScreen(
                         state,
-                        onOpen = vm::open,
+                        onOpenFile = vm::open,
+                        onOpenFolder = vm::openFolder,
                         query = state.query,
                         results = state.results,
                         onSearch = vm::search,

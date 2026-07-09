@@ -16,6 +16,30 @@ class VaultRepository(
             .map { MdFile(name = it.name, path = it.toString()) }
     }
 
+    /** Папки + .md-файлы одного каталога: папки первыми, затем по имени (без регистра). */
+    fun listEntries(dir: String): List<VaultEntry> {
+        val d = dir.toPath()
+        if (!fs.exists(d)) return emptyList()
+        return fs.list(d)
+            .mapNotNull { p ->
+                val md = fs.metadata(p)
+                when {
+                    md.isDirectory -> VaultEntry(p.name, p.toString(), isFolder = true)
+                    md.isRegularFile && p.name.endsWith(".md") ->
+                        VaultEntry(p.name, p.toString(), isFolder = false)
+                    else -> null
+                }
+            }
+            .sortedWith(compareByDescending<VaultEntry> { it.isFolder }.thenBy { it.name.lowercase() })
+    }
+
+    val rootPath: String get() = root.toString()
+    fun isRoot(dir: String): Boolean = dir.toPath() == root
+    fun parentOf(dir: String): String {
+        val p = dir.toPath()
+        return if (p == root) root.toString() else (p.parent ?: root).toString()
+    }
+
     fun readFile(path: String): String =
         fs.read(path.toPath()) { readUtf8() }
 
