@@ -1,0 +1,67 @@
+<resources>
+    <!-- App bar / navigation -->
+    <string name="title_notes">Notes</string>
+    <string name="title_note">Note</string>
+    <string name="title_settings">Settings</string>
+    <string name="title_ai_chat">AI Chat</string>
+    <string name="cd_back">Back</string>
+    <string name="cd_settings">Settings</string>
+    <string name="action_ai">AI</string>
+
+    <!-- Common actions -->
+    <string name="action_save">Save</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_show">Show</string>
+    <string name="action_hide">Hide</string>
+
+    <!-- Notes list -->
+    <string name="notes_empty">No files</string>
+
+    <!-- Settings -->
+    <string name="settings_repo_url_label">Repository URL</string>
+    <string name="settings_repo_url_example">https://github.com/username/my-vault.git</string>
+    <string name="settings_repo_url_desc">HTTPS link to the Git repository with your notes. The app clones it and keeps changes in sync.</string>
+    <string name="settings_key_label">OpenRouter key</string>
+    <string name="settings_key_example">sk-or-v1-abc123…</string>
+    <string name="settings_key_desc">API key from openrouter.ai/keys for the AI chat. Stored encrypted on this device only.</string>
+    <string name="settings_saved">Saved ✓</string>
+    <string name="settings_sync_title">Synchronization</string>
+    <string name="settings_sync_desc">Pull the latest notes from the repository and push your local changes.</string>
+    <string name="action_sync_now">Sync now</string>
+    <string name="settings_ai_enable">Enable AI</string>
+    <string name="settings_ai_enable_desc">Turn on the in-app AI chat. When enabled, add your OpenRouter key below.</string>
+
+    <!-- Sync status -->
+    <string name="sync_syncing">Syncing…</string>
+    <string name="sync_done_cloned">Done: cloned</string>
+    <string name="sync_up_to_date">Up to date</string>
+    <string name="sync_synced">Synced</string>
+    <string name="sync_synced_conflicts">Synced (conflicts: %1$d)</string>
+    <string name="error_with_reason">Error: %1$s</string>
+
+    <!-- AI chat -->
+    <string name="chat_you_prefix">You:</string>
+    <string name="chat_ai_prefix">AI:</string>
+    <string name="ai_thinking">AI is thinking…</string>
+    <string name="action_send">Send</string>
+    <string name="ai_write_title">AI wants to write: %1$s</string>
+    <string name="action_apply">Apply</string>
+    <string name="action_reject">Reject</string>
+    <string name="ai_unavailable">No OpenRouter key set — add it in Settings.</string>
+
+    <!-- Login -->
+    <string name="login_sign_in">Sign in with GitHub</string>
+    <string name="login_code">Code: %1$s</string>
+    <string name="login_open_github">Open GitHub</string>
+    <string name="login_waiting">Waiting for confirmation…</string>
+    <string name="login_signed_in">Signed in</string>
+    <string name="login_error">Sign-in error: %1$s</string>
+    <string name="action_retry">Retry</string>
+
+    <!-- Conflict dialog -->
+    <string name="conflict_title">Conflict: %1$s</string>
+    <string name="conflict_message">This file was changed both locally and on the server. Which version do you want to keep?</string>
+    <string name="conflict_keep_local">Keep local</string>
+    <string name="conflict_take_server">Take server</string>
+</resources>

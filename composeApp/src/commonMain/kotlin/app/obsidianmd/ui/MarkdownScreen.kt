@@ -18,17 +18,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import app.obsidianmd.resources.Res
+import app.obsidianmd.resources.action_cancel
+import app.obsidianmd.resources.action_edit
+import app.obsidianmd.resources.action_save
 import com.mikepenz.markdown.m3.Markdown
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun MarkdownScreen(content: String, onBack: () -> Unit, onSave: (String) -> Unit) {
+fun MarkdownScreen(content: String, onSave: (String) -> Unit) {
     var editing by remember { mutableStateOf(false) }
     var draft by remember(content) { mutableStateOf(content) }
     Column(Modifier.fillMaxSize()) {
-        Row {
-            TextButton(onClick = onBack) { Text("← Назад") }
-            if (!editing) {
-                TextButton(onClick = { draft = content; editing = true }) { Text("Редактировать") }
+        if (!editing) {
+            Row {
+                TextButton(onClick = { draft = content; editing = true }) {
+                    Text(stringResource(Res.string.action_edit))
+                }
             }
         }
         if (editing) {
@@ -38,8 +44,12 @@ fun MarkdownScreen(content: String, onBack: () -> Unit, onSave: (String) -> Unit
                 modifier = Modifier.fillMaxWidth().weight(1f).padding(16.dp),
             )
             Row(Modifier.padding(horizontal = 16.dp)) {
-                Button(onClick = { onSave(draft); editing = false }) { Text("Сохранить") }
-                TextButton(onClick = { editing = false }) { Text("Отмена") }
+                Button(onClick = { onSave(draft); editing = false }) {
+                    Text(stringResource(Res.string.action_save))
+                }
+                TextButton(onClick = { editing = false }) {
+                    Text(stringResource(Res.string.action_cancel))
+                }
             }
         } else {
             Column(Modifier.verticalScroll(rememberScrollState()).padding(16.dp)) {

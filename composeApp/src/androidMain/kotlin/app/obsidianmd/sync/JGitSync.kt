@@ -15,6 +15,14 @@ class JGitSync(
         try {
             val dir = File(config.localPath)
             val creds = config.token?.let { UsernamePasswordCredentialsProvider(it, "") }
+            // Сменили Repository URL → локальный клон указывает на старый origin: сносим его,
+            // чтобы ниже подтянулся новый репозиторий (иначе синк тянул бы старый).
+            if (File(dir, ".git").exists()) {
+                val existing = existingRemoteUrl(dir)
+                if (existing != null && !sameRemote(existing, config.remoteUrl)) {
+                    dir.deleteRecursively()
+                }
+            }
             if (!File(dir, ".git").exists()) {
                 Git.cloneRepository()
                     .setURI(config.remoteUrl)
@@ -97,6 +105,19 @@ class JGitSync(
         } catch (e: Exception) {
             SyncResult.Failed(e.message ?: e.toString())
         }
+    }
+
+    private fun existingRemoteUrl(dir: File): String? = try {
+        Git.open(dir).use { it.repository.config.getString("remote", "origin", "url") }
+    } catch (e: Exception) {
+        null
+    }
+
+    // JGit normalizes URLs when storing them, so compare via URIish rather than raw strings.
+    private fun sameRemote(a: String, b: String): Boolean = try {
+        org.eclipse.jgit.transport.URIish(a) == org.eclipse.jgit.transport.URIish(b)
+    } catch (e: Exception) {
+        a.trimEnd('/') == b.trimEnd('/')
     }
 
     private fun readBlob(

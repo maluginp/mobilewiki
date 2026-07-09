@@ -26,7 +26,9 @@ kotlin {
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
+            implementation(compose.materialIconsExtended) // ponytail: bundles all icons; slim to material-icons-core if APK size matters
             implementation(compose.ui)
+            implementation(compose.components.resources)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.okio)
             implementation(libs.markdown.renderer.m3)
@@ -52,8 +54,17 @@ kotlin {
         androidUnitTest.dependencies {
             implementation(kotlin("test"))
             implementation(libs.kotlinx.coroutines.test)
+            @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
+            implementation(compose.uiTest)
+            implementation(libs.compose.ui.test.manifest)
+            implementation(libs.robolectric)
         }
     }
+}
+
+compose.resources {
+    publicResClass = true
+    packageOfResClass = "app.obsidianmd.resources"
 }
 
 android {
@@ -61,6 +72,15 @@ android {
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     buildFeatures { buildConfig = true }
+
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true // ponytail: needed so Robolectric can run Compose UI tests
+        }
+    }
+
+    // Debug-only host activity for Compose UI tests under Robolectric (not merged into release).
+    sourceSets.getByName("debug").manifest.srcFile("src/androidDebug/AndroidManifest.xml")
 
     defaultConfig {
         applicationId = "app.obsidianmd"

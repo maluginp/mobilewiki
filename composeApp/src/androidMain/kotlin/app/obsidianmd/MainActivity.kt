@@ -5,8 +5,11 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -35,6 +38,7 @@ import kotlinx.serialization.json.Json
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge() // TopAppBar draws under the status bar → no grey strip
         val store = EncryptedTokenStore(applicationContext)
         val settingsStore = SharedPrefsRepoSettingsStore(applicationContext)
         val apiKeyStore = app.obsidianmd.ai.EncryptedApiKeyStore(applicationContext)
@@ -62,13 +66,16 @@ class MainActivity : ComponentActivity() {
             MaterialTheme {
                 Surface {
                     if (!loggedIn) {
-                        LoginScreen(
-                            state = authState,
-                            onLogin = authVm::login,
-                            onOpenUrl = { url ->
-                                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-                            },
-                        )
+                        // no Scaffold here, so keep content clear of the system bars
+                        androidx.compose.foundation.layout.Box(Modifier.safeDrawingPadding()) {
+                            LoginScreen(
+                                state = authState,
+                                onLogin = authVm::login,
+                                onOpenUrl = { url ->
+                                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                                },
+                            )
+                        }
                     } else {
                         val vm = VaultViewModel(
                             repo, lifecycleScope, Dispatchers.IO,
@@ -80,7 +87,9 @@ class MainActivity : ComponentActivity() {
                             },
                             resolver = UiConflictResolver(),
                         )
-                        val aiVm = apiKeyStore.getKey()?.takeIf { it.isNotBlank() }?.let { key ->
+                        val aiVm = apiKeyStore.getKey()
+                            ?.takeIf { it.isNotBlank() && settingsStore.isAiEnabled() }
+                            ?.let { key ->
                             val client = app.obsidianmd.ai.OpenRouterClient(http, key)
                             app.obsidianmd.ai.AiViewModel(
                                 runAgent = { history, approver ->

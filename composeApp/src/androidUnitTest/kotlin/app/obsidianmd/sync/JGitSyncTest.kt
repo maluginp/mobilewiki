@@ -30,6 +30,23 @@ class JGitSyncTest {
     }
 
     @Test
+    fun changing_remote_url_reclones_new_repo() = runTest {
+        val bareA = createSeededBareRepo()
+        val bareB = createSeededBareRepo()
+        pushRemoteChange(bareB, "only-in-b.md", "# B\n")
+        val local = newLocalDir()
+        val sync = JGitSync()
+
+        sync.sync(config(bareA, local), useServer) // клон A
+        assertTrue(File(local, "welcome.md").exists())
+
+        val result = sync.sync(config(bareB, local), useServer) // сменили URL на B
+
+        assertEquals(SyncResult.Cloned, result)
+        assertTrue(File(local, "only-in-b.md").exists(), "должен подтянуться репозиторий B")
+    }
+
+    @Test
     fun no_changes_returns_up_to_date() = runTest {
         val bare = createSeededBareRepo()
         val local = newLocalDir()

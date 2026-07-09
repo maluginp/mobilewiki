@@ -26,7 +26,7 @@ class AiAgent(
         val messages = history.toMutableList()
         repeat(maxSteps) {
             val msg = client.chat(messages).choices.firstOrNull()?.message
-                ?: return AiResult.Failed("пустой ответ")
+                ?: return AiResult.Failed("empty response")
             val calls = msg.toolCalls
             if (calls.isNullOrEmpty()) return AiResult.Answer(msg.content ?: "")
             messages.add(msg)
@@ -36,7 +36,7 @@ class AiAgent(
                     "search_notes" ->
                         repo.search(args["query"]!!.jsonPrimitive.content)
                             .joinToString(", ") { it.name }
-                            .ifEmpty { "ничего не найдено" }
+                            .ifEmpty { "nothing found" }
                     "read_note" ->
                         repo.readFile(repo.pathFor(args["name"]!!.jsonPrimitive.content))
                     "write_note" -> {
@@ -44,16 +44,16 @@ class AiAgent(
                         val content = args["content"]!!.jsonPrimitive.content
                         if (approver.confirm(name, content)) {
                             repo.writeFile(repo.pathFor(name), content)
-                            "сохранено: $name"
+                            "saved: $name"
                         } else {
-                            "отклонено пользователем"
+                            "rejected by user"
                         }
                     }
-                    else -> "неизвестный инструмент"
+                    else -> "unknown tool"
                 }
                 messages.add(ChatMessage(role = "tool", content = result, toolCallId = call.id))
             }
         }
-        return AiResult.Failed("превышен лимит шагов")
+        return AiResult.Failed("step limit exceeded")
     }
 }

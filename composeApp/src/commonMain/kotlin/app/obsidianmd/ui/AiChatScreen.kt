@@ -21,6 +21,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import app.obsidianmd.ai.AiStatus
 import app.obsidianmd.ai.ChatTurn
+import app.obsidianmd.resources.Res
+import app.obsidianmd.resources.action_apply
+import app.obsidianmd.resources.action_reject
+import app.obsidianmd.resources.action_send
+import app.obsidianmd.resources.ai_thinking
+import app.obsidianmd.resources.ai_write_title
+import app.obsidianmd.resources.chat_ai_prefix
+import app.obsidianmd.resources.chat_you_prefix
+import app.obsidianmd.resources.error_with_reason
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun AiChatScreen(
@@ -30,33 +40,40 @@ fun AiChatScreen(
     onSend: (String) -> Unit,
     onApprove: () -> Unit,
     onReject: () -> Unit,
-    onBack: () -> Unit,
 ) {
     var input by remember { mutableStateOf("") }
     Column(Modifier.fillMaxSize()) {
-        TextButton(onClick = onBack) { Text("← Назад") }
         LazyColumn(Modifier.weight(1f).fillMaxWidth()) {
             items(messages) { turn ->
-                Text(
-                    (if (turn.role == "user") "Вы: " else "AI: ") + turn.text,
-                    Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                val prefix = stringResource(
+                    if (turn.role == "user") Res.string.chat_you_prefix else Res.string.chat_ai_prefix,
                 )
+                Text("$prefix ${turn.text}", Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
             }
         }
-        if (status is AiStatus.Thinking) Text("AI думает…", Modifier.padding(horizontal = 16.dp))
-        if (status is AiStatus.Failed) Text("Ошибка: ${status.reason}", Modifier.padding(horizontal = 16.dp))
+        if (status is AiStatus.Thinking) {
+            Text(stringResource(Res.string.ai_thinking), Modifier.padding(horizontal = 16.dp))
+        }
+        if (status is AiStatus.Failed) {
+            Text(
+                stringResource(Res.string.error_with_reason, status.reason),
+                Modifier.padding(horizontal = 16.dp),
+            )
+        }
         Row(Modifier.fillMaxWidth().padding(8.dp)) {
             OutlinedTextField(input, { input = it }, modifier = Modifier.weight(1f))
-            Button(onClick = { if (input.isNotBlank()) { onSend(input); input = "" } }) { Text("Отправить") }
+            Button(onClick = { if (input.isNotBlank()) { onSend(input); input = "" } }) {
+                Text(stringResource(Res.string.action_send))
+            }
         }
     }
     if (pendingWrite != null) {
         AlertDialog(
             onDismissRequest = {},
-            title = { Text("AI предлагает запись: ${pendingWrite.first}") },
+            title = { Text(stringResource(Res.string.ai_write_title, pendingWrite.first)) },
             text = { Text(pendingWrite.second.take(500)) },
-            confirmButton = { TextButton(onClick = onApprove) { Text("Применить") } },
-            dismissButton = { TextButton(onClick = onReject) { Text("Отклонить") } },
+            confirmButton = { TextButton(onClick = onApprove) { Text(stringResource(Res.string.action_apply)) } },
+            dismissButton = { TextButton(onClick = onReject) { Text(stringResource(Res.string.action_reject)) } },
         )
     }
 }
