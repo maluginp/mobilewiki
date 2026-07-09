@@ -1,5 +1,6 @@
 package app.obsidianmd.ui
 
+import app.obsidianmd.vault.MdFile
 import app.obsidianmd.vault.VaultRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -43,6 +44,45 @@ class VaultViewModelTest {
         val model = VaultViewModel(VaultRepository(fs, root), this, io)
         model.refresh(); advanceUntilIdle()
         assertEquals(listOf("a.md", "sub/b.md"), model.state.value.allFiles.map { it.relPath })
+    }
+
+    @Test
+    fun wikilink_navigation_pushes_history_back_returns_to_previous_note() = runTest {
+        val io = StandardTestDispatcher(testScheduler)
+        val fs = FakeFileSystem()
+        fs.createDirectories(root)
+        fs.write(root / "a.md") { writeUtf8("# A") }
+        fs.write(root / "b.md") { writeUtf8("# B") }
+        val model = VaultViewModel(VaultRepository(fs, root), this, io)
+
+        model.open(MdFile("a.md", (root / "a.md").toString())); advanceUntilIdle()
+        model.openPath((root / "b.md").toString()); advanceUntilIdle()
+        assertEquals("b.md", model.state.value.selected?.name)
+        assertEquals("# B", model.state.value.content)
+
+        model.back(); advanceUntilIdle() // назад к исходной заметке, не к списку
+        assertEquals("a.md", model.state.value.selected?.name)
+        assertEquals("# A", model.state.value.content)
+
+        model.back(); advanceUntilIdle() // назад к списку
+        assertNull(model.state.value.selected)
+    }
+
+    @Test
+    fun open_from_list_resets_history() = runTest {
+        val io = StandardTestDispatcher(testScheduler)
+        val fs = FakeFileSystem()
+        fs.createDirectories(root)
+        fs.write(root / "a.md") { writeUtf8("# A") }
+        fs.write(root / "b.md") { writeUtf8("# B") }
+        val model = VaultViewModel(VaultRepository(fs, root), this, io)
+
+        model.open(MdFile("a.md", (root / "a.md").toString())); advanceUntilIdle()
+        model.openPath((root / "b.md").toString()); advanceUntilIdle()
+        // открытие из списка начинает историю заново
+        model.open(MdFile("a.md", (root / "a.md").toString())); advanceUntilIdle()
+        model.back(); advanceUntilIdle()
+        assertNull(model.state.value.selected) // сразу к списку, без b.md
     }
 
     @Test
