@@ -58,6 +58,23 @@ fun SettingsScreen(
     var saved by remember { mutableStateOf(false) }
 
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
+        Text(stringResource(Res.string.settings_sync_title), style = MaterialTheme.typography.titleMedium)
+        Text(
+            stringResource(Res.string.settings_sync_desc),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 4.dp),
+        )
+        Button(
+            onClick = onSync,
+            enabled = syncStatus !is SyncStatus.Running,
+            modifier = Modifier.padding(top = 8.dp),
+        ) { Text(stringResource(Res.string.action_sync_now)) }
+        val status = syncStatusText(syncStatus)
+        if (status.isNotEmpty()) Text(status, Modifier.padding(top = 8.dp))
+
+        HorizontalDivider(Modifier.padding(vertical = 24.dp))
+
         SettingField(
             label = stringResource(Res.string.settings_repo_url_label),
             example = stringResource(Res.string.settings_repo_url_example),
@@ -84,23 +101,6 @@ fun SettingsScreen(
                 modifier = Modifier.padding(top = 8.dp),
             )
         }
-
-        HorizontalDivider(Modifier.padding(vertical = 24.dp))
-
-        Text(stringResource(Res.string.settings_sync_title), style = MaterialTheme.typography.titleMedium)
-        Text(
-            stringResource(Res.string.settings_sync_desc),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 4.dp),
-        )
-        Button(
-            onClick = onSync,
-            enabled = syncStatus !is SyncStatus.Running,
-            modifier = Modifier.padding(top = 8.dp),
-        ) { Text(stringResource(Res.string.action_sync_now)) }
-        val status = syncStatusText(syncStatus)
-        if (status.isNotEmpty()) Text(status, Modifier.padding(top = 8.dp))
     }
 }
 
