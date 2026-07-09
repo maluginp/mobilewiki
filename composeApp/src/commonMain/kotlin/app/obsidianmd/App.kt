@@ -23,6 +23,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import app.obsidianmd.ai.AiViewModel
+import app.obsidianmd.resources.Res
+import app.obsidianmd.resources.action_ai
+import app.obsidianmd.resources.ai_unavailable
+import app.obsidianmd.resources.cd_back
+import app.obsidianmd.resources.cd_settings
+import app.obsidianmd.resources.title_ai_chat
+import app.obsidianmd.resources.title_note
+import app.obsidianmd.resources.title_notes
+import app.obsidianmd.resources.title_settings
 import app.obsidianmd.settings.SettingsViewModel
 import app.obsidianmd.ui.AiChatScreen
 import app.obsidianmd.ui.ConflictDialog
@@ -30,6 +39,7 @@ import app.obsidianmd.ui.MarkdownScreen
 import app.obsidianmd.ui.SettingsScreen
 import app.obsidianmd.ui.VaultListScreen
 import app.obsidianmd.ui.VaultViewModel
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,10 +55,10 @@ fun App(vm: VaultViewModel, settingsVm: SettingsViewModel, aiVm: AiViewModel?) {
 
     val onHome = !showSettings && !showAi && state.selected == null
     val title = when {
-        showSettings -> "Settings"
-        showAi -> "AI Chat"
-        state.selected != null -> state.selected?.name ?: "Note"
-        else -> "Notes"
+        showSettings -> stringResource(Res.string.title_settings)
+        showAi -> stringResource(Res.string.title_ai_chat)
+        state.selected != null -> state.selected?.name ?: stringResource(Res.string.title_note)
+        else -> stringResource(Res.string.title_notes)
     }
     val back: (() -> Unit)? = when {
         showSettings -> ({ showSettings = false })
@@ -65,15 +75,21 @@ fun App(vm: VaultViewModel, settingsVm: SettingsViewModel, aiVm: AiViewModel?) {
                     navigationIcon = {
                         if (back != null) {
                             IconButton(onClick = back) {
-                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                                Icon(
+                                    Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = stringResource(Res.string.cd_back),
+                                )
                             }
                         }
                     },
                     actions = {
                         if (onHome) {
-                            TextButton(onClick = { showAi = true }) { Text("AI") }
+                            TextButton(onClick = { showAi = true }) { Text(stringResource(Res.string.action_ai)) }
                             IconButton(onClick = { showSettings = true }) {
-                                Icon(Icons.Filled.Settings, contentDescription = "Settings")
+                                Icon(
+                                    Icons.Filled.Settings,
+                                    contentDescription = stringResource(Res.string.cd_settings),
+                                )
                             }
                         }
                     },
@@ -125,6 +141,6 @@ fun App(vm: VaultViewModel, settingsVm: SettingsViewModel, aiVm: AiViewModel?) {
 @Composable
 private fun AiUnavailable() {
     Column {
-        Text("No OpenRouter key set — add it in Settings.")
+        Text(stringResource(Res.string.ai_unavailable))
     }
 }

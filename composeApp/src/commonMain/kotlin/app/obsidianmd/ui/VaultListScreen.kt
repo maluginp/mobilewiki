@@ -14,7 +14,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import app.obsidianmd.resources.Res
+import app.obsidianmd.resources.notes_empty
 import app.obsidianmd.vault.MdFile
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun VaultListScreen(
@@ -33,7 +36,9 @@ fun VaultListScreen(
         )
         val shown = if (query.isBlank()) state.files else results
         if (shown.isEmpty()) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("No files") }
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(stringResource(Res.string.notes_empty))
+            }
         } else {
             LazyColumn(Modifier.fillMaxSize()) {
                 items(shown) { file ->
