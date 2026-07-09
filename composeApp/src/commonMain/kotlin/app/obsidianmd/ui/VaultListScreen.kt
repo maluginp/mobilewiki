@@ -12,12 +12,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
@@ -25,9 +27,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -40,6 +39,7 @@ import app.obsidianmd.vault.VaultEntry
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VaultListScreen(
     state: VaultState,
@@ -48,28 +48,22 @@ fun VaultListScreen(
     query: String,
     results: List<MdFile>,
     onSearch: (String) -> Unit,
+    scrollBehavior: TopAppBarScrollBehavior,
 ) {
     // При поиске показываем найденные файлы (плоско), иначе — содержимое папки.
     val shown: List<VaultEntry> =
         if (query.isBlank()) state.entries
         else results.map { VaultEntry(it.name, it.path, isFolder = false) }
 
-    // Скролл-синхронное скрытие поля поиска: панель сдвигается на offset (в px),
-    // верхний отступ списка = высота + offset, поэтому контент движется вместе с ней.
+    // Поле поиска скрывается синхронно с AppBar: тот же scrollBehavior задаёт долю
+    // сворачивания (0 — раскрыто, 1 — спрятано). Панель сдвигаем на эту долю высоты,
+    // а верхний отступ списка ужимаем на неё же — контент движется вместе с панелью.
     var barHeightPx by remember { mutableStateOf(0f) }
-    var barOffsetPx by remember { mutableStateOf(0f) }
-    val connection = remember {
-        object : NestedScrollConnection {
-            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                barOffsetPx = (barOffsetPx + available.y).coerceIn(-barHeightPx, 0f)
-                return Offset.Zero
-            }
-        }
-    }
+    val hidden = barHeightPx * scrollBehavior.state.collapsedFraction
     val density = LocalDensity.current
-    val topPad = with(density) { (barHeightPx + barOffsetPx).coerceAtLeast(0f).toDp() }
+    val topPad = with(density) { (barHeightPx - hidden).coerceAtLeast(0f).toDp() }
 
-    Box(Modifier.fillMaxSize().nestedScroll(connection)) {
+    Box(Modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection)) {
         if (shown.isEmpty()) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(stringResource(Res.string.notes_empty))
@@ -98,7 +92,7 @@ fun VaultListScreen(
             Modifier
                 .fillMaxWidth()
                 .onSizeChanged { barHeightPx = it.height.toFloat() }
-                .offset { IntOffset(0, barOffsetPx.roundToInt()) },
+                .offset { IntOffset(0, -hidden.roundToInt()) },
         ) {
             OutlinedTextField(
                 value = query,

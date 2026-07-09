@@ -14,6 +14,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -70,11 +71,15 @@ fun App(vm: VaultViewModel, settingsVm: SettingsViewModel, aiVm: AiViewModel?) {
         else -> null
     }
 
+    // Общий скролл-бихейвор: AppBar и поле поиска в списке скрываются/появляются вместе.
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+
     MaterialTheme {
         Scaffold(
             topBar = {
                 TopAppBar(
                     title = { Text(title) },
+                    scrollBehavior = if (onHome) scrollBehavior else null,
                     navigationIcon = {
                         if (back != null) {
                             IconButton(onClick = back) {
@@ -136,6 +141,7 @@ fun App(vm: VaultViewModel, settingsVm: SettingsViewModel, aiVm: AiViewModel?) {
                         query = state.query,
                         results = state.results,
                         onSearch = vm::search,
+                        scrollBehavior = scrollBehavior,
                     )
                     else -> MarkdownScreen(
                         content = state.content,
