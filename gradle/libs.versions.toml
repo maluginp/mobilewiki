@@ -11,6 +11,7 @@ jgit = "6.10.0.202406032230-r"
 ktor = "2.3.13"
 securityCrypto = "1.1.0-alpha06"
 work = "2.9.1"
+robolectric = "4.13"
 android-compileSdk = "34"
 android-minSdk = "24"
 
@@ -31,6 +32,8 @@ ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx
 ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
 androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "securityCrypto" }
 androidx-work-runtime = { module = "androidx.work:work-runtime-ktx", version.ref = "work" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version = "1.7.1" }
 
 [plugins]
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

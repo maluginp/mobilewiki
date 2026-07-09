@@ -52,6 +52,10 @@ kotlin {
         androidUnitTest.dependencies {
             implementation(kotlin("test"))
             implementation(libs.kotlinx.coroutines.test)
+            @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
+            implementation(compose.uiTest)
+            implementation(libs.compose.ui.test.manifest)
+            implementation(libs.robolectric)
         }
     }
 }
@@ -61,6 +65,15 @@ android {
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     buildFeatures { buildConfig = true }
+
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true // ponytail: needed so Robolectric can run Compose UI tests
+        }
+    }
+
+    // Debug-only host activity for Compose UI tests under Robolectric (not merged into release).
+    sourceSets.getByName("debug").manifest.srcFile("src/androidDebug/AndroidManifest.xml")
 
     defaultConfig {
         applicationId = "app.obsidianmd"
