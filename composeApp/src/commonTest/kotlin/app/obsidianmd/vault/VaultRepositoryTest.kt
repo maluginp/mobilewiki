@@ -55,6 +55,21 @@ class VaultRepositoryTest {
     }
 
     @Test
+    fun all_files_walks_recursively_skipping_dot_dirs() {
+        val fs = FakeFileSystem()
+        fs.createDirectories(root / "sub")
+        fs.createDirectories(root / ".git")
+        fs.write(root / "a.md") { writeUtf8("x") }
+        fs.write(root / "sub" / "b.md") { writeUtf8("x") }
+        fs.write(root / "sub" / "pic.png") { writeUtf8("x") }
+        fs.write(root / ".git" / "cfg") { writeUtf8("x") }
+        val repo = VaultRepository(fs, root)
+
+        val rels = repo.allFiles().map { it.relPath }
+        assertEquals(listOf("a.md", "sub/b.md", "sub/pic.png"), rels)
+    }
+
+    @Test
     fun empty_vault_returns_empty_list() {
         val repo = repoWith()
         assertEquals(emptyList(), repo.listMarkdownFiles())

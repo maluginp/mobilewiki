@@ -34,6 +34,31 @@ class VaultViewModelTest {
     }
 
     @Test
+    fun refresh_loads_all_files_recursively() = runTest {
+        val io = StandardTestDispatcher(testScheduler)
+        val fs = FakeFileSystem()
+        fs.createDirectories(root / "sub")
+        fs.write(root / "a.md") { writeUtf8("x") }
+        fs.write(root / "sub" / "b.md") { writeUtf8("x") }
+        val model = VaultViewModel(VaultRepository(fs, root), this, io)
+        model.refresh(); advanceUntilIdle()
+        assertEquals(listOf("a.md", "sub/b.md"), model.state.value.allFiles.map { it.relPath })
+    }
+
+    @Test
+    fun open_path_loads_file_by_absolute_path() = runTest {
+        val io = StandardTestDispatcher(testScheduler)
+        val fs = FakeFileSystem()
+        fs.createDirectories(root / "sub")
+        fs.write(root / "sub" / "b.md") { writeUtf8("# B") }
+        val model = VaultViewModel(VaultRepository(fs, root), this, io)
+
+        model.openPath((root / "sub" / "b.md").toString()); advanceUntilIdle()
+        assertEquals("b.md", model.state.value.selected?.name)
+        assertEquals("# B", model.state.value.content)
+    }
+
+    @Test
     fun open_folder_lists_its_contents_up_returns_to_root() = runTest {
         val io = StandardTestDispatcher(testScheduler)
         val fs = FakeFileSystem()

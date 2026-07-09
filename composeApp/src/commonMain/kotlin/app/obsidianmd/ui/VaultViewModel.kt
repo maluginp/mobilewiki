@@ -2,6 +2,7 @@ package app.obsidianmd.ui
 
 import app.obsidianmd.vault.MdFile
 import app.obsidianmd.vault.VaultEntry
+import app.obsidianmd.vault.VaultFile
 import app.obsidianmd.vault.VaultRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -13,6 +14,7 @@ import kotlinx.coroutines.withContext
 
 data class VaultState(
     val entries: List<VaultEntry> = emptyList(),
+    val allFiles: List<VaultFile> = emptyList(),
     val currentDir: String = "",
     val atRoot: Boolean = true,
     val selected: MdFile? = null,
@@ -80,15 +82,25 @@ class VaultViewModel(
     }
 
     private suspend fun loadDir(dir: String) {
+        // ponytail: allFiles обходит всё дерево на каждый вход в папку — ок для личного vault;
+        // кэшировать, если станет медленно на больших хранилищах.
         val entries = withContext(io) { repo.listEntries(dir) }
+        val all = withContext(io) { repo.allFiles() }
         _state.value = _state.value.copy(
             entries = entries,
+            allFiles = all,
             currentDir = dir,
             atRoot = repo.isRoot(dir),
             query = "",
             results = emptyList(),
         )
     }
+
+    /** Открыть файл по абсолютному пути (навигация по wikilink). */
+    fun openPath(absPath: String) = open(MdFile(absPath.substringAfterLast('/'), absPath))
+
+    /** Байты файла (для отрисовки картинок-эмбедов). */
+    fun bytesOf(absPath: String): ByteArray = repo.readBytes(absPath)
 
     fun open(file: MdFile) {
         scope.launch {
