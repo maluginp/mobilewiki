@@ -34,6 +34,32 @@ class VaultRepository(
             .sortedWith(compareByDescending<VaultEntry> { it.isFolder }.thenBy { it.name.lowercase() })
     }
 
+    /** Все файлы vault рекурсивно (dot-каталоги пропускаются), для резолвинга wikilinks. */
+    fun allFiles(): List<VaultFile> {
+        if (!fs.exists(root)) return emptyList()
+        val out = mutableListOf<VaultFile>()
+        fun walk(dir: Path) {
+            for (p in fs.list(dir)) {
+                if (p.name.startsWith(".")) continue
+                val md = fs.metadata(p)
+                when {
+                    md.isDirectory -> walk(p)
+                    md.isRegularFile -> out.add(
+                        VaultFile(
+                            relPath = p.relativeTo(root).toString().replace('\\', '/'),
+                            absPath = p.toString(),
+                            name = p.name,
+                        ),
+                    )
+                }
+            }
+        }
+        walk(root)
+        return out.sortedBy { it.relPath }
+    }
+
+    fun readBytes(path: String): ByteArray = fs.read(path.toPath()) { readByteArray() }
+
     val rootPath: String get() = root.toString()
     fun isRoot(dir: String): Boolean = dir.toPath() == root
     fun parentOf(dir: String): String {

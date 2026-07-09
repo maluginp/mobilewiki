@@ -40,6 +40,7 @@ import app.obsidianmd.resources.title_settings
 import app.obsidianmd.settings.SettingsViewModel
 import app.obsidianmd.ui.AiChatScreen
 import app.obsidianmd.ui.ConflictDialog
+import app.obsidianmd.ui.decodeImage
 import app.obsidianmd.ui.MarkdownScreen
 import app.obsidianmd.ui.SettingsScreen
 import app.obsidianmd.ui.VaultListScreen
@@ -175,6 +176,9 @@ fun App(vm: VaultViewModel, settingsVm: SettingsViewModel, aiVm: AiViewModel?) {
                         editing = editing,
                         draft = draft,
                         onDraftChange = { draft = it },
+                        files = state.allFiles,
+                        loadImage = { path -> decodeImage(vm.bytesOf(path)) },
+                        onOpenPath = vm::openPath,
                     )
                 }
                 conflict?.let { ConflictDialog(it, onChoose = vm::resolveConflict) }
