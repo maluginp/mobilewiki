@@ -4,6 +4,7 @@ import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class VaultRepositoryTest {
     private val root = "/vault".toPath()
@@ -20,6 +21,37 @@ class VaultRepositoryTest {
         val repo = repoWith("b.md", "a.md", "note.txt", "image.png")
         val names = repo.listMarkdownFiles().map { it.name }
         assertEquals(listOf("a.md", "b.md"), names)
+    }
+
+    @Test
+    fun list_entries_folders_first_then_md_files_sorted() {
+        val fs = FakeFileSystem()
+        fs.createDirectories(root)
+        fs.createDirectories(root / "Zeta")
+        fs.createDirectories(root / "alpha")
+        fs.write(root / "b.md") { writeUtf8("x") }
+        fs.write(root / "a.md") { writeUtf8("x") }
+        fs.write(root / "note.txt") { writeUtf8("x") }
+        fs.createDirectories(root / ".git")
+        val repo = VaultRepository(fs, root)
+
+        val entries = repo.listEntries(root.toString())
+        assertEquals(listOf("alpha", "Zeta", "a.md", "b.md"), entries.map { it.name })
+        assertEquals(listOf(true, true, false, false), entries.map { it.isFolder })
+    }
+
+    @Test
+    fun list_entries_of_subfolder_and_parent_navigation() {
+        val fs = FakeFileSystem()
+        fs.createDirectories(root / "Daily")
+        fs.write(root / "Daily" / "mon.md") { writeUtf8("x") }
+        val repo = VaultRepository(fs, root)
+
+        val sub = (root / "Daily").toString()
+        assertEquals(listOf("mon.md"), repo.listEntries(sub).map { it.name })
+        assertEquals(root.toString(), repo.parentOf(sub))
+        assertTrue(repo.isRoot(repo.parentOf(sub)))
+        assertEquals(root.toString(), repo.parentOf(root.toString())) // clamped at root
     }
 
     @Test

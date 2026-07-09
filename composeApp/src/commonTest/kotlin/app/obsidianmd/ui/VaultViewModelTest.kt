@@ -24,12 +24,32 @@ class VaultViewModelTest {
     }
 
     @Test
-    fun refresh_loads_files() = runTest {
+    fun refresh_loads_entries() = runTest {
         val io = StandardTestDispatcher(testScheduler)
         val model = vm(this, io)
         model.refresh()
         advanceUntilIdle()
-        assertEquals(listOf("a.md"), model.state.value.files.map { it.name })
+        assertEquals(listOf("a.md"), model.state.value.entries.map { it.name })
+        assertTrue(model.state.value.atRoot)
+    }
+
+    @Test
+    fun open_folder_lists_its_contents_up_returns_to_root() = runTest {
+        val io = StandardTestDispatcher(testScheduler)
+        val fs = FakeFileSystem()
+        fs.createDirectories(root / "Daily")
+        fs.write(root / "Daily" / "mon.md") { writeUtf8("# Mon") }
+        val model = VaultViewModel(VaultRepository(fs, root), this, io)
+        model.refresh(); advanceUntilIdle()
+
+        val folder = model.state.value.entries.first { it.isFolder }
+        model.openFolder(folder); advanceUntilIdle()
+        assertEquals(listOf("mon.md"), model.state.value.entries.map { it.name })
+        assertTrue(!model.state.value.atRoot)
+
+        model.upFolder(); advanceUntilIdle()
+        assertEquals(listOf("Daily"), model.state.value.entries.map { it.name })
+        assertTrue(model.state.value.atRoot)
     }
 
     @Test
@@ -37,7 +57,7 @@ class VaultViewModelTest {
         val io = StandardTestDispatcher(testScheduler)
         val model = vm(this, io)
         model.refresh(); advanceUntilIdle()
-        model.open(model.state.value.files.first()); advanceUntilIdle()
+        model.open(model.state.value.entries.first().let { app.obsidianmd.vault.MdFile(it.name, it.path) }); advanceUntilIdle()
         assertEquals("# A", model.state.value.content)
         model.back()
         assertNull(model.state.value.selected)
@@ -106,7 +126,7 @@ class VaultViewModelTest {
             app.obsidianmd.sync.SyncResult.Synced(true, 0),
             (model.syncStatus.value as SyncStatus.Done).result,
         )
-        assertEquals(listOf("a.md"), model.state.value.files.map { it.name })
+        assertEquals(listOf("a.md"), model.state.value.entries.map { it.name })
     }
 
     private class ConflictingGitSync : app.obsidianmd.sync.GitSync {

@@ -1,6 +1,7 @@
 package app.obsidianmd.ui
 
 import app.obsidianmd.vault.MdFile
+import app.obsidianmd.vault.VaultEntry
 import app.obsidianmd.vault.VaultRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -11,7 +12,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 data class VaultState(
-    val files: List<MdFile> = emptyList(),
+    val entries: List<VaultEntry> = emptyList(),
+    val currentDir: String = "",
+    val atRoot: Boolean = true,
     val selected: MdFile? = null,
     val content: String = "",
     val loading: Boolean = false,
@@ -53,8 +56,7 @@ class VaultViewModel(
             _syncStatus.value = SyncStatus.Running
             val result = engine.sync(cfg, resolver)
             if (result !is app.obsidianmd.sync.SyncResult.Failed) {
-                val files = withContext(io) { repo.listMarkdownFiles() }
-                _state.value = _state.value.copy(files = files)
+                loadDir(_state.value.currentDir.ifBlank { repo.rootPath })
             }
             _syncStatus.value = SyncStatus.Done(result)
         }
@@ -65,10 +67,27 @@ class VaultViewModel(
     }
 
     fun refresh() {
-        scope.launch {
-            val files = withContext(io) { repo.listMarkdownFiles() }
-            _state.value = _state.value.copy(files = files)
-        }
+        scope.launch { loadDir(_state.value.currentDir.ifBlank { repo.rootPath }) }
+    }
+
+    fun openFolder(entry: VaultEntry) {
+        if (!entry.isFolder) return
+        scope.launch { loadDir(entry.path) }
+    }
+
+    fun upFolder() {
+        scope.launch { loadDir(repo.parentOf(_state.value.currentDir.ifBlank { repo.rootPath })) }
+    }
+
+    private suspend fun loadDir(dir: String) {
+        val entries = withContext(io) { repo.listEntries(dir) }
+        _state.value = _state.value.copy(
+            entries = entries,
+            currentDir = dir,
+            atRoot = repo.isRoot(dir),
+            query = "",
+            results = emptyList(),
+        )
     }
 
     fun open(file: MdFile) {
