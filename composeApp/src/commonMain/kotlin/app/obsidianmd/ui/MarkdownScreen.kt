@@ -21,13 +21,12 @@ import androidx.compose.ui.unit.dp
 import com.mikepenz.markdown.m3.Markdown
 
 @Composable
-fun MarkdownScreen(content: String, onBack: () -> Unit, onSave: (String) -> Unit) {
+fun MarkdownScreen(content: String, onSave: (String) -> Unit) {
     var editing by remember { mutableStateOf(false) }
     var draft by remember(content) { mutableStateOf(content) }
     Column(Modifier.fillMaxSize()) {
-        Row {
-            TextButton(onClick = onBack) { Text("← Назад") }
-            if (!editing) {
+        if (!editing) {
+            Row {
                 TextButton(onClick = { draft = content; editing = true }) { Text("Редактировать") }
             }
         }

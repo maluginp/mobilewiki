@@ -30,11 +30,9 @@ fun AiChatScreen(
     onSend: (String) -> Unit,
     onApprove: () -> Unit,
     onReject: () -> Unit,
-    onBack: () -> Unit,
 ) {
     var input by remember { mutableStateOf("") }
     Column(Modifier.fillMaxSize()) {
-        TextButton(onClick = onBack) { Text("← Назад") }
         LazyColumn(Modifier.weight(1f).fillMaxWidth()) {
             items(messages) { turn ->
                 Text(
