@@ -7,7 +7,7 @@ class BackgroundSyncRunner(
     private val localWins = ConflictResolver { Resolution.USE_LOCAL }
 
     suspend fun run(): SyncResult {
-        val cfg = syncConfigProvider() ?: return SyncResult.Failed("репозиторий не настроен")
+        val cfg = syncConfigProvider() ?: return SyncResult.Failed("repository not configured")
         return gitSync.sync(cfg, localWins)
     }
 }

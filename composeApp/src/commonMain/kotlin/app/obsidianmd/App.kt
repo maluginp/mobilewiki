@@ -45,10 +45,10 @@ fun App(vm: VaultViewModel, settingsVm: SettingsViewModel, aiVm: AiViewModel?) {
 
     val onHome = !showSettings && !showAi && state.selected == null
     val title = when {
-        showSettings -> "Настройки"
-        showAi -> "AI-чат"
-        state.selected != null -> state.selected?.name ?: "Заметка"
-        else -> "Заметки"
+        showSettings -> "Settings"
+        showAi -> "AI Chat"
+        state.selected != null -> state.selected?.name ?: "Note"
+        else -> "Notes"
     }
     val back: (() -> Unit)? = when {
         showSettings -> ({ showSettings = false })
@@ -65,7 +65,7 @@ fun App(vm: VaultViewModel, settingsVm: SettingsViewModel, aiVm: AiViewModel?) {
                     navigationIcon = {
                         if (back != null) {
                             IconButton(onClick = back) {
-                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
+                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                             }
                         }
                     },
@@ -73,7 +73,7 @@ fun App(vm: VaultViewModel, settingsVm: SettingsViewModel, aiVm: AiViewModel?) {
                         if (onHome) {
                             TextButton(onClick = { showAi = true }) { Text("AI") }
                             IconButton(onClick = { showSettings = true }) {
-                                Icon(Icons.Filled.Settings, contentDescription = "Настройки")
+                                Icon(Icons.Filled.Settings, contentDescription = "Settings")
                             }
                         }
                     },
@@ -87,6 +87,8 @@ fun App(vm: VaultViewModel, settingsVm: SettingsViewModel, aiVm: AiViewModel?) {
                         onSave = { settingsVm.save(it) },
                         openRouterKey = openRouterKey,
                         onSaveKey = { settingsVm.saveKey(it) },
+                        syncStatus = syncStatus,
+                        onSync = vm::sync,
                     )
                     showAi && aiVm != null -> {
                         val messages by aiVm.messages.collectAsState()
@@ -103,8 +105,7 @@ fun App(vm: VaultViewModel, settingsVm: SettingsViewModel, aiVm: AiViewModel?) {
                     }
                     showAi && aiVm == null -> AiUnavailable()
                     state.selected == null -> VaultListScreen(
-                        state, syncStatus,
-                        onSync = vm::sync,
+                        state,
                         onOpen = vm::open,
                         query = state.query,
                         results = state.results,
@@ -124,6 +125,6 @@ fun App(vm: VaultViewModel, settingsVm: SettingsViewModel, aiVm: AiViewModel?) {
 @Composable
 private fun AiUnavailable() {
     Column {
-        Text("Не задан ключ OpenRouter — добавьте его в настройках.")
+        Text("No OpenRouter key set — add it in Settings.")
     }
 }

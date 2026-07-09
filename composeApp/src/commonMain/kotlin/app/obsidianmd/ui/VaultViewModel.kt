@@ -45,7 +45,7 @@ class VaultViewModel(
         val engine = gitSync
         if (cfg == null || engine == null) {
             _syncStatus.value = SyncStatus.Done(
-                app.obsidianmd.sync.SyncResult.Failed("репозиторий не настроен"),
+                app.obsidianmd.sync.SyncResult.Failed("repository not configured"),
             )
             return
         }

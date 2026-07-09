@@ -24,19 +24,19 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         when (state) {
-            AuthState.Idle -> Button(onClick = onLogin) { Text("Войти через GitHub") }
+            AuthState.Idle -> Button(onClick = onLogin) { Text("Sign in with GitHub") }
             is AuthState.AwaitingUser -> {
-                Text("Код: ${state.userCode}")
+                Text("Code: ${state.userCode}")
                 Button(
                     onClick = { onOpenUrl(state.verificationUri) },
                     modifier = Modifier.padding(top = 16.dp),
-                ) { Text("Открыть GitHub") }
-                Text("Ожидание подтверждения…", Modifier.padding(top = 16.dp))
+                ) { Text("Open GitHub") }
+                Text("Waiting for confirmation…", Modifier.padding(top = 16.dp))
             }
-            AuthState.Success -> Text("Вход выполнен")
+            AuthState.Success -> Text("Signed in")
             is AuthState.Failed -> {
-                Text("Ошибка входа: ${state.reason}")
-                Button(onClick = onLogin, modifier = Modifier.padding(top = 16.dp)) { Text("Повторить") }
+                Text("Sign-in error: ${state.reason}")
+                Button(onClick = onLogin, modifier = Modifier.padding(top = 16.dp)) { Text("Retry") }
             }
         }
     }

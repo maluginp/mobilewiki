@@ -36,25 +36,25 @@ fun AiChatScreen(
         LazyColumn(Modifier.weight(1f).fillMaxWidth()) {
             items(messages) { turn ->
                 Text(
-                    (if (turn.role == "user") "Вы: " else "AI: ") + turn.text,
+                    (if (turn.role == "user") "You: " else "AI: ") + turn.text,
                     Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                 )
             }
         }
-        if (status is AiStatus.Thinking) Text("AI думает…", Modifier.padding(horizontal = 16.dp))
-        if (status is AiStatus.Failed) Text("Ошибка: ${status.reason}", Modifier.padding(horizontal = 16.dp))
+        if (status is AiStatus.Thinking) Text("AI is thinking…", Modifier.padding(horizontal = 16.dp))
+        if (status is AiStatus.Failed) Text("Error: ${status.reason}", Modifier.padding(horizontal = 16.dp))
         Row(Modifier.fillMaxWidth().padding(8.dp)) {
             OutlinedTextField(input, { input = it }, modifier = Modifier.weight(1f))
-            Button(onClick = { if (input.isNotBlank()) { onSend(input); input = "" } }) { Text("Отправить") }
+            Button(onClick = { if (input.isNotBlank()) { onSend(input); input = "" } }) { Text("Send") }
         }
     }
     if (pendingWrite != null) {
         AlertDialog(
             onDismissRequest = {},
-            title = { Text("AI предлагает запись: ${pendingWrite.first}") },
+            title = { Text("AI wants to write: ${pendingWrite.first}") },
             text = { Text(pendingWrite.second.take(500)) },
-            confirmButton = { TextButton(onClick = onApprove) { Text("Применить") } },
-            dismissButton = { TextButton(onClick = onReject) { Text("Отклонить") } },
+            confirmButton = { TextButton(onClick = onApprove) { Text("Apply") } },
+            dismissButton = { TextButton(onClick = onReject) { Text("Reject") } },
         )
     }
 }

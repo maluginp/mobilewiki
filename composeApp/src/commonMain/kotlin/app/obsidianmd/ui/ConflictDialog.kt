@@ -11,13 +11,13 @@ import app.obsidianmd.sync.Resolution
 fun ConflictDialog(conflict: MdConflict, onChoose: (Resolution) -> Unit) {
     AlertDialog(
         onDismissRequest = {},
-        title = { Text("Конфликт: ${conflict.path}") },
-        text = { Text("Файл изменён и локально, и на сервере. Какую версию оставить?") },
+        title = { Text("Conflict: ${conflict.path}") },
+        text = { Text("This file was changed both locally and on the server. Which version do you want to keep?") },
         confirmButton = {
-            TextButton(onClick = { onChoose(Resolution.USE_LOCAL) }) { Text("Оставить локальную") }
+            TextButton(onClick = { onChoose(Resolution.USE_LOCAL) }) { Text("Keep local") }
         },
         dismissButton = {
-            TextButton(onClick = { onChoose(Resolution.USE_SERVER) }) { Text("Взять серверную") }
+            TextButton(onClick = { onChoose(Resolution.USE_SERVER) }) { Text("Take server") }
         },
     )
 }

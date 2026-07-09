@@ -27,7 +27,7 @@ fun MarkdownScreen(content: String, onSave: (String) -> Unit) {
     Column(Modifier.fillMaxSize()) {
         if (!editing) {
             Row {
-                TextButton(onClick = { draft = content; editing = true }) { Text("Редактировать") }
+                TextButton(onClick = { draft = content; editing = true }) { Text("Edit") }
             }
         }
         if (editing) {
@@ -37,8 +37,8 @@ fun MarkdownScreen(content: String, onSave: (String) -> Unit) {
                 modifier = Modifier.fillMaxWidth().weight(1f).padding(16.dp),
             )
             Row(Modifier.padding(horizontal = 16.dp)) {
-                Button(onClick = { onSave(draft); editing = false }) { Text("Сохранить") }
-                TextButton(onClick = { editing = false }) { Text("Отмена") }
+                Button(onClick = { onSave(draft); editing = false }) { Text("Save") }
+                TextButton(onClick = { editing = false }) { Text("Cancel") }
             }
         } else {
             Column(Modifier.verticalScroll(rememberScrollState()).padding(16.dp)) {

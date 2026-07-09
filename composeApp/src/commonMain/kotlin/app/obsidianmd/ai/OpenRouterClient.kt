@@ -43,9 +43,9 @@ private const val MODEL = "openai/gpt-4o-mini"
 internal val TOOLS: JsonElement = Json.parseToJsonElement(
     """
     [
-      {"type":"function","function":{"name":"search_notes","description":"Найти заметки по подстроке (имя+содержимое)","parameters":{"type":"object","properties":{"query":{"type":"string"}},"required":["query"]}}},
-      {"type":"function","function":{"name":"read_note","description":"Прочитать заметку по имени файла","parameters":{"type":"object","properties":{"name":{"type":"string"}},"required":["name"]}}},
-      {"type":"function","function":{"name":"write_note","description":"Создать или перезаписать заметку (требует подтверждения пользователя)","parameters":{"type":"object","properties":{"name":{"type":"string"},"content":{"type":"string"}},"required":["name","content"]}}}
+      {"type":"function","function":{"name":"search_notes","description":"Find notes by substring (name + content)","parameters":{"type":"object","properties":{"query":{"type":"string"}},"required":["query"]}}},
+      {"type":"function","function":{"name":"read_note","description":"Read a note by file name","parameters":{"type":"object","properties":{"name":{"type":"string"}},"required":["name"]}}},
+      {"type":"function","function":{"name":"write_note","description":"Create or overwrite a note (requires user confirmation)","parameters":{"type":"object","properties":{"name":{"type":"string"},"content":{"type":"string"}},"required":["name","content"]}}}
     ]
     """.trimIndent(),
 )
