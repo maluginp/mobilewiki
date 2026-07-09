@@ -49,6 +49,7 @@ fun App(vm: VaultViewModel, settingsVm: SettingsViewModel, aiVm: AiViewModel?) {
     val conflict by vm.pendingConflict.collectAsState()
     val url by settingsVm.url.collectAsState()
     val openRouterKey by settingsVm.openRouterKey.collectAsState()
+    val aiEnabled by settingsVm.aiEnabled.collectAsState()
     var showSettings by remember { mutableStateOf(false) }
     var showAi by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { vm.refresh() }
@@ -84,7 +85,11 @@ fun App(vm: VaultViewModel, settingsVm: SettingsViewModel, aiVm: AiViewModel?) {
                     },
                     actions = {
                         if (onHome) {
-                            TextButton(onClick = { showAi = true }) { Text(stringResource(Res.string.action_ai)) }
+                            if (aiEnabled) {
+                                TextButton(onClick = { showAi = true }) {
+                                    Text(stringResource(Res.string.action_ai))
+                                }
+                            }
                             IconButton(onClick = { showSettings = true }) {
                                 Icon(
                                     Icons.Filled.Settings,
@@ -105,6 +110,8 @@ fun App(vm: VaultViewModel, settingsVm: SettingsViewModel, aiVm: AiViewModel?) {
                         onSaveKey = { settingsVm.saveKey(it) },
                         syncStatus = syncStatus,
                         onSync = vm::sync,
+                        aiEnabled = aiEnabled,
+                        onSetAiEnabled = { settingsVm.setAiEnabled(it) },
                     )
                     showAi && aiVm != null -> {
                         val messages by aiVm.messages.collectAsState()

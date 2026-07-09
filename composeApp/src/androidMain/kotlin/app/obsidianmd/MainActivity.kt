@@ -87,7 +87,9 @@ class MainActivity : ComponentActivity() {
                             },
                             resolver = UiConflictResolver(),
                         )
-                        val aiVm = apiKeyStore.getKey()?.takeIf { it.isNotBlank() }?.let { key ->
+                        val aiVm = apiKeyStore.getKey()
+                            ?.takeIf { it.isNotBlank() && settingsStore.isAiEnabled() }
+                            ?.let { key ->
                             val client = app.obsidianmd.ai.OpenRouterClient(http, key)
                             app.obsidianmd.ai.AiViewModel(
                                 runAgent = { history, approver ->

@@ -29,6 +29,8 @@
     <string name="settings_sync_title">Synchronization</string>
     <string name="settings_sync_desc">Pull the latest notes from the repository and push your local changes.</string>
     <string name="action_sync_now">Sync now</string>
+    <string name="settings_ai_enable">Enable AI</string>
+    <string name="settings_ai_enable_desc">Turn on the in-app AI chat. When enabled, add your OpenRouter key below.</string>
 
     <!-- Sync status -->
     <string name="sync_syncing">Syncing…</string>

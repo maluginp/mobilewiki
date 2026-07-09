@@ -14,9 +14,17 @@ class SettingsViewModel(
     private val _openRouterKey = MutableStateFlow(apiKeyStore?.getKey() ?: "")
     val openRouterKey: StateFlow<String> = _openRouterKey.asStateFlow()
 
+    private val _aiEnabled = MutableStateFlow(store.isAiEnabled())
+    val aiEnabled: StateFlow<Boolean> = _aiEnabled.asStateFlow()
+
     fun save(url: String) {
         store.setRemoteUrl(url)
         _url.value = url
+    }
+
+    fun setAiEnabled(enabled: Boolean) {
+        store.setAiEnabled(enabled)
+        _aiEnabled.value = enabled
     }
 
     fun saveKey(key: String) {

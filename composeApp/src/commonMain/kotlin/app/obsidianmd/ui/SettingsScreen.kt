@@ -1,6 +1,7 @@
 package app.obsidianmd.ui
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -10,6 +11,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -17,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -27,6 +30,8 @@ import app.obsidianmd.resources.action_save
 import app.obsidianmd.resources.action_show
 import app.obsidianmd.resources.action_sync_now
 import app.obsidianmd.resources.error_with_reason
+import app.obsidianmd.resources.settings_ai_enable
+import app.obsidianmd.resources.settings_ai_enable_desc
 import app.obsidianmd.resources.settings_key_desc
 import app.obsidianmd.resources.settings_key_example
 import app.obsidianmd.resources.settings_key_label
@@ -52,6 +57,8 @@ fun SettingsScreen(
     onSaveKey: (String) -> Unit,
     syncStatus: SyncStatus,
     onSync: () -> Unit,
+    aiEnabled: Boolean,
+    onSetAiEnabled: (Boolean) -> Unit,
 ) {
     var url by remember(currentUrl) { mutableStateOf(currentUrl) }
     var key by remember(openRouterKey) { mutableStateOf(openRouterKey) }
@@ -82,14 +89,33 @@ fun SettingsScreen(
             value = url,
             onValueChange = { url = it; saved = false },
         )
-        SettingField(
-            label = stringResource(Res.string.settings_key_label),
-            example = stringResource(Res.string.settings_key_example),
-            description = stringResource(Res.string.settings_key_desc),
-            value = key,
-            onValueChange = { key = it; saved = false },
-            secret = true,
+
+        HorizontalDivider(Modifier.padding(vertical = 24.dp))
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                stringResource(Res.string.settings_ai_enable),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.weight(1f),
+            )
+            Switch(checked = aiEnabled, onCheckedChange = { onSetAiEnabled(it); saved = false })
+        }
+        Text(
+            stringResource(Res.string.settings_ai_enable_desc),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 4.dp),
         )
+        if (aiEnabled) {
+            SettingField(
+                label = stringResource(Res.string.settings_key_label),
+                example = stringResource(Res.string.settings_key_example),
+                description = stringResource(Res.string.settings_key_desc),
+                value = key,
+                onValueChange = { key = it; saved = false },
+                secret = true,
+            )
+        }
         Button(
             onClick = { onSave(url); onSaveKey(key); saved = true },
             modifier = Modifier.padding(top = 8.dp),
