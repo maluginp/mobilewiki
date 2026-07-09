@@ -32,6 +32,7 @@ class VaultRepositoryTest {
         fs.write(root / "b.md") { writeUtf8("x") }
         fs.write(root / "a.md") { writeUtf8("x") }
         fs.write(root / "note.txt") { writeUtf8("x") }
+        fs.createDirectories(root / ".git")
         val repo = VaultRepository(fs, root)
 
         val entries = repo.listEntries(root.toString())

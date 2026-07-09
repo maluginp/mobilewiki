@@ -21,6 +21,7 @@ class VaultRepository(
         val d = dir.toPath()
         if (!fs.exists(d)) return emptyList()
         return fs.list(d)
+            .filter { !it.name.startsWith(".") } // прячем .git/.obsidian/.trash и прочие dot-каталоги
             .mapNotNull { p ->
                 val md = fs.metadata(p)
                 when {
