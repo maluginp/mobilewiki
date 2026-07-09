@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -26,6 +28,8 @@ import androidx.compose.ui.Modifier
 import app.obsidianmd.ai.AiViewModel
 import app.obsidianmd.resources.Res
 import app.obsidianmd.resources.action_ai
+import app.obsidianmd.resources.action_edit
+import app.obsidianmd.resources.action_save
 import app.obsidianmd.resources.ai_unavailable
 import app.obsidianmd.resources.cd_back
 import app.obsidianmd.resources.cd_settings
@@ -53,7 +57,10 @@ fun App(vm: VaultViewModel, settingsVm: SettingsViewModel, aiVm: AiViewModel?) {
     val aiEnabled by settingsVm.aiEnabled.collectAsState()
     var showSettings by remember { mutableStateOf(false) }
     var showAi by remember { mutableStateOf(false) }
+    var editing by remember { mutableStateOf(false) }
+    var draft by remember { mutableStateOf("") }
     LaunchedEffect(Unit) { vm.refresh() }
+    LaunchedEffect(state.selected) { editing = false } // сброс режима правки при смене файла
 
     val onHome = !showSettings && !showAi && state.selected == null
     val title = when {
@@ -66,6 +73,7 @@ fun App(vm: VaultViewModel, settingsVm: SettingsViewModel, aiVm: AiViewModel?) {
     val back: (() -> Unit)? = when {
         showSettings -> ({ showSettings = false })
         showAi -> ({ showAi = false })
+        editing -> ({ editing = false }) // «Назад» во время правки — отмена
         state.selected != null -> vm::back
         !state.atRoot -> vm::upFolder
         else -> null
@@ -102,6 +110,25 @@ fun App(vm: VaultViewModel, settingsVm: SettingsViewModel, aiVm: AiViewModel?) {
                                     Icons.Filled.Settings,
                                     contentDescription = stringResource(Res.string.cd_settings),
                                 )
+                            }
+                        } else if (state.selected != null) {
+                            if (editing) {
+                                IconButton(onClick = {
+                                    state.selected?.let { vm.saveFile(it.path, draft) }
+                                    editing = false
+                                }) {
+                                    Icon(
+                                        Icons.Filled.Check,
+                                        contentDescription = stringResource(Res.string.action_save),
+                                    )
+                                }
+                            } else {
+                                IconButton(onClick = { draft = state.content; editing = true }) {
+                                    Icon(
+                                        Icons.Filled.Edit,
+                                        contentDescription = stringResource(Res.string.action_edit),
+                                    )
+                                }
                             }
                         }
                     },
@@ -145,7 +172,9 @@ fun App(vm: VaultViewModel, settingsVm: SettingsViewModel, aiVm: AiViewModel?) {
                     )
                     else -> MarkdownScreen(
                         content = state.content,
-                        onSave = { text -> state.selected?.let { vm.saveFile(it.path, text) } },
+                        editing = editing,
+                        draft = draft,
+                        onDraftChange = { draft = it },
                     )
                 }
                 conflict?.let { ConflictDialog(it, onChoose = vm::resolveConflict) }
