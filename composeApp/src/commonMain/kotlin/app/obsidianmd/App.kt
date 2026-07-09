@@ -2,7 +2,11 @@ package app.obsidianmd
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -60,13 +64,17 @@ fun App(vm: VaultViewModel, settingsVm: SettingsViewModel, aiVm: AiViewModel?) {
                     title = { Text(title) },
                     navigationIcon = {
                         if (back != null) {
-                            IconButton(onClick = back) { Text("←") }
+                            IconButton(onClick = back) {
+                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
+                            }
                         }
                     },
                     actions = {
                         if (onHome) {
                             TextButton(onClick = { showAi = true }) { Text("AI") }
-                            IconButton(onClick = { showSettings = true }) { Text("⚙") }
+                            IconButton(onClick = { showSettings = true }) {
+                                Icon(Icons.Filled.Settings, contentDescription = "Настройки")
+                            }
                         }
                     },
                 )
@@ -116,6 +124,6 @@ fun App(vm: VaultViewModel, settingsVm: SettingsViewModel, aiVm: AiViewModel?) {
 @Composable
 private fun AiUnavailable() {
     Column {
-        Text("Не задан ключ OpenRouter — добавьте его в настройках (⚙).")
+        Text("Не задан ключ OpenRouter — добавьте его в настройках.")
     }
 }
