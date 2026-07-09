@@ -50,14 +50,30 @@
     <string name="action_reject">Reject</string>
     <string name="ai_unavailable">No OpenRouter key set — add it in Settings.</string>
 
+    <!-- Onboarding -->
+    <string name="onboarding_title">Obsidian on your phone</string>
+    <string name="onboarding_body">Read and edit your Obsidian vault straight from a GitHub repository. Notes stay in sync over git.</string>
+    <string name="onboarding_sign_in">Sign in with GitHub</string>
+
     <!-- Login -->
     <string name="login_sign_in">Sign in with GitHub</string>
     <string name="login_code">Code: %1$s</string>
+    <string name="login_copy_code">Copy code</string>
+    <string name="login_code_copied">Copied ✓</string>
     <string name="login_open_github">Open GitHub</string>
     <string name="login_waiting">Waiting for confirmation…</string>
     <string name="login_signed_in">Signed in</string>
     <string name="login_error">Sign-in error: %1$s</string>
     <string name="action_retry">Retry</string>
+
+    <!-- Repository picker -->
+    <string name="repo_pick_title">Choose a repository</string>
+    <string name="repo_pick_loading">Loading your repositories…</string>
+    <string name="repo_pick_search">Search repositories</string>
+    <string name="repo_pick_manual_label">Or enter a URL manually</string>
+    <string name="repo_pick_manual_hint">https://github.com/name/repo.git</string>
+    <string name="repo_pick_from_github">Choose from GitHub</string>
+    <string name="repo_pick_error">Couldn\'t load your repositories</string>
 
     <!-- Conflict dialog -->
     <string name="conflict_title">Conflict: %1$s</string>
