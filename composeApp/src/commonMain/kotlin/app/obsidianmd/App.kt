@@ -49,7 +49,12 @@ import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun App(vm: VaultViewModel, settingsVm: SettingsViewModel, aiVm: AiViewModel?) {
+fun App(
+    vm: VaultViewModel,
+    settingsVm: SettingsViewModel,
+    aiVm: AiViewModel?,
+    onPickRepoFromGitHub: () -> Unit = {},
+) {
     val state by vm.state.collectAsState()
     val syncStatus by vm.syncStatus.collectAsState()
     val conflict by vm.pendingConflict.collectAsState()
@@ -141,6 +146,7 @@ fun App(vm: VaultViewModel, settingsVm: SettingsViewModel, aiVm: AiViewModel?) {
                     showSettings -> SettingsScreen(
                         currentUrl = url,
                         onSave = { settingsVm.save(it) },
+                        onPickFromGitHub = onPickRepoFromGitHub,
                         openRouterKey = openRouterKey,
                         onSaveKey = { settingsVm.saveKey(it) },
                         syncStatus = syncStatus,
