@@ -96,13 +96,28 @@ class VaultViewModel(
         )
     }
 
-    /** Открыть файл по абсолютному пути (навигация по wikilink). */
-    fun openPath(absPath: String) = open(MdFile(absPath.substringAfterLast('/'), absPath))
+    // Стек истории просмотра: открытие из списка сбрасывает его, wikilink — добавляет,
+    // «Назад» возвращает к предыдущей заметке (а не сразу к списку).
+    private val history = ArrayDeque<MdFile>()
+
+    /** Открыть файл по абсолютному пути (навигация по wikilink) — добавляет в историю. */
+    fun openPath(absPath: String) {
+        val file = MdFile(absPath.substringAfterLast('/'), absPath)
+        history.addLast(file)
+        loadSelected(file)
+    }
 
     /** Байты файла (для отрисовки картинок-эмбедов). */
     fun bytesOf(absPath: String): ByteArray = repo.readBytes(absPath)
 
+    /** Открыть файл из списка — начинает историю заново. */
     fun open(file: MdFile) {
+        history.clear()
+        history.addLast(file)
+        loadSelected(file)
+    }
+
+    private fun loadSelected(file: MdFile) {
         scope.launch {
             _state.value = _state.value.copy(selected = file, loading = true)
             val text = withContext(io) { repo.readFile(file.path) }
@@ -111,7 +126,13 @@ class VaultViewModel(
     }
 
     fun back() {
-        _state.value = _state.value.copy(selected = null, content = "")
+        if (history.isNotEmpty()) history.removeLast()
+        val prev = history.lastOrNull()
+        if (prev == null) {
+            _state.value = _state.value.copy(selected = null, content = "")
+        } else {
+            loadSelected(prev)
+        }
     }
 
     fun saveFile(path: String, content: String) {
