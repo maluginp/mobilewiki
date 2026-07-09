@@ -21,6 +21,12 @@ interface RepoList {
     suspend fun list(token: String): List<GitHubRepo>
 }
 
+fun filterRepos(repos: List<GitHubRepo>, query: String): List<GitHubRepo> {
+    val q = query.trim()
+    if (q.isEmpty()) return repos
+    return repos.filter { it.fullName.contains(q, ignoreCase = true) }
+}
+
 class GitHubRepos(private val http: HttpClient) : RepoList {
     override suspend fun list(token: String): List<GitHubRepo> {
         val resp: HttpResponse = http.get("https://api.github.com/user/repos") {
