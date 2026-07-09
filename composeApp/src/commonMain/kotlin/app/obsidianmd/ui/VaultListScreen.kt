@@ -72,7 +72,7 @@ fun VaultListScreen(
             LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(top = topPad)) {
                 items(shown, key = { it.path }) { entry ->
                     ListItem(
-                        headlineContent = { Text(entry.displayName()) },
+                        headlineContent = { Text(entry.name) },
                         leadingContent = {
                             Icon(
                                 if (entry.isFolder) Icons.Filled.Folder else Icons.Filled.Description,
@@ -103,6 +103,3 @@ fun VaultListScreen(
         }
     }
 }
-
-private fun VaultEntry.displayName(): String =
-    if (isFolder) name else name.removeSuffix(".md")
