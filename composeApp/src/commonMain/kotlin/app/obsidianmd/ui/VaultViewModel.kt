@@ -143,9 +143,18 @@ class VaultViewModel(
     }
 
     fun search(query: String) {
+        // query обновляем сразу (синхронно), результаты догоняют асинхронно —
+        // иначе поле ввода отставало бы от набора (прыгала каретка, терялись буквы).
+        _state.value = _state.value.copy(query = query)
+        if (query.isBlank()) {
+            _state.value = _state.value.copy(results = emptyList())
+            return
+        }
         scope.launch {
             val results = withContext(io) { repo.search(query) }
-            _state.value = _state.value.copy(query = query, results = results)
+            if (_state.value.query == query) { // не перезаписываем более свежим запросом
+                _state.value = _state.value.copy(results = results)
+            }
         }
     }
 }

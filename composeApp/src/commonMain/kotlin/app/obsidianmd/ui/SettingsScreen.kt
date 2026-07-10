@@ -30,6 +30,7 @@ import app.obsidianmd.resources.action_save
 import app.obsidianmd.resources.action_show
 import app.obsidianmd.resources.action_sync_now
 import app.obsidianmd.resources.error_with_reason
+import app.obsidianmd.resources.repo_pick_from_github
 import app.obsidianmd.resources.settings_ai_enable
 import app.obsidianmd.resources.settings_ai_enable_desc
 import app.obsidianmd.resources.settings_key_desc
@@ -59,6 +60,7 @@ fun SettingsScreen(
     onSync: () -> Unit,
     aiEnabled: Boolean,
     onSetAiEnabled: (Boolean) -> Unit,
+    onPickFromGitHub: () -> Unit = {},
 ) {
     var url by remember(currentUrl) { mutableStateOf(currentUrl) }
     var key by remember(openRouterKey) { mutableStateOf(openRouterKey) }
@@ -89,6 +91,9 @@ fun SettingsScreen(
             value = url,
             onValueChange = { url = it; saved = false },
         )
+        TextButton(onClick = onPickFromGitHub) {
+            Text(stringResource(Res.string.repo_pick_from_github))
+        }
 
         HorizontalDivider(Modifier.padding(vertical = 24.dp))
 

@@ -1,13 +1,12 @@
-# Obsidian Git MD
+# Brainer
 
-An Android app for reading and syncing an [Obsidian](https://obsidian.md) vault of Markdown
-notes through a GitHub repository. Built with Kotlin Multiplatform, Jetpack Compose
-(Compose Multiplatform), and coroutines.
+An Android app for reading and syncing a vault of Markdown notes through a GitHub repository.
+Built with Kotlin Multiplatform, Jetpack Compose (Compose Multiplatform), and coroutines.
 
 ## Problem
 
-Obsidian keeps your notes as plain Markdown files, and Git is a natural way to sync a vault
-across devices. But putting that on a phone runs into friction:
+A notes vault is just plain Markdown files, and Git is a natural way to sync it across
+devices. But putting that on a phone runs into friction:
 
 - **Storage bloat.** Naively cloning a repo keeps the full history on the device; for a
   long-lived vault (especially with binary attachments) that grows without bound.
