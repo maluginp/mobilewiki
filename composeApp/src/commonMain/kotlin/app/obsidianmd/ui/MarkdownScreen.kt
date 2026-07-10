@@ -40,6 +40,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -54,6 +55,7 @@ import app.obsidianmd.vault.MdBlock
 import app.obsidianmd.vault.VaultFile
 import app.obsidianmd.vault.renderNote
 import com.mikepenz.markdown.m3.Markdown
+import com.mikepenz.markdown.m3.markdownTypography
 import org.jetbrains.compose.resources.stringResource
 
 // Правкой управляет AppBar (иконки Edit/Save); экран показывает просмотр или редактор.
@@ -99,6 +101,16 @@ fun MarkdownScreen(
                 )
             }
         } else {
+            // Заголовки в рендере markdown по умолчанию гигантские (display/headline) — ужимаем.
+            val t = MaterialTheme.typography
+            val mdTypography = markdownTypography(
+                h1 = t.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                h2 = t.titleLarge.copy(fontWeight = FontWeight.Bold),
+                h3 = t.titleMedium.copy(fontWeight = FontWeight.Bold),
+                h4 = t.titleSmall.copy(fontWeight = FontWeight.Bold),
+                h5 = t.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                h6 = t.bodyMedium.copy(fontWeight = FontWeight.Bold),
+            )
             val note = remember(content, files) { renderNote(content, files) }
             var zoomed by remember { mutableStateOf<ImageBitmap?>(null) }
             val platform = LocalUriHandler.current
@@ -119,7 +131,7 @@ fun MarkdownScreen(
                 Column(Modifier.verticalScroll(rememberScrollState()).padding(16.dp)) {
                     for (block in note.blocks) {
                         when (block) {
-                            is MdBlock.Text -> Markdown(block.markdown)
+                            is MdBlock.Text -> Markdown(block.markdown, typography = mdTypography)
                             is MdBlock.Image -> {
                                 // ponytail: чтение файла на композиции — ок для мелких картинок личного vault.
                                 val bmp = remember(block.absPath) { loadImage(block.absPath) }
