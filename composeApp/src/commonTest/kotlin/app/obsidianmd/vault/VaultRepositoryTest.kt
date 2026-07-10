@@ -137,4 +137,19 @@ class VaultRepositoryTest {
         assertEquals(listOf("match-name.md"), repo.search("match-name").map { it.name })
         assertEquals(listOf("bybody.md"), repo.search("нужное").map { it.name })
     }
+
+    @Test
+    fun documents_lists_md_with_title_and_wikilink_target() {
+        val fs = FakeFileSystem()
+        fs.createDirectories(root / "sub")
+        fs.write(root / "a.md") { writeUtf8("# Alpha\nbody") }
+        fs.write(root / "sub" / "b.md") { writeUtf8("no heading here") }
+        fs.write(root / "pic.png") { writeUtf8("x") } // не .md — пропускается
+        val repo = VaultRepository(fs, root)
+
+        val docs = repo.documents()
+        assertEquals(listOf("a.md", "sub/b.md"), docs.map { it.relPath })
+        assertEquals(listOf("Alpha", "b"), docs.map { it.title }) // без заголовка → имя без .md
+        assertEquals(listOf("a", "b"), docs.map { it.target })    // цель wikilink — базовое имя без .md
+    }
 }

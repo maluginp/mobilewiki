@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,6 +39,7 @@ import app.obsidianmd.resources.Res
 import app.obsidianmd.resources.action_ai
 import app.obsidianmd.resources.action_edit
 import app.obsidianmd.resources.action_save
+import app.obsidianmd.resources.action_discard
 import app.obsidianmd.resources.ai_unavailable
 import app.obsidianmd.resources.cd_back
 import app.obsidianmd.resources.cd_close_search
@@ -48,6 +50,8 @@ import app.obsidianmd.resources.title_ai_chat
 import app.obsidianmd.resources.title_note
 import app.obsidianmd.resources.title_notes
 import app.obsidianmd.resources.title_settings
+import app.obsidianmd.resources.unsaved_message
+import app.obsidianmd.resources.unsaved_title
 import app.obsidianmd.settings.SettingsViewModel
 import app.obsidianmd.ui.AiChatScreen
 import app.obsidianmd.ui.ConflictDialog
@@ -78,8 +82,12 @@ fun App(
     var queryText by remember { mutableStateOf("") } // локальный источник правды для поля поиска
     var editing by remember { mutableStateOf(false) }
     var draft by remember { mutableStateOf("") }
+    var showUnsaved by remember { mutableStateOf(false) }
+    val dirty = editing && draft != state.content
+    val documents by vm.documents.collectAsState()
     LaunchedEffect(Unit) { vm.refresh() }
     LaunchedEffect(state.selected) { editing = false } // сброс режима правки при смене файла
+    LaunchedEffect(editing) { if (editing) vm.loadDocuments() } // подгрузить документы для пикера ссылок
 
     val onHome = !showSettings && !showAi && state.selected == null
     val homeSearching = onHome && searching
@@ -94,7 +102,7 @@ fun App(
     val back: (() -> Unit)? = when {
         showSettings -> ({ showSettings = false })
         showAi -> ({ showAi = false })
-        editing -> ({ editing = false }) // «Назад» во время правки — отмена
+        editing -> ({ if (dirty) showUnsaved = true else editing = false }) // «Назад»: защита от потери правок
         state.selected != null -> vm::back
         !state.atRoot -> vm::upFolder
         else -> null
@@ -169,10 +177,13 @@ fun App(
                             }
                         } else if (state.selected != null) {
                             if (editing) {
-                                IconButton(onClick = {
-                                    state.selected?.let { vm.saveFile(it.path, draft) }
-                                    editing = false
-                                }) {
+                                IconButton(
+                                    onClick = {
+                                        state.selected?.let { vm.saveFile(it.path, draft) }
+                                        editing = false
+                                    },
+                                    enabled = dirty, // активна только при несохранённых правках
+                                ) {
                                     Icon(
                                         Icons.Filled.Check,
                                         contentDescription = stringResource(Res.string.action_save),
@@ -232,11 +243,32 @@ fun App(
                         draft = draft,
                         onDraftChange = { draft = it },
                         files = state.allFiles,
+                        documents = documents,
                         loadImage = { path -> decodeImage(vm.bytesOf(path)) },
                         onOpenPath = vm::openPath,
                     )
                 }
                 conflict?.let { ConflictDialog(it, onChoose = vm::resolveConflict) }
+                if (showUnsaved) {
+                    AlertDialog(
+                        // «Отмена» = закрыть диалог (тап вне / системный back) → остаёмся в редакторе.
+                        onDismissRequest = { showUnsaved = false },
+                        title = { Text(stringResource(Res.string.unsaved_title)) },
+                        text = { Text(stringResource(Res.string.unsaved_message)) },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                state.selected?.let { vm.saveFile(it.path, draft) }
+                                showUnsaved = false
+                                editing = false
+                            }) { Text(stringResource(Res.string.action_save)) }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showUnsaved = false; editing = false }) {
+                                Text(stringResource(Res.string.action_discard))
+                            }
+                        },
+                    )
+                }
             }
         }
     }
