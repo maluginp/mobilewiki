@@ -75,6 +75,7 @@ fun App(
     var showSettings by remember { mutableStateOf(false) }
     var showAi by remember { mutableStateOf(false) }
     var searching by remember { mutableStateOf(false) }
+    var queryText by remember { mutableStateOf("") } // локальный источник правды для поля поиска
     var editing by remember { mutableStateOf(false) }
     var draft by remember { mutableStateOf("") }
     LaunchedEffect(Unit) { vm.refresh() }
@@ -82,7 +83,7 @@ fun App(
 
     val onHome = !showSettings && !showAi && state.selected == null
     val homeSearching = onHome && searching
-    val exitSearch = { searching = false; vm.search("") }
+    val exitSearch = { searching = false; queryText = ""; vm.search("") }
     val title = when {
         showSettings -> stringResource(Res.string.title_settings)
         showAi -> stringResource(Res.string.title_ai_chat)
@@ -111,8 +112,8 @@ fun App(
                             val focus = remember { FocusRequester() }
                             LaunchedEffect(Unit) { focus.requestFocus() }
                             TextField(
-                                value = state.query,
-                                onValueChange = vm::search,
+                                value = queryText,
+                                onValueChange = { queryText = it; vm.search(it) },
                                 placeholder = { Text(stringResource(Res.string.search_hint)) },
                                 singleLine = true,
                                 colors = TextFieldDefaults.colors(
