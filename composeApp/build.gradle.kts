@@ -30,6 +30,7 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.okio)
             implementation(libs.markdown.renderer.m3)
             implementation(libs.ktor.client.core)
@@ -39,6 +40,7 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.lifecycle.runtime)
+            implementation(libs.androidx.lifecycle.viewmodel.compose)
             implementation(libs.kotlinx.coroutines.android)
             implementation(libs.jgit)
             implementation(libs.ktor.client.okhttp)

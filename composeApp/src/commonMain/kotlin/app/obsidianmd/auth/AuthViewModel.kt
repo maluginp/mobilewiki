@@ -1,6 +1,7 @@
 package app.obsidianmd.auth
 
-import kotlinx.coroutines.CoroutineScope
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,13 +17,12 @@ sealed interface AuthState {
 class AuthViewModel(
     private val auth: DeviceAuth,
     private val store: TokenStore,
-    private val scope: CoroutineScope,
-) {
+) : ViewModel() {
     private val _state = MutableStateFlow<AuthState>(AuthState.Idle)
     val state: StateFlow<AuthState> = _state.asStateFlow()
 
     fun login() {
-        scope.launch {
+        viewModelScope.launch {
             try {
                 val da = auth.requestDeviceCode()
                 _state.value = AuthState.AwaitingUser(da.userCode, da.verificationUri)

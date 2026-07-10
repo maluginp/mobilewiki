@@ -8,6 +8,7 @@
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
         <activity
             android:name="app.obsidianmd.MainActivity"
+            android:screenOrientation="portrait"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -41,7 +41,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import app.obsidianmd.ai.AiViewModel
-import app.obsidianmd.ai.ModelInfo
 import app.obsidianmd.resources.Res
 import app.obsidianmd.resources.action_ai
 import app.obsidianmd.resources.action_edit
@@ -78,15 +77,11 @@ fun App(
     settingsVm: SettingsViewModel,
     aiVm: AiViewModel?,
     onPickRepoFromGitHub: () -> Unit = {},
-    loadModels: suspend () -> List<ModelInfo> = { emptyList() },
 ) {
     val state by vm.state.collectAsState()
-    val syncStatus by vm.syncStatus.collectAsState()
-    val conflict by vm.pendingConflict.collectAsState()
-    val url by settingsVm.url.collectAsState()
-    val openRouterKey by settingsVm.openRouterKey.collectAsState()
-    val aiEnabled by settingsVm.aiEnabled.collectAsState()
-    val aiModel by settingsVm.aiModel.collectAsState()
+    val syncStatus = state.syncStatus
+    val conflict = state.pendingConflict
+    val settings by settingsVm.state.collectAsState()
     var showSettings by remember { mutableStateOf(false) }
     var showAi by remember { mutableStateOf(false) }
     var searching by remember { mutableStateOf(false) }
@@ -95,7 +90,7 @@ fun App(
     var draft by remember { mutableStateOf("") }
     var showUnsaved by remember { mutableStateOf(false) }
     val dirty = editing && draft != state.content
-    val documents by vm.documents.collectAsState()
+    val documents = state.documents
     LaunchedEffect(Unit) { vm.refresh() }
     LaunchedEffect(state.selected) { editing = false } // сброс режима правки при смене файла
     LaunchedEffect(editing) { if (editing) vm.loadDocuments() } // подгрузить документы для пикера ссылок
@@ -209,7 +204,7 @@ fun App(
             },
             bottomBar = {
                 // Нижняя навигация появляется только при включённом AI: Brain (заметки) ↔ AI.
-                if (aiEnabled && !showSettings) {
+                if (settings.aiEnabled && !showSettings) {
                     NavigationBar {
                         NavigationBarItem(
                             selected = !showAi,
@@ -230,27 +225,21 @@ fun App(
             Surface(Modifier.padding(padding)) {
                 when {
                     showSettings -> SettingsScreen(
-                        currentUrl = url,
+                        state = settings,
                         onSave = { settingsVm.save(it) },
-                        onPickFromGitHub = onPickRepoFromGitHub,
-                        openRouterKey = openRouterKey,
                         onSaveKey = { settingsVm.saveKey(it) },
+                        onSetAiEnabled = { settingsVm.setAiEnabled(it) },
+                        onSaveModel = { settingsVm.setAiModel(it) },
                         syncStatus = syncStatus,
                         onSync = vm::sync,
-                        aiEnabled = aiEnabled,
-                        onSetAiEnabled = { settingsVm.setAiEnabled(it) },
-                        aiModel = aiModel,
-                        onSaveModel = { settingsVm.setAiModel(it) },
-                        loadModels = loadModels,
+                        onPickFromGitHub = onPickRepoFromGitHub,
                     )
                     showAi && aiVm != null -> {
-                        val messages by aiVm.messages.collectAsState()
-                        val aiStatus by aiVm.status.collectAsState()
-                        val pending by aiVm.pendingWrite.collectAsState()
+                        val aiState by aiVm.state.collectAsState()
                         AiChatScreen(
-                            messages = messages,
-                            status = aiStatus,
-                            pendingWrite = pending,
+                            messages = aiState.messages,
+                            status = aiState.status,
+                            pendingWrite = aiState.pendingWrite,
                             onSend = aiVm::send,
                             onApprove = aiVm::approveWrite,
                             onReject = aiVm::rejectWrite,

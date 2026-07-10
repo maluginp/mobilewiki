@@ -1,6 +1,7 @@
 package app.obsidianmd.auth
 
-import kotlinx.coroutines.CoroutineScope
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,13 +17,12 @@ sealed interface ValidationState {
 class RepoValidationViewModel(
     private val access: RepoAccess,
     private val token: () -> String?,
-    private val scope: CoroutineScope,
-) {
+) : ViewModel() {
     private val _state = MutableStateFlow<ValidationState>(ValidationState.Checking)
     val state: StateFlow<ValidationState> = _state.asStateFlow()
 
     fun validate(url: String) {
-        scope.launch {
+        viewModelScope.launch {
             _state.value = ValidationState.Checking
             _state.value = when (val r = access.check(token().orEmpty(), url)) {
                 is AccessResult.Ok -> ValidationState.Ok

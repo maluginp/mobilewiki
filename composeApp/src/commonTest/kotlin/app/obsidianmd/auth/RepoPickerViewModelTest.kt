@@ -1,7 +1,13 @@
 package app.obsidianmd.auth
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -11,14 +17,18 @@ private class FakeRepoList(val result: Result<List<GitHubRepo>>) : RepoList {
 }
 
 class RepoPickerViewModelTest {
+    private val dispatcher = StandardTestDispatcher()
+    @BeforeTest fun setUp() = Dispatchers.setMain(dispatcher)
+    @AfterTest fun tearDown() = Dispatchers.resetMain()
+
     private val two = listOf(
         GitHubRepo("me/a", "https://github.com/me/a.git", false),
         GitHubRepo("me/b", "https://github.com/me/b.git", true),
     )
 
     @Test
-    fun load_success_moves_to_loaded() = runTest {
-        val vm = RepoPickerViewModel(FakeRepoList(Result.success(two)), { "t" }, {}, this)
+    fun load_success_moves_to_loaded() = runTest(dispatcher) {
+        val vm = RepoPickerViewModel(FakeRepoList(Result.success(two)), { "t" })
         vm.load()
         advanceUntilIdle()
         val s = vm.state.value
@@ -26,18 +36,17 @@ class RepoPickerViewModelTest {
     }
 
     @Test
-    fun load_failure_moves_to_error() = runTest {
-        val vm = RepoPickerViewModel(FakeRepoList(Result.failure(RuntimeException("no net"))), { "t" }, {}, this)
+    fun load_failure_moves_to_error() = runTest(dispatcher) {
+        val vm = RepoPickerViewModel(FakeRepoList(Result.failure(RuntimeException("no net"))), { "t" })
         vm.load()
         advanceUntilIdle()
         assertTrue(vm.state.value is RepoPickerState.Error)
     }
 
     @Test
-    fun pick_invokes_callback_with_clone_url() = runTest {
-        var picked: String? = null
-        val vm = RepoPickerViewModel(FakeRepoList(Result.success(two)), { "t" }, { picked = it }, this)
+    fun pick_exposes_selected_clone_url() = runTest(dispatcher) {
+        val vm = RepoPickerViewModel(FakeRepoList(Result.success(two)), { "t" })
         vm.pick("https://github.com/me/b.git")
-        assertEquals("https://github.com/me/b.git", picked)
+        assertEquals("https://github.com/me/b.git", vm.picked.value)
     }
 }

@@ -4,11 +4,13 @@ import app.obsidianmd.vault.MdFile
 import app.obsidianmd.vault.VaultEntry
 import app.obsidianmd.vault.VaultFile
 import app.obsidianmd.vault.VaultRepository
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -22,6 +24,9 @@ data class VaultState(
     val loading: Boolean = false,
     val query: String = "",
     val results: List<MdFile> = emptyList(),
+    val syncStatus: SyncStatus = SyncStatus.Idle,
+    val pendingConflict: app.obsidianmd.sync.MdConflict? = null,
+    val documents: List<app.obsidianmd.vault.DocRef> = emptyList(),
 )
 
 sealed interface SyncStatus {
@@ -32,43 +37,45 @@ sealed interface SyncStatus {
 
 class VaultViewModel(
     private val repo: VaultRepository,
-    private val scope: CoroutineScope,
     private val io: CoroutineDispatcher,
     private val gitSync: app.obsidianmd.sync.GitSync? = null,
     private val syncConfigProvider: () -> app.obsidianmd.sync.SyncConfig? = { null },
     private val resolver: app.obsidianmd.sync.UiConflictResolver = app.obsidianmd.sync.UiConflictResolver(),
-) {
+) : ViewModel() {
     private val _state = MutableStateFlow(VaultState())
     val state: StateFlow<VaultState> = _state.asStateFlow()
 
-    private val _syncStatus = MutableStateFlow<SyncStatus>(SyncStatus.Idle)
-    val syncStatus: StateFlow<SyncStatus> = _syncStatus.asStateFlow()
-    val pendingConflict: StateFlow<app.obsidianmd.sync.MdConflict?> = resolver.pending
-
-    private val _documents = MutableStateFlow<List<app.obsidianmd.vault.DocRef>>(emptyList())
-    val documents: StateFlow<List<app.obsidianmd.vault.DocRef>> = _documents.asStateFlow()
+    init {
+        // Конфликт «живёт» в резолвере (его дёргает движок sync) — зеркалим в единое состояние экрана.
+        viewModelScope.launch {
+            resolver.pending.collect { c -> _state.update { it.copy(pendingConflict = c) } }
+        }
+    }
 
     /** Загрузить список документов (с заголовками) для пикера ссылок — чтение на IO. */
     fun loadDocuments() {
-        scope.launch { _documents.value = withContext(io) { repo.documents() } }
+        viewModelScope.launch {
+            val docs = withContext(io) { repo.documents() }
+            _state.update { it.copy(documents = docs) }
+        }
     }
 
     fun sync() {
         val cfg = syncConfigProvider()
         val engine = gitSync
         if (cfg == null || engine == null) {
-            _syncStatus.value = SyncStatus.Done(
-                app.obsidianmd.sync.SyncResult.Failed("repository not configured"),
-            )
+            _state.update {
+                it.copy(syncStatus = SyncStatus.Done(app.obsidianmd.sync.SyncResult.Failed("repository not configured")))
+            }
             return
         }
-        scope.launch {
-            _syncStatus.value = SyncStatus.Running
+        viewModelScope.launch {
+            _state.update { it.copy(syncStatus = SyncStatus.Running) }
             val result = engine.sync(cfg, resolver)
             if (result !is app.obsidianmd.sync.SyncResult.Failed) {
                 loadDir(_state.value.currentDir.ifBlank { repo.rootPath })
             }
-            _syncStatus.value = SyncStatus.Done(result)
+            _state.update { it.copy(syncStatus = SyncStatus.Done(result)) }
         }
     }
 
@@ -77,16 +84,16 @@ class VaultViewModel(
     }
 
     fun refresh() {
-        scope.launch { loadDir(_state.value.currentDir.ifBlank { repo.rootPath }) }
+        viewModelScope.launch { loadDir(_state.value.currentDir.ifBlank { repo.rootPath }) }
     }
 
     fun openFolder(entry: VaultEntry) {
         if (!entry.isFolder) return
-        scope.launch { loadDir(entry.path) }
+        viewModelScope.launch { loadDir(entry.path) }
     }
 
     fun upFolder() {
-        scope.launch { loadDir(repo.parentOf(_state.value.currentDir.ifBlank { repo.rootPath })) }
+        viewModelScope.launch { loadDir(repo.parentOf(_state.value.currentDir.ifBlank { repo.rootPath })) }
     }
 
     private suspend fun loadDir(dir: String) {
@@ -126,7 +133,7 @@ class VaultViewModel(
     }
 
     private fun loadSelected(file: MdFile) {
-        scope.launch {
+        viewModelScope.launch {
             _state.value = _state.value.copy(selected = file, loading = true)
             val text = withContext(io) { repo.readFile(file.path) }
             _state.value = _state.value.copy(content = text, loading = false)
@@ -144,7 +151,7 @@ class VaultViewModel(
     }
 
     fun saveFile(path: String, content: String) {
-        scope.launch {
+        viewModelScope.launch {
             withContext(io) { repo.writeFile(path, content) }
             _state.value = _state.value.copy(content = content)
         }
@@ -158,7 +165,7 @@ class VaultViewModel(
             _state.value = _state.value.copy(results = emptyList())
             return
         }
-        scope.launch {
+        viewModelScope.launch {
             val results = withContext(io) { repo.search(query) }
             if (_state.value.query == query) { // не перезаписываем более свежим запросом
                 _state.value = _state.value.copy(results = results)

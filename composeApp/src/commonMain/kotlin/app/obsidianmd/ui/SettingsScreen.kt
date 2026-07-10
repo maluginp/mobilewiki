@@ -20,7 +20,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,39 +56,26 @@ import app.obsidianmd.resources.sync_synced_conflicts
 import app.obsidianmd.resources.sync_syncing
 import app.obsidianmd.resources.sync_up_to_date
 import app.obsidianmd.ai.ModelInfo
+import app.obsidianmd.settings.SettingsState
 import app.obsidianmd.sync.SyncResult
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun SettingsScreen(
-    currentUrl: String,
+    state: SettingsState,
     onSave: (String) -> Unit,
-    openRouterKey: String,
     onSaveKey: (String) -> Unit,
+    onSetAiEnabled: (Boolean) -> Unit,
+    onSaveModel: (String) -> Unit,
     syncStatus: SyncStatus,
     onSync: () -> Unit,
-    aiEnabled: Boolean,
-    onSetAiEnabled: (Boolean) -> Unit,
-    aiModel: String = app.obsidianmd.ai.DEFAULT_MODEL,
-    onSaveModel: (String) -> Unit = {},
-    loadModels: suspend () -> List<ModelInfo> = { emptyList() },
     onPickFromGitHub: () -> Unit = {},
 ) {
-    var url by remember(currentUrl) { mutableStateOf(currentUrl) }
-    var key by remember(openRouterKey) { mutableStateOf(openRouterKey) }
-    var model by remember(aiModel) { mutableStateOf(aiModel) }
-    var models by remember { mutableStateOf<List<ModelInfo>>(emptyList()) }
-    var loadingModels by remember { mutableStateOf(false) }
+    // Локальные черновики полей — правки живут в поле до нажатия «Сохранить».
+    var url by remember(state.url) { mutableStateOf(state.url) }
+    var key by remember(state.openRouterKey) { mutableStateOf(state.openRouterKey) }
+    var model by remember(state.aiModel) { mutableStateOf(state.aiModel) }
     var saved by remember { mutableStateOf(false) }
-
-    // Список моделей тянем один раз, когда AI включён (endpoint публичный, ключ — опционально).
-    LaunchedEffect(aiEnabled) {
-        if (aiEnabled && models.isEmpty()) {
-            loadingModels = true
-            models = runCatching { loadModels() }.getOrDefault(emptyList())
-            loadingModels = false
-        }
-    }
 
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
         Text(stringResource(Res.string.settings_sync_title), style = MaterialTheme.typography.titleMedium)
@@ -128,7 +114,7 @@ fun SettingsScreen(
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.weight(1f),
             )
-            Switch(checked = aiEnabled, onCheckedChange = { onSetAiEnabled(it); saved = false })
+            Switch(checked = state.aiEnabled, onCheckedChange = { onSetAiEnabled(it); saved = false })
         }
         Text(
             stringResource(Res.string.settings_ai_enable_desc),
@@ -136,7 +122,7 @@ fun SettingsScreen(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 4.dp),
         )
-        if (aiEnabled) {
+        if (state.aiEnabled) {
             SettingField(
                 label = stringResource(Res.string.settings_key_label),
                 example = stringResource(Res.string.settings_key_example),
@@ -148,8 +134,8 @@ fun SettingsScreen(
             ModelField(
                 value = model,
                 onValueChange = { model = it; saved = false },
-                models = models,
-                loading = loadingModels,
+                models = state.models,
+                loading = state.modelsLoading,
             )
         }
         Button(
