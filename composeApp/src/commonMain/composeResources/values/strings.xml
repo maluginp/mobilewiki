@@ -51,8 +51,8 @@
     <string name="ai_unavailable">No OpenRouter key set — add it in Settings.</string>
 
     <!-- Onboarding -->
-    <string name="onboarding_title">Obsidian on your phone</string>
-    <string name="onboarding_body">Read and edit your Obsidian vault straight from a GitHub repository. Notes stay in sync over git.</string>
+    <string name="onboarding_title">Welcome to Brainer</string>
+    <string name="onboarding_body">Read and edit your Markdown vault straight from a GitHub repository. Notes stay in sync over git.</string>
     <string name="onboarding_sign_in">Sign in with GitHub</string>
 
     <!-- Login -->
