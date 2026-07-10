@@ -12,11 +12,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import app.obsidianmd.auth.GitHubRepo
 import app.obsidianmd.auth.RepoPickerState
@@ -34,8 +39,11 @@ import app.obsidianmd.resources.repo_pick_enter_manually
 import app.obsidianmd.resources.repo_pick_error
 import app.obsidianmd.resources.repo_pick_loading
 import app.obsidianmd.resources.repo_pick_search
+import app.obsidianmd.resources.repo_pick_search_hint
+import app.obsidianmd.resources.repo_pick_title
 import org.jetbrains.compose.resources.stringResource
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RepoPickerScreen(
     state: RepoPickerState,
@@ -43,17 +51,27 @@ fun RepoPickerScreen(
     onRetry: () -> Unit,
     onEnterManually: () -> Unit,
 ) {
-    Column(Modifier.fillMaxSize().padding(16.dp)) {
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    Scaffold(
+        modifier = Modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(Res.string.repo_pick_title)) },
+                scrollBehavior = scrollBehavior,
+            )
+        },
+    ) { innerPadding ->
         when (state) {
             RepoPickerState.Loading -> Column(
-                Modifier.fillMaxSize(),
+                Modifier.fillMaxSize().padding(innerPadding),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 CircularProgressIndicator()
                 Text(stringResource(Res.string.repo_pick_loading), Modifier.padding(top = 16.dp))
             }
-            is RepoPickerState.Error -> {
+
+            is RepoPickerState.Error -> Column(Modifier.padding(innerPadding).padding(16.dp)) {
                 Text(stringResource(Res.string.repo_pick_error), color = MaterialTheme.colorScheme.error)
                 Button(onClick = onRetry, modifier = Modifier.padding(top = 8.dp)) {
                     Text(stringResource(Res.string.action_retry))
@@ -62,23 +80,27 @@ fun RepoPickerScreen(
                     Text(stringResource(Res.string.repo_pick_enter_manually))
                 }
             }
+
             is RepoPickerState.Loaded -> {
                 var query by remember { mutableStateOf("") }
-                OutlinedTextField(
-                    value = query,
-                    onValueChange = { query = it },
-                    label = { Text(stringResource(Res.string.repo_pick_search)) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                LazyColumn(Modifier.fillMaxWidth().weight(1f)) {
+                LazyColumn(Modifier.fillMaxSize(), contentPadding = innerPadding) {
+                    item {
+                        OutlinedTextField(
+                            value = query,
+                            onValueChange = { query = it },
+                            label = { Text(stringResource(Res.string.repo_pick_search)) },
+                            placeholder = { Text(stringResource(Res.string.repo_pick_search_hint)) },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                        )
+                    }
                     items(filterRepos(state.repos, query)) { repo ->
                         RepoRow(repo, onChoose)
                     }
                     item {
                         TextButton(
                             onClick = onEnterManually,
-                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                            modifier = Modifier.fillMaxWidth().padding(16.dp),
                         ) {
                             Text(stringResource(Res.string.repo_pick_enter_manually))
                         }
@@ -91,7 +113,7 @@ fun RepoPickerScreen(
 
 @Composable
 private fun RepoRow(repo: GitHubRepo, onChoose: (String) -> Unit) {
-    TextButton(onClick = { onChoose(repo.cloneUrl) }, modifier = Modifier.fillMaxWidth()) {
+    TextButton(onClick = { onChoose(repo.cloneUrl) }, modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             if (repo.private) {
                 Icon(Icons.Filled.Lock, contentDescription = null, modifier = Modifier.padding(end = 8.dp))
