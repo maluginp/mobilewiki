@@ -26,6 +26,15 @@ object MdEdit {
         return EditState(text, s.selStart + prefix.length, s.selEnd + prefix.length)
     }
 
+    /** Вставить wikilink `[[target]]` вместо выделения; каретка после вставки. */
+    fun wikiLink(s: EditState, target: String): EditState {
+        val pre = s.text.substring(0, s.selStart)
+        val post = s.text.substring(s.selEnd)
+        val insert = "[[$target]]"
+        val caret = s.selStart + insert.length
+        return EditState("$pre$insert$post", caret, caret)
+    }
+
     /** Ссылка: есть выделение → "[выд]()" каретка в "()"; нет → "[]()" каретка в "[]". */
     fun link(s: EditState): EditState {
         val pre = s.text.substring(0, s.selStart)

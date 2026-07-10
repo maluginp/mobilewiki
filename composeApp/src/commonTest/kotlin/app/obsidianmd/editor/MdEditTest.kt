@@ -35,4 +35,12 @@ class MdEditTest {
     @Test fun link_empty_caret_in_label() {
         assertEquals(EditState("[]()", 1, 1), MdEdit.link(EditState("", 0, 0)))
     }
+
+    @Test fun wikilink_insert_at_caret() {
+        assertEquals(EditState("[[note]]", 8, 8), MdEdit.wikiLink(EditState("", 0, 0), "note"))
+    }
+
+    @Test fun wikilink_replaces_selection() {
+        assertEquals(EditState("[[x]]", 5, 5), MdEdit.wikiLink(EditState("abc", 0, 3), "x"))
+    }
 }

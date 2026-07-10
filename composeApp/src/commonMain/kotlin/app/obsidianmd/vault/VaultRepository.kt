@@ -58,6 +58,15 @@ class VaultRepository(
         return out.sortedBy { it.relPath }
     }
 
+    // Список .md-документов с заголовком и целью wikilink — для пикера вставки ссылок.
+    // ponytail: читает первую строку-заголовок каждого файла; ок для личного vault.
+    fun documents(): List<DocRef> = allFiles()
+        .filter { it.name.endsWith(".md") }
+        .map {
+            val base = it.name.removeSuffix(".md")
+            DocRef(relPath = it.relPath, title = firstHeading(readFile(it.absPath)) ?: base, target = base)
+        }
+
     fun readBytes(path: String): ByteArray = fs.read(path.toPath()) { readByteArray() }
 
     val rootPath: String get() = root.toString()
