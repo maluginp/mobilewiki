@@ -14,6 +14,9 @@
     <!-- Common actions -->
     <string name="action_save">Save</string>
     <string name="action_cancel">Cancel</string>
+    <string name="action_discard">Don't save</string>
+    <string name="unsaved_title">Unsaved changes</string>
+    <string name="unsaved_message">You have unsaved changes. Save before leaving?</string>
     <string name="action_edit">Edit</string>
     <string name="action_show">Show</string>
     <string name="action_hide">Hide</string>
