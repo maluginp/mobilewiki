@@ -21,15 +21,19 @@ import app.obsidianmd.auth.AuthState
 import app.obsidianmd.auth.AuthViewModel
 import app.obsidianmd.auth.EncryptedTokenStore
 import app.obsidianmd.auth.GitHubDeviceAuth
+import app.obsidianmd.auth.GitHubRepoAccess
 import app.obsidianmd.auth.GitHubRepos
 import app.obsidianmd.auth.RepoPickerViewModel
+import app.obsidianmd.auth.RepoValidationViewModel
 import app.obsidianmd.sync.JGitSync
 import app.obsidianmd.sync.SyncConfig
 import app.obsidianmd.sync.UiConflictResolver
 import app.obsidianmd.settings.SettingsViewModel
 import app.obsidianmd.settings.SharedPrefsRepoSettingsStore
 import app.obsidianmd.ui.LoginScreen
+import app.obsidianmd.ui.ManualUrlScreen
 import app.obsidianmd.ui.RepoPickerScreen
+import app.obsidianmd.ui.RepoValidationScreen
 import app.obsidianmd.ui.VaultViewModel
 import app.obsidianmd.ui.WelcomeScreen
 import io.ktor.client.HttpClient
@@ -86,25 +90,48 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                         }
-                        // 2. Токен есть, репозиторий не выбран — экран выбора репозитория.
+                        // 2. Токен есть, репозиторий не выбран — флоу выбора: список → (ручной ввод) → проверка доступа.
                         !hasRepo -> {
+                            var step by remember { mutableStateOf(RepoStep.List) }
+                            var candidate by remember { mutableStateOf("") }
                             val pickerVm = remember {
                                 RepoPickerViewModel(
                                     repos = GitHubRepos(http),
                                     token = store::get,
-                                    onPick = settingsVm::save,
+                                    onPick = { url -> candidate = url; step = RepoStep.Validate },
                                     scope = lifecycleScope,
                                 )
                             }
                             LaunchedEffect(Unit) { pickerVm.load() }
-                            val pickerState by pickerVm.state.collectAsState()
+                            val validationVm = remember {
+                                RepoValidationViewModel(GitHubRepoAccess(http), store::get, lifecycleScope)
+                            }
                             androidx.compose.foundation.layout.Box(Modifier.safeDrawingPadding()) {
-                                RepoPickerScreen(
-                                    state = pickerState,
-                                    onPick = pickerVm::pick,
-                                    onRetry = pickerVm::load,
-                                    onManualSave = settingsVm::save,
-                                )
+                                when (step) {
+                                    RepoStep.List -> {
+                                        val pickerState by pickerVm.state.collectAsState()
+                                        RepoPickerScreen(
+                                            state = pickerState,
+                                            onChoose = pickerVm::pick,
+                                            onRetry = pickerVm::load,
+                                            onEnterManually = { step = RepoStep.Manual },
+                                        )
+                                    }
+                                    RepoStep.Manual -> ManualUrlScreen(
+                                        onSubmit = { url -> candidate = url; step = RepoStep.Validate },
+                                        onBack = { step = RepoStep.List },
+                                    )
+                                    RepoStep.Validate -> {
+                                        LaunchedEffect(candidate) { validationVm.validate(candidate) }
+                                        val vs by validationVm.state.collectAsState()
+                                        RepoValidationScreen(
+                                            state = vs,
+                                            onContinue = { settingsVm.save(candidate) },
+                                            onRetry = { validationVm.validate(candidate) },
+                                            onBack = { step = RepoStep.List },
+                                        )
+                                    }
+                                }
                             }
                         }
                         // 3. Токен + репозиторий — основной экран.
@@ -138,3 +165,5 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+private enum class RepoStep { List, Manual, Validate }
