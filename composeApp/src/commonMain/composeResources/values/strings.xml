@@ -71,12 +71,13 @@
     <string name="repo_pick_loading">Loading your repositories…</string>
     <string name="repo_pick_search">Search repositories</string>
     <string name="repo_pick_search_hint">e.g. username/notes</string>
+    <string name="repo_pick_not_found">No repositories match your search.</string>
     <string name="repo_pick_manual_label">Repository URL</string>
     <string name="repo_pick_manual_hint">https://github.com/name/repo.git</string>
     <string name="repo_pick_manual_title">Enter a repository URL</string>
-    <string name="repo_pick_enter_manually">Can\'t find it? Enter a URL manually</string>
+    <string name="repo_pick_enter_manually">Can't find it? Enter a URL manually</string>
     <string name="repo_pick_from_github">Choose from GitHub</string>
-    <string name="repo_pick_error">Couldn\'t load your repositories</string>
+    <string name="repo_pick_error">Couldn't load your repositories</string>
     <string name="action_continue">Continue</string>
     <string name="action_back">Back</string>
 
@@ -88,9 +89,9 @@
     <string name="repo_check_denied_body">GitHub returned an error (%1$d). Things to check:</string>
     <string name="repo_check_denied_hint1">• The repository URL is correct (owner/name).</string>
     <string name="repo_check_denied_hint2">• Your GitHub account has access to it (it may be private or in an org).</string>
-    <string name="repo_check_denied_hint3">• You granted the app the \"repo\" scope when signing in.</string>
-    <string name="repo_check_unknown_title">Couldn\'t verify access</string>
-    <string name="repo_check_unknown_body">We couldn\'t reach GitHub to verify access (no network, or not a GitHub URL). You can continue anyway.</string>
+    <string name="repo_check_denied_hint3">• You granted the app the "repo" scope when signing in.</string>
+    <string name="repo_check_unknown_title">Couldn't verify access</string>
+    <string name="repo_check_unknown_body">We couldn't reach GitHub to verify access (no network, or not a GitHub URL). You can continue anyway.</string>
 
     <!-- Conflict dialog -->
     <string name="conflict_title">Conflict: %1$s</string>

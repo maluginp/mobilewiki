@@ -66,6 +66,7 @@ class MainActivity : ComponentActivity() {
             if (authState is AuthState.Success && !loggedIn) loggedIn = true
             val repoUrl by settingsVm.url.collectAsState()
             val hasRepo = repoUrl.isNotBlank()
+            var changingRepo by remember { mutableStateOf(false) }
 
             if (loggedIn && hasRepo) {
                 LaunchedEffect(Unit) {
@@ -90,8 +91,8 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                         }
-                        // 2. Токен есть, репозиторий не выбран — флоу выбора: список → (ручной ввод) → проверка доступа.
-                        !hasRepo -> {
+                        // 2. Токен есть, но репозиторий не выбран (или пользователь меняет его из настроек).
+                        !hasRepo || changingRepo -> {
                             var step by remember { mutableStateOf(RepoStep.List) }
                             var candidate by remember { mutableStateOf("") }
                             val pickerVm = remember {
@@ -106,6 +107,9 @@ class MainActivity : ComponentActivity() {
                             val validationVm = remember {
                                 RepoValidationViewModel(GitHubRepoAccess(http), store::get, lifecycleScope)
                             }
+                            // «Назад» есть только когда есть куда вернуться (смена репо из настроек);
+                            // при первом выборе репозиторий обязателен, поэтому выхода нет.
+                            val exit: (() -> Unit)? = if (hasRepo) ({ changingRepo = false }) else null
                             androidx.compose.foundation.layout.Box(Modifier.safeDrawingPadding()) {
                                 when (step) {
                                     RepoStep.List -> {
@@ -115,6 +119,7 @@ class MainActivity : ComponentActivity() {
                                             onChoose = pickerVm::pick,
                                             onRetry = pickerVm::load,
                                             onEnterManually = { step = RepoStep.Manual },
+                                            onBack = exit,
                                         )
                                     }
                                     RepoStep.Manual -> ManualUrlScreen(
@@ -126,7 +131,7 @@ class MainActivity : ComponentActivity() {
                                         val vs by validationVm.state.collectAsState()
                                         RepoValidationScreen(
                                             state = vs,
-                                            onContinue = { settingsVm.save(candidate) },
+                                            onContinue = { settingsVm.save(candidate); changingRepo = false },
                                             onRetry = { validationVm.validate(candidate) },
                                             onBack = { step = RepoStep.List },
                                         )
@@ -157,7 +162,7 @@ class MainActivity : ComponentActivity() {
                                     scope = lifecycleScope,
                                 )
                             }
-                            App(vm, settingsVm, aiVm, onPickRepoFromGitHub = { settingsVm.save("") })
+                            App(vm, settingsVm, aiVm, onPickRepoFromGitHub = { changingRepo = true })
                         }
                     }
                 }
