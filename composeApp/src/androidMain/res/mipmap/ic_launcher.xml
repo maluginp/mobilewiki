@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Legacy (API 24-25) launcher: adaptive-icon layers flattened, graph scaled up. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path android:pathData="M0,0h108v108h-108z">
+        <aapt:attr xmlns:aapt="http://schemas.android.com/aapt" name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="0" android:startY="0"
+                android:endX="108" android:endY="108"
+                android:startColor="#7C4DFF"
+                android:centerColor="#5E35B1"
+                android:endColor="#311B92" />
+        </aapt:attr>
+    </path>
+    <group android:scaleX="1.35" android:scaleY="1.35" android:pivotX="54" android:pivotY="54">
+        <path
+            android:strokeColor="#E9DDFF"
+            android:strokeWidth="1.6"
+            android:strokeAlpha="0.55"
+            android:strokeLineCap="round"
+            android:pathData="M54,26 L34,38 M54,26 L74,38 M54,26 L54,52 M34,38 L26,58 M34,38 L54,52 M74,38 L82,58 M74,38 L54,52 M26,58 L38,76 M26,58 L54,52 M82,58 L70,76 M82,58 L54,52 M38,76 L54,86 M38,76 L54,52 M70,76 L54,86 M70,76 L54,52 M54,86 L54,52 M34,38 L74,38" />
+        <path
+            android:fillColor="#B39DDB"
+            android:fillAlpha="0.35"
+            android:pathData="M46,26 a8,8 0 1,0 16,0 a8,8 0 1,0 -16,0 Z M44.5,52 a9.5,9.5 0 1,0 19,0 a9.5,9.5 0 1,0 -19,0 Z M46.5,86 a7.5,7.5 0 1,0 15,0 a7.5,7.5 0 1,0 -15,0 Z" />
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M48.5,26 a5.5,5.5 0 1,0 11.0,0 a5.5,5.5 0 1,0 -11.0,0 Z M29.5,38 a4.5,4.5 0 1,0 9.0,0 a4.5,4.5 0 1,0 -9.0,0 Z M69.5,38 a4.5,4.5 0 1,0 9.0,0 a4.5,4.5 0 1,0 -9.0,0 Z M22.0,58 a4.0,4.0 0 1,0 8.0,0 a4.0,4.0 0 1,0 -8.0,0 Z M47.0,52 a7.0,7.0 0 1,0 14.0,0 a7.0,7.0 0 1,0 -14.0,0 Z M78.0,58 a4.0,4.0 0 1,0 8.0,0 a4.0,4.0 0 1,0 -8.0,0 Z M33.5,76 a4.5,4.5 0 1,0 9.0,0 a4.5,4.5 0 1,0 -9.0,0 Z M65.5,76 a4.5,4.5 0 1,0 9.0,0 a4.5,4.5 0 1,0 -9.0,0 Z M49.0,86 a5.0,5.0 0 1,0 10.0,0 a5.0,5.0 0 1,0 -10.0,0 Z" />
+    </group>
+</vector>
