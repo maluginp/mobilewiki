@@ -41,6 +41,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import app.obsidianmd.ai.AiViewModel
+import app.obsidianmd.ai.ModelInfo
 import app.obsidianmd.resources.Res
 import app.obsidianmd.resources.action_ai
 import app.obsidianmd.resources.action_edit
@@ -77,6 +78,7 @@ fun App(
     settingsVm: SettingsViewModel,
     aiVm: AiViewModel?,
     onPickRepoFromGitHub: () -> Unit = {},
+    loadModels: suspend () -> List<ModelInfo> = { emptyList() },
 ) {
     val state by vm.state.collectAsState()
     val syncStatus by vm.syncStatus.collectAsState()
@@ -84,6 +86,7 @@ fun App(
     val url by settingsVm.url.collectAsState()
     val openRouterKey by settingsVm.openRouterKey.collectAsState()
     val aiEnabled by settingsVm.aiEnabled.collectAsState()
+    val aiModel by settingsVm.aiModel.collectAsState()
     var showSettings by remember { mutableStateOf(false) }
     var showAi by remember { mutableStateOf(false) }
     var searching by remember { mutableStateOf(false) }
@@ -236,6 +239,9 @@ fun App(
                         onSync = vm::sync,
                         aiEnabled = aiEnabled,
                         onSetAiEnabled = { settingsVm.setAiEnabled(it) },
+                        aiModel = aiModel,
+                        onSaveModel = { settingsVm.setAiModel(it) },
+                        loadModels = loadModels,
                     )
                     showAi && aiVm != null -> {
                         val messages by aiVm.messages.collectAsState()

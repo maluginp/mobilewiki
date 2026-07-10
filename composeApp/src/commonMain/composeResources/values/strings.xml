@@ -39,6 +39,9 @@
     <string name="action_sync_now">Sync now</string>
     <string name="settings_ai_enable">Enable AI</string>
     <string name="settings_ai_enable_desc">Turn on the in-app AI chat. When enabled, add your OpenRouter key below.</string>
+    <string name="settings_model_label">AI model</string>
+    <string name="settings_model_desc">Model used for the chat. Type to filter the OpenRouter list, or paste a model slug.</string>
+    <string name="settings_model_loading">Loading models…</string>
 
     <!-- Sync status -->
     <string name="sync_syncing">Syncing…</string>

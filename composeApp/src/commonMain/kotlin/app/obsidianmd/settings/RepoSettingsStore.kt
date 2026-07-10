@@ -5,4 +5,6 @@ interface RepoSettingsStore {
     fun setRemoteUrl(url: String)
     fun isAiEnabled(): Boolean
     fun setAiEnabled(enabled: Boolean)
+    fun getAiModel(): String
+    fun setAiModel(model: String)
 }

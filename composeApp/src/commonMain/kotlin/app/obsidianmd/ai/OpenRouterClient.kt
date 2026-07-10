@@ -2,6 +2,7 @@ package app.obsidianmd.ai
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -37,7 +38,19 @@ data class ChatResponse(val choices: List<Choice>)
 @Serializable
 private data class ChatRequest(val model: String, val messages: List<ChatMessage>, val tools: JsonElement)
 
-private const val MODEL = "openai/gpt-4o-mini"
+const val DEFAULT_MODEL = "openai/gpt-4o-mini"
+
+@Serializable
+data class ModelInfo(val id: String, val name: String = id)
+
+@Serializable
+private data class ModelsResponse(val data: List<ModelInfo>)
+
+/** Список моделей OpenRouter (для пикера в настройках). Ключ передаётся в заголовке. */
+suspend fun fetchModels(http: HttpClient, apiKey: String): List<ModelInfo> =
+    http.get("https://openrouter.ai/api/v1/models") {
+        if (apiKey.isNotBlank()) header(HttpHeaders.Authorization, "Bearer $apiKey")
+    }.body<ModelsResponse>().data.sortedBy { it.name.lowercase() }
 
 // Описания инструментов для function calling.
 internal val TOOLS: JsonElement = Json.parseToJsonElement(
@@ -53,11 +66,12 @@ internal val TOOLS: JsonElement = Json.parseToJsonElement(
 class OpenRouterClient(
     private val http: HttpClient,
     private val apiKey: String,
+    private val model: String = DEFAULT_MODEL,
 ) : ChatClient {
     override suspend fun chat(messages: List<ChatMessage>): ChatResponse =
         http.post("https://openrouter.ai/api/v1/chat/completions") {
             header(HttpHeaders.Authorization, "Bearer $apiKey")
             contentType(ContentType.Application.Json)
-            setBody(ChatRequest(MODEL, messages, TOOLS))
+            setBody(ChatRequest(model, messages, TOOLS))
         }.body()
 }

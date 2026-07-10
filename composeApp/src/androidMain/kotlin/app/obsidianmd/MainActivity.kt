@@ -177,12 +177,13 @@ class MainActivity : ComponentActivity() {
             // 3. Токен + репозиторий — основной экран.
             else -> {
                 val aiEnabled by d.settingsVm.aiEnabled.collectAsState()
-                // Чтение ключа зашифровано — не дёргаем его на каждой рекомпозиции, только при смене флага.
-                val aiVm = remember(aiEnabled) {
+                val aiModel by d.settingsVm.aiModel.collectAsState()
+                // Чтение ключа зашифровано — не дёргаем его на каждой рекомпозиции, только при смене флага/модели.
+                val aiVm = remember(aiEnabled, aiModel) {
                     d.apiKeyStore.getKey()
                         ?.takeIf { it.isNotBlank() && aiEnabled }
                         ?.let { key ->
-                            val client = app.obsidianmd.ai.OpenRouterClient(d.http, key)
+                            val client = app.obsidianmd.ai.OpenRouterClient(d.http, key, aiModel)
                             app.obsidianmd.ai.AiViewModel(
                                 runAgent = { history, approver ->
                                     app.obsidianmd.ai.AiAgent(client, d.repo, approver).ask(history)
@@ -191,7 +192,13 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                 }
-                App(vaultVm, d.settingsVm, aiVm, onPickRepoFromGitHub = { changingRepo = true })
+                App(
+                    vaultVm,
+                    d.settingsVm,
+                    aiVm,
+                    onPickRepoFromGitHub = { changingRepo = true },
+                    loadModels = { app.obsidianmd.ai.fetchModels(d.http, d.apiKeyStore.getKey().orEmpty()) },
+                )
             }
         }
     }
