@@ -67,6 +67,18 @@ class MainActivity : ComponentActivity() {
             val repoUrl by settingsVm.url.collectAsState()
             val hasRepo = repoUrl.isNotBlank()
             var changingRepo by remember { mutableStateOf(false) }
+            val vaultVm = remember {
+                VaultViewModel(
+                    repo, lifecycleScope, Dispatchers.IO,
+                    gitSync = JGitSync(),
+                    syncConfigProvider = {
+                        settingsStore.getRemoteUrl()?.takeIf { it.isNotBlank() }?.let { url ->
+                            SyncConfig(remoteUrl = url, localPath = root.toString(), token = store.get())
+                        }
+                    },
+                    resolver = UiConflictResolver(),
+                )
+            }
 
             if (loggedIn && hasRepo) {
                 LaunchedEffect(Unit) {
@@ -131,7 +143,9 @@ class MainActivity : ComponentActivity() {
                                         val vs by validationVm.state.collectAsState()
                                         RepoValidationScreen(
                                             state = vs,
-                                            onContinue = { settingsVm.save(candidate); changingRepo = false },
+                                            // Сменили репо → сохраняем URL и сразу синкаем: JGitSync снесёт старый
+                                            // клон (origin не совпадает) и выкачает новый, чтобы не остались старые файлы.
+                                            onContinue = { settingsVm.save(candidate); changingRepo = false; vaultVm.sync() },
                                             onRetry = { validationVm.validate(candidate) },
                                             onBack = { step = RepoStep.List },
                                         )
@@ -141,16 +155,7 @@ class MainActivity : ComponentActivity() {
                         }
                         // 3. Токен + репозиторий — основной экран.
                         else -> {
-                            val vm = VaultViewModel(
-                                repo, lifecycleScope, Dispatchers.IO,
-                                gitSync = JGitSync(),
-                                syncConfigProvider = {
-                                    settingsStore.getRemoteUrl()?.takeIf { it.isNotBlank() }?.let { url ->
-                                        SyncConfig(remoteUrl = url, localPath = root.toString(), token = store.get())
-                                    }
-                                },
-                                resolver = UiConflictResolver(),
-                            )
+                            val vm = vaultVm
                             val aiVm = apiKeyStore.getKey()
                                 ?.takeIf { it.isNotBlank() && settingsStore.isAiEnabled() }
                                 ?.let { key ->
