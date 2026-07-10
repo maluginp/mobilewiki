@@ -84,8 +84,10 @@ fun App(
     var draft by remember { mutableStateOf("") }
     var showUnsaved by remember { mutableStateOf(false) }
     val dirty = editing && draft != state.content
+    val documents by vm.documents.collectAsState()
     LaunchedEffect(Unit) { vm.refresh() }
     LaunchedEffect(state.selected) { editing = false } // сброс режима правки при смене файла
+    LaunchedEffect(editing) { if (editing) vm.loadDocuments() } // подгрузить документы для пикера ссылок
 
     val onHome = !showSettings && !showAi && state.selected == null
     val homeSearching = onHome && searching
@@ -241,6 +243,7 @@ fun App(
                         draft = draft,
                         onDraftChange = { draft = it },
                         files = state.allFiles,
+                        documents = documents,
                         loadImage = { path -> decodeImage(vm.bytesOf(path)) },
                         onOpenPath = vm::openPath,
                     )

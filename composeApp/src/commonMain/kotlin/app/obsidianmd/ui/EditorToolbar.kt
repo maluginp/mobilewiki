@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.CheckBox
 import androidx.compose.material.icons.filled.FormatBold
 import androidx.compose.material.icons.filled.FormatItalic
@@ -29,6 +30,7 @@ private val ICON = 20.dp
 @Composable
 fun EditorToolbar(
     onTransform: ((EditState) -> EditState) -> Unit,
+    onPickDocument: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(modifier.fillMaxWidth().height(BAR_HEIGHT).horizontalScroll(rememberScrollState())) {
@@ -38,6 +40,7 @@ fun EditorToolbar(
         Btn({ onTransform { MdEdit.linePrefix(it, "- ") } }) { Icon(Icons.Filled.FormatListBulleted, "List", Modifier.size(ICON)) }
         Btn({ onTransform { MdEdit.linePrefix(it, "- [ ] ") } }) { Icon(Icons.Filled.CheckBox, "Checkbox", Modifier.size(ICON)) }
         Btn({ onTransform { MdEdit.link(it) } }) { Icon(Icons.Filled.Link, "Link", Modifier.size(ICON)) }
+        Btn(onPickDocument) { Icon(Icons.AutoMirrored.Filled.MenuBook, "Link to note", Modifier.size(ICON)) }
     }
 }
 

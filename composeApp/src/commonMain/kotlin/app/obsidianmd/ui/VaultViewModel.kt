@@ -45,6 +45,14 @@ class VaultViewModel(
     val syncStatus: StateFlow<SyncStatus> = _syncStatus.asStateFlow()
     val pendingConflict: StateFlow<app.obsidianmd.sync.MdConflict?> = resolver.pending
 
+    private val _documents = MutableStateFlow<List<app.obsidianmd.vault.DocRef>>(emptyList())
+    val documents: StateFlow<List<app.obsidianmd.vault.DocRef>> = _documents.asStateFlow()
+
+    /** Загрузить список документов (с заголовками) для пикера ссылок — чтение на IO. */
+    fun loadDocuments() {
+        scope.launch { _documents.value = withContext(io) { repo.documents() } }
+    }
+
     fun sync() {
         val cfg = syncConfigProvider()
         val engine = gitSync
