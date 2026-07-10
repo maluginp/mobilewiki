@@ -10,6 +10,7 @@
     <string name="cd_close_search">Close search</string>
     <string name="search_hint">Search notes</string>
     <string name="action_ai">AI</string>
+    <string name="nav_brain">Brain</string>
 
     <!-- Common actions -->
     <string name="action_save">Save</string>
@@ -56,6 +57,7 @@
     <string name="action_apply">Apply</string>
     <string name="action_reject">Reject</string>
     <string name="ai_unavailable">No OpenRouter key set — add it in Settings.</string>
+    <string name="ai_open_settings">Open Settings</string>
 
     <!-- Onboarding -->
     <string name="onboarding_title">Welcome to Brainer</string>

@@ -5,16 +5,21 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -34,17 +39,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import app.obsidianmd.ai.AiViewModel
 import app.obsidianmd.resources.Res
 import app.obsidianmd.resources.action_ai
 import app.obsidianmd.resources.action_edit
 import app.obsidianmd.resources.action_save
 import app.obsidianmd.resources.action_discard
+import app.obsidianmd.resources.ai_open_settings
 import app.obsidianmd.resources.ai_unavailable
 import app.obsidianmd.resources.cd_back
 import app.obsidianmd.resources.cd_close_search
 import app.obsidianmd.resources.cd_search
 import app.obsidianmd.resources.cd_settings
+import app.obsidianmd.resources.nav_brain
 import app.obsidianmd.resources.search_hint
 import app.obsidianmd.resources.title_ai_chat
 import app.obsidianmd.resources.title_note
@@ -164,11 +172,6 @@ fun App(
                                     contentDescription = stringResource(Res.string.cd_search),
                                 )
                             }
-                            if (aiEnabled) {
-                                TextButton(onClick = { showAi = true }) {
-                                    Text(stringResource(Res.string.action_ai))
-                                }
-                            }
                             IconButton(onClick = { showSettings = true }) {
                                 Icon(
                                     Icons.Filled.Settings,
@@ -201,6 +204,25 @@ fun App(
                     },
                 )
             },
+            bottomBar = {
+                // Нижняя навигация появляется только при включённом AI: Brain (заметки) ↔ AI.
+                if (aiEnabled && !showSettings) {
+                    NavigationBar {
+                        NavigationBarItem(
+                            selected = !showAi,
+                            onClick = { showAi = false },
+                            icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = null) },
+                            label = { Text(stringResource(Res.string.nav_brain)) },
+                        )
+                        NavigationBarItem(
+                            selected = showAi,
+                            onClick = { showAi = true },
+                            icon = { Icon(Icons.Filled.Face, contentDescription = null) },
+                            label = { Text(stringResource(Res.string.action_ai)) },
+                        )
+                    }
+                }
+            },
         ) { padding ->
             Surface(Modifier.padding(padding)) {
                 when {
@@ -228,7 +250,9 @@ fun App(
                             onReject = aiVm::rejectWrite,
                         )
                     }
-                    showAi && aiVm == null -> AiUnavailable()
+                    showAi && aiVm == null -> AiUnavailable(
+                        onOpenSettings = { showAi = false; showSettings = true },
+                    )
                     state.selected == null -> VaultListScreen(
                         state,
                         onOpenFile = vm::open,
@@ -275,8 +299,14 @@ fun App(
 }
 
 @Composable
-private fun AiUnavailable() {
-    Column {
-        Text(stringResource(Res.string.ai_unavailable))
+private fun AiUnavailable(onOpenSettings: () -> Unit) {
+    Column(Modifier.padding(16.dp)) {
+        Text(
+            stringResource(Res.string.ai_unavailable),
+            color = MaterialTheme.colorScheme.error,
+        )
+        Button(onClick = onOpenSettings, modifier = Modifier.padding(top = 12.dp)) {
+            Text(stringResource(Res.string.ai_open_settings))
+        }
     }
 }
