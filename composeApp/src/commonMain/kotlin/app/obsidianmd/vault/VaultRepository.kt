@@ -78,11 +78,13 @@ class VaultRepository(
 
     // ponytail: наивный полный скан содержимого, без индекса — ок для личного vault;
     // индекс, если станет медленно на больших хранилищах.
+    // Ищем по всему дереву (включая подпапки), не только по корню.
     fun search(query: String): List<MdFile> {
         if (query.isBlank()) return emptyList()
         val q = query.lowercase()
-        return listMarkdownFiles().filter { f ->
-            f.name.lowercase().contains(q) || readFile(f.path).lowercase().contains(q)
-        }
+        return allFiles()
+            .filter { it.name.endsWith(".md") }
+            .filter { it.name.lowercase().contains(q) || readFile(it.absPath).lowercase().contains(q) }
+            .map { MdFile(name = it.name, path = it.absPath) }
     }
 }

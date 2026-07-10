@@ -122,4 +122,19 @@ class VaultRepositoryTest {
         assertEquals(listOf("todo.md"), repo.search("TODO").map { it.name })
         assertEquals(emptyList(), repo.search(""))
     }
+
+    @Test
+    fun search_walks_subfolders() {
+        val fs = FakeFileSystem()
+        fs.createDirectories(root / "sub" / "deep")
+        fs.createDirectories(root / ".git")
+        fs.write(root / "a.md") { writeUtf8("nothing") }
+        fs.write(root / "sub" / "match-name.md") { writeUtf8("x") }
+        fs.write(root / "sub" / "deep" / "bybody.md") { writeUtf8("нужное слово") }
+        fs.write(root / ".git" / "config.md") { writeUtf8("нужное слово") } // dot-каталог пропускается
+        val repo = VaultRepository(fs, root)
+
+        assertEquals(listOf("match-name.md"), repo.search("match-name").map { it.name })
+        assertEquals(listOf("bybody.md"), repo.search("нужное").map { it.name })
+    }
 }
