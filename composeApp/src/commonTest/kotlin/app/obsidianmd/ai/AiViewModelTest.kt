@@ -33,7 +33,7 @@ class AiViewModelTest {
     fun send_shows_user_and_assistant_turns() = runTest(dispatcher) {
         val client = ScriptedClient(listOf(answer("ответ")))
         val r = repo()
-        val vm = AiViewModel({ history, approver -> AiAgent(client, r, approver).ask(history) })
+        val vm = AiViewModel({ history, approver -> AiAgent(client, r, approver, io = dispatcher).ask(history) })
         vm.send("привет")
         advanceUntilIdle()
         assertEquals(
@@ -52,7 +52,7 @@ class AiViewModelTest {
                 answer("сохранил"),
             ),
         )
-        val vm = AiViewModel({ history, approver -> AiAgent(client, r, approver).ask(history) })
+        val vm = AiViewModel({ history, approver -> AiAgent(client, r, approver, io = dispatcher).ask(history) })
         vm.send("создай n.md")
         runCurrent()
         assertEquals("n.md" to "c", vm.state.value.pendingWrite)
