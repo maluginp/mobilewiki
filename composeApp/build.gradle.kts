@@ -51,6 +51,7 @@ kotlin {
             implementation(libs.androidx.work.runtime)
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.startup)
+            implementation(libs.appmetrica.analytics)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

@@ -2,6 +2,7 @@ package app.obsidianmd.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.obsidianmd.analytics.Analytics
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,7 +26,10 @@ class RepoValidationViewModel(
         viewModelScope.launch {
             _state.value = ValidationState.Checking
             _state.value = when (val r = access.check(token().orEmpty(), url)) {
-                is AccessResult.Ok -> ValidationState.Ok
+                is AccessResult.Ok -> {
+                    Analytics.event("repo_connected")
+                    ValidationState.Ok
+                }
                 is AccessResult.Denied -> ValidationState.Denied(r.status)
                 is AccessResult.Unknown -> ValidationState.Unknown(r.reason)
             }

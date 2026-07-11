@@ -2,6 +2,7 @@ package app.obsidianmd.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.obsidianmd.analytics.Analytics
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,6 +23,7 @@ class AuthViewModel(
     val state: StateFlow<AuthState> = _state.asStateFlow()
 
     fun login() {
+        Analytics.event("login_start")
         viewModelScope.launch {
             try {
                 val da = auth.requestDeviceCode()
@@ -29,11 +31,16 @@ class AuthViewModel(
                 _state.value = when (val r = auth.poll(da)) {
                     is AuthResult.Success -> {
                         store.save(r.token)
+                        Analytics.event("login_success")
                         AuthState.Success
                     }
-                    is AuthResult.Failed -> AuthState.Failed(r.reason)
+                    is AuthResult.Failed -> {
+                        Analytics.event("login_fail", mapOf("reason" to r.reason))
+                        AuthState.Failed(r.reason)
+                    }
                 }
             } catch (e: Exception) {
+                Analytics.event("login_fail", mapOf("reason" to (e.message ?: e.toString())))
                 _state.value = AuthState.Failed(e.message ?: e.toString())
             }
         }

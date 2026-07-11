@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.obsidianmd.ai.AiProvider
 import app.obsidianmd.ai.ModelInfo
+import app.obsidianmd.analytics.Analytics
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -51,6 +52,7 @@ class SettingsViewModel(
     }
 
     fun setAiEnabled(enabled: Boolean) {
+        Analytics.event("ai_toggled", mapOf("enabled" to enabled.toString()))
         store.setAiEnabled(enabled)
         _state.update { it.copy(aiEnabled = enabled) }
         if (enabled) loadModels()
@@ -58,6 +60,7 @@ class SettingsViewModel(
 
     /** Смена провайдера: подтягиваем его собственные ключ и модель, сбрасываем список моделей. */
     fun setProvider(provider: AiProvider) {
+        Analytics.event("ai_provider_changed", mapOf("provider" to provider.id))
         store.setProvider(provider.id)
         _state.update {
             it.copy(
@@ -83,6 +86,7 @@ class SettingsViewModel(
     }
 
     fun setAiModel(model: String) {
+        Analytics.event("ai_model_changed", mapOf("model" to model))
         store.setAiModel(_state.value.provider.id, model)
         _state.update { it.copy(aiModel = model) }
     }

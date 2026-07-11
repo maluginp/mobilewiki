@@ -4,6 +4,7 @@ import app.obsidianmd.vault.MdFile
 import app.obsidianmd.vault.VaultEntry
 import app.obsidianmd.vault.VaultFile
 import app.obsidianmd.vault.VaultRepository
+import app.obsidianmd.analytics.Analytics
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
@@ -72,6 +73,7 @@ class VaultViewModel(
         viewModelScope.launch {
             _state.update { it.copy(syncStatus = SyncStatus.Running) }
             val result = engine.sync(cfg, resolver)
+            Analytics.event("sync", mapOf("result" to (result::class.simpleName ?: "unknown")))
             if (result !is app.obsidianmd.sync.SyncResult.Failed) {
                 loadDir(_state.value.currentDir.ifBlank { repo.rootPath })
             }
@@ -120,6 +122,7 @@ class VaultViewModel(
     /** Открыть файл по абсолютному пути (навигация по wikilink) — добавляет в историю. */
     fun openPath(absPath: String) {
         val file = MdFile(absPath.substringAfterLast('/'), absPath)
+        Analytics.event("note_open", mapOf("source" to "wikilink"))
         history.addLast(file)
         loadSelected(file)
     }
@@ -129,6 +132,7 @@ class VaultViewModel(
 
     /** Открыть файл из списка — начинает историю заново. */
     fun open(file: MdFile) {
+        Analytics.event("note_open", mapOf("source" to "list"))
         history.clear()
         history.addLast(file)
         loadSelected(file)
@@ -162,6 +166,7 @@ class VaultViewModel(
     }
 
     fun saveFile(path: String, content: String) {
+        Analytics.event("note_save")
         viewModelScope.launch {
             withContext(io) { repo.writeFile(path, content) }
             _state.value = _state.value.copy(content = content)

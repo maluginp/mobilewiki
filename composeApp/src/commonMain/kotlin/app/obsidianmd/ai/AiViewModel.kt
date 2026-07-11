@@ -2,6 +2,7 @@ package app.obsidianmd.ai
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.obsidianmd.analytics.Analytics
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -42,18 +43,23 @@ class AiViewModel(
     }
 
     fun send(text: String) {
+        Analytics.event("ai_message")
         _state.update { it.copy(messages = it.messages + ChatTurn("user", text), status = AiStatus.Thinking) }
         viewModelScope.launch {
             val history = _state.value.messages.map { ChatMessage(role = it.role, content = it.text) }
             when (val r = runAgent(history, approver)) {
-                is AiResult.Answer ->
+                is AiResult.Answer -> {
+                    Analytics.event("ai_response")
                     _state.update { it.copy(messages = it.messages + ChatTurn("assistant", r.text), status = AiStatus.Done) }
-                is AiResult.Failed ->
+                }
+                is AiResult.Failed -> {
+                    Analytics.event("ai_error", mapOf("reason" to r.reason))
                     _state.update { it.copy(status = AiStatus.Failed(r.reason)) }
+                }
             }
         }
     }
 
-    fun approveWrite() { writeDecision?.complete(true) }
-    fun rejectWrite() { writeDecision?.complete(false) }
+    fun approveWrite() { Analytics.event("ai_write_approved"); writeDecision?.complete(true) }
+    fun rejectWrite() { Analytics.event("ai_write_rejected"); writeDecision?.complete(false) }
 }
