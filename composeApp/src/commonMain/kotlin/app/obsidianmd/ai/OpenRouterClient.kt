@@ -10,6 +10,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
+import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
@@ -21,8 +22,15 @@ import kotlinx.serialization.json.JsonPrimitive
 @Serializable
 data class FunctionCall(val name: String, val arguments: String)
 
+// type="function" обязателен по OpenAI-спеке при отправке assistant.tool_calls обратно; строгие
+// провайдеры (provod.ai) без него отвечают 400. @EncodeDefault — иначе значение по умолчанию
+// не сериализуется (encodeDefaults=false). OpenRouter принимал и без type.
 @Serializable
-data class ToolCall(val id: String = "", val function: FunctionCall)
+data class ToolCall(
+    val id: String = "",
+    @EncodeDefault(EncodeDefault.Mode.ALWAYS) val type: String = "function",
+    val function: FunctionCall,
+)
 
 @Serializable
 data class ChatMessage(

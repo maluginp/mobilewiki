@@ -11,7 +11,7 @@ class ScriptedClient(private val steps: List<ChatResponse>) : ChatClient {
 }
 
 fun toolResp(name: String, args: String) = ChatResponse(
-    listOf(Choice(ChatMessage(role = "assistant", toolCalls = listOf(ToolCall("c-$name", FunctionCall(name, args)))))),
+    listOf(Choice(ChatMessage(role = "assistant", toolCalls = listOf(ToolCall(id = "c-$name", function = FunctionCall(name, args)))))),
 )
 
 fun answer(text: String) = ChatResponse(listOf(Choice(ChatMessage(role = "assistant", content = text))))

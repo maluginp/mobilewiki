@@ -14,6 +14,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 private fun client(body: String): OpenRouterClient {
     val engine = MockEngine {
@@ -49,6 +50,18 @@ class OpenRouterClientTest {
                 .chat(listOf(ChatMessage(role = "user", content = "test")))
         }
         assertEquals("Access denied by security policy.", ex.message)
+    }
+
+    // Строгие провайдеры (provod.ai) требуют type="function" в assistant.tool_calls при отправке
+    // обратно — иначе 400. Значение по умолчанию должно сериализоваться (@EncodeDefault).
+    @Test
+    fun assistant_tool_calls_serialize_with_type_function() {
+        val msg = ChatMessage(
+            role = "assistant",
+            toolCalls = listOf(ToolCall(id = "c1", function = FunctionCall("search_notes", "{}"))),
+        )
+        val json = Json.encodeToString(ChatMessage.serializer(), msg)
+        assertTrue(json.contains("\"type\":\"function\""), json)
     }
 
     @Test
