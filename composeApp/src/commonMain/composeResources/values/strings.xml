@@ -49,6 +49,15 @@
     <string name="title_model_picker">AI model</string>
     <string name="model_search_hint">Search models</string>
     <string name="models_empty">No models available. Pull to refresh.</string>
+    <string name="model_filter_price">Price</string>
+    <string name="model_filter_context">Context</string>
+    <string name="filter_any">Any</string>
+    <string name="filter_price_free">Free</string>
+    <string name="filter_price_under_1">≤ $1/M</string>
+    <string name="filter_price_under_5">≤ $5/M</string>
+    <string name="filter_ctx_32k">≥ 32K</string>
+    <string name="filter_ctx_128k">≥ 128K</string>
+    <string name="filter_ctx_1m">≥ 1M</string>
 
     <!-- Sync status -->
     <string name="sync_syncing">Syncing…</string>

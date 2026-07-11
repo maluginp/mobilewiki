@@ -68,11 +68,15 @@ fun ModelInfo.contextLabel(): String {
     }
 }
 
+/** Цена входных токенов за 1M в USD; null если цены нет или она отрицательная
+ *  (OpenRouter отдаёт -1 для роутеров с «переменной» ценой, напр. openrouter/auto). */
+fun ModelInfo.pricePerMillion(): Double? =
+    pricing?.prompt?.toDoubleOrNull()?.takeIf { it >= 0 }?.let { it * 1_000_000 }
+
 /** Цена входных токенов за 1M: «$0.15/M» / «Free»; пусто, если цены нет. */
 fun ModelInfo.priceLabel(): String {
-    val perToken = pricing?.prompt?.toDoubleOrNull() ?: return ""
-    if (perToken == 0.0) return "Free"
-    val perMillion = perToken * 1_000_000
+    val perMillion = pricePerMillion() ?: return ""
+    if (perMillion == 0.0) return "Free"
     val text = if (perMillion == perMillion.toLong().toDouble()) {
         perMillion.toLong().toString()
     } else {
@@ -81,6 +85,22 @@ fun ModelInfo.priceLabel(): String {
     }
     return "\$$text/M"
 }
+
+/** Порог макс. цены за 1M токенов (null = любая). */
+enum class PriceFilter(val maxPerMillion: Double?) { ANY(null), FREE(0.0), UNDER_1(1.0), UNDER_5(5.0) }
+
+/** Порог мин. размера контекста (null = любой). */
+enum class ContextFilter(val minContext: Long?) { ANY(null), K32(32_000), K128(128_000), M1(1_000_000) }
+
+/** Поиск + фильтры по цене/контексту. Модель без нужного поля отсекается активным фильтром. */
+fun List<ModelInfo>.filterModels(query: String, price: PriceFilter, context: ContextFilter): List<ModelInfo> =
+    filter { m ->
+        val matchesQuery = query.isBlank() ||
+            m.id.contains(query, ignoreCase = true) || m.name.contains(query, ignoreCase = true)
+        val matchesPrice = price.maxPerMillion?.let { max -> (m.pricePerMillion() ?: return@let false) <= max } ?: true
+        val matchesContext = context.minContext?.let { min -> (m.contextLength ?: -1L) >= min } ?: true
+        matchesQuery && matchesPrice && matchesContext
+    }
 
 @Serializable
 private data class ModelsResponse(val data: List<ModelInfo>)
