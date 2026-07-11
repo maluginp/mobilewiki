@@ -33,7 +33,14 @@ data class ChatMessage(
 data class Choice(val message: ChatMessage)
 
 @Serializable
-data class ChatResponse(val choices: List<Choice>)
+data class ApiError(val message: String)
+
+// choices default [] + optional error: OpenRouter returns {"error":{...}} (no choices) on
+// bad key / no credits / bad model. Without the default, deserialization throws and crashes the app.
+@Serializable
+data class ChatResponse(val choices: List<Choice> = emptyList(), val error: ApiError? = null)
+
+class OpenRouterException(message: String) : Exception(message)
 
 @Serializable
 private data class ChatRequest(val model: String, val messages: List<ChatMessage>, val tools: JsonElement)
@@ -68,10 +75,13 @@ class OpenRouterClient(
     private val apiKey: String,
     private val model: String = DEFAULT_MODEL,
 ) : ChatClient {
-    override suspend fun chat(messages: List<ChatMessage>): ChatResponse =
-        http.post("https://openrouter.ai/api/v1/chat/completions") {
+    override suspend fun chat(messages: List<ChatMessage>): ChatResponse {
+        val resp: ChatResponse = http.post("https://openrouter.ai/api/v1/chat/completions") {
             header(HttpHeaders.Authorization, "Bearer $apiKey")
             contentType(ContentType.Application.Json)
             setBody(ChatRequest(model, messages, TOOLS))
         }.body()
+        resp.error?.let { throw OpenRouterException(it.message) }
+        return resp
+    }
 }

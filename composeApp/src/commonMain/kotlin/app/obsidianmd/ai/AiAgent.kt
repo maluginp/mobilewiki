@@ -1,6 +1,7 @@
 package app.obsidianmd.ai
 
 import app.obsidianmd.vault.VaultRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -22,7 +23,15 @@ class AiAgent(
 ) {
     private val json = Json { ignoreUnknownKeys = true }
 
-    suspend fun ask(history: List<ChatMessage>): AiResult {
+    suspend fun ask(history: List<ChatMessage>): AiResult = try {
+        run(history)
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        AiResult.Failed(e.message ?: "request failed")
+    }
+
+    private suspend fun run(history: List<ChatMessage>): AiResult {
         val messages = history.toMutableList()
         repeat(maxSteps) {
             val msg = client.chat(messages).choices.firstOrNull()?.message

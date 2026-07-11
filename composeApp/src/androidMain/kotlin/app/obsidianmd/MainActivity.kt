@@ -167,8 +167,9 @@ class MainActivity : ComponentActivity() {
                 val aiEnabled = settings.aiEnabled
                 val aiModel = settings.aiModel
                 val apiKeyStore: ApiKeyStore = koinInject()
-                // Чтение ключа зашифровано — не дёргаем его на каждой рекомпозиции, только при смене флага/модели.
-                val aiKey = remember(aiEnabled, aiModel) {
+                // Чтение ключа зашифровано — не дёргаем его на каждой рекомпозиции, только при смене
+                // флага/модели/самого ключа (иначе только что сохранённый ключ не подхватится до перезапуска).
+                val aiKey = remember(aiEnabled, aiModel, settings.openRouterKey) {
                     apiKeyStore.getKey()?.takeIf { it.isNotBlank() && aiEnabled }
                 }
                 // key = aiModel: смена модели создаёт новый ViewModel с новым клиентом (история чата сбрасывается).

@@ -59,6 +59,16 @@ class AiAgentTest {
     }
 
     @Test
+    fun client_error_fails_instead_of_crashing() = runTest {
+        val client = object : ChatClient {
+            override suspend fun chat(messages: List<ChatMessage>): ChatResponse =
+                throw OpenRouterException("No auth credentials found")
+        }
+        val result = AiAgent(client, repo(), { _, _ -> true }).ask(listOf(ChatMessage("user", "hi")))
+        assertEquals(AiResult.Failed("No auth credentials found"), result)
+    }
+
+    @Test
     fun exceeding_max_steps_fails() = runTest {
         val loop = List(10) { toolResp("search_notes", """{"query":"x"}""") }
         val agent = AiAgent(ScriptedClient(loop), repo(), { _, _ -> true }, maxSteps = 3)
