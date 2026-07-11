@@ -12,6 +12,8 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertNull
 
 private fun client(body: String): OpenRouterClient {
     val engine = MockEngine {
@@ -36,5 +38,25 @@ class OpenRouterClientTest {
         val resp = client(body).chat(listOf(ChatMessage(role = "user", content = "найди x")))
         val call = resp.choices.first().message.toolCalls!!.first()
         assertEquals("search_notes", call.function.name)
+    }
+
+    // Шлюз/security-policy отдаёт свою форму {"success":false,"error":"..."} — не роняем сырое
+    // исключение десериализатора, а показываем понятный текст ошибки.
+    @Test
+    fun surfaces_gateway_error_string_instead_of_deserializer_crash() = runTest {
+        val ex = assertFailsWith<OpenRouterException> {
+            client("""{ "success": false, "error": "Access denied by security policy." }""")
+                .chat(listOf(ChatMessage(role = "user", content = "test")))
+        }
+        assertEquals("Access denied by security policy.", ex.message)
+    }
+
+    @Test
+    fun extract_error_reads_common_shapes() {
+        assertEquals("denied", extractApiError("""{"success":false,"error":"denied"}"""))
+        assertEquals("no credits", extractApiError("""{"error":{"message":"no credits"}}"""))
+        assertEquals("bad gateway", extractApiError("""{"message":"bad gateway"}"""))
+        assertNull(extractApiError("<html>502</html>"))
+        assertNull(extractApiError("""{"choices":[]}"""))
     }
 }

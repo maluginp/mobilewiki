@@ -6,13 +6,17 @@ import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 
 @Serializable
 data class FunctionCall(val name: String, val arguments: String)
@@ -41,6 +45,18 @@ data class ApiError(val message: String)
 data class ChatResponse(val choices: List<Choice> = emptyList(), val error: ApiError? = null)
 
 class OpenRouterException(message: String) : Exception(message)
+
+/** Понятное сообщение об ошибке из «чужого» тела ответа (шлюз/прокси/security policy),
+ *  которое не ложится в схему ChatResponse: {"error":"..."} / {"error":{"message":"..."}} / {"message":"..."}.
+ *  null, если тело — не JSON-объект или в нём нет узнаваемого поля ошибки. */
+internal fun extractApiError(rawBody: String): String? {
+    val obj = runCatching { Json.parseToJsonElement(rawBody) }.getOrNull() as? JsonObject ?: return null
+    fun str(e: JsonElement?) = (e as? JsonPrimitive)?.takeIf { it.isString }?.content?.takeIf { it.isNotBlank() }
+    str((obj["error"] as? JsonObject)?.get("message"))?.let { return it }
+    str(obj["error"])?.let { return it }
+    str(obj["message"])?.let { return it }
+    return null
+}
 
 @Serializable
 private data class ChatRequest(val model: String, val messages: List<ChatMessage>, val tools: JsonElement)
@@ -143,12 +159,24 @@ class OpenRouterClient(
     private val model: String = DEFAULT_MODEL,
 ) : ChatClient {
     override suspend fun chat(messages: List<ChatMessage>): ChatResponse {
-        val resp: ChatResponse = http.post("https://openrouter.ai/api/v1/chat/completions") {
+        val response = http.post("https://openrouter.ai/api/v1/chat/completions") {
             header(HttpHeaders.Authorization, "Bearer $apiKey")
             contentType(ContentType.Application.Json)
             setBody(ChatRequest(model, messages, TOOLS))
-        }.body()
-        resp.error?.let { throw OpenRouterException(it.message) }
-        return resp
+        }
+        // Читаем тело сами: если ответ не ложится в ChatResponse (шлюз/прокси/security policy
+        // отдают свою форму с error-строкой), не роняем сырое исключение десериализатора в чат,
+        // а достаём понятное сообщение.
+        val raw = response.bodyAsText()
+        val parsed = runCatching { LENIENT.decodeFromString<ChatResponse>(raw) }.getOrNull()
+        if (parsed != null) {
+            parsed.error?.let { throw OpenRouterException(it.message) }
+            return parsed
+        }
+        throw OpenRouterException(extractApiError(raw) ?: "request failed (HTTP ${response.status.value})")
+    }
+
+    private companion object {
+        val LENIENT = Json { ignoreUnknownKeys = true }
     }
 }
