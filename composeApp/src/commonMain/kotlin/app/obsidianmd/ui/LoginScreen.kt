@@ -27,6 +27,7 @@ import app.obsidianmd.resources.action_retry
 import app.obsidianmd.resources.login_code_copied
 import app.obsidianmd.resources.login_copy_code
 import app.obsidianmd.resources.login_error
+import app.obsidianmd.resources.login_instructions
 import app.obsidianmd.resources.login_open_github
 import app.obsidianmd.resources.login_sign_in
 import app.obsidianmd.resources.login_signed_in
@@ -57,6 +58,11 @@ fun LoginScreen(
                         modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
                     )
                 }
+                Text(
+                    stringResource(Res.string.login_instructions),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(top = 16.dp),
+                )
                 OutlinedButton(
                     onClick = { clipboard.setText(AnnotatedString(state.userCode)); copied = true },
                     modifier = Modifier.padding(top = 12.dp),

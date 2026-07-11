@@ -94,6 +94,7 @@
     <string name="login_copy_code">Copy code</string>
     <string name="login_code_copied">Copied ✓</string>
     <string name="login_open_github">Open GitHub</string>
+    <string name="login_instructions">How to authorize:\n1. Copy the code above.\n2. Tap “Open GitHub” and paste the code there.\n3. Approve access — this screen continues automatically.</string>
     <string name="login_waiting">Waiting for confirmation…</string>
     <string name="login_signed_in">Signed in</string>
     <string name="login_error">Sign-in error: %1$s</string>
