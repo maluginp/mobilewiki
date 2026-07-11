@@ -94,6 +94,9 @@ fun App(
     var modelSearching by remember { mutableStateOf(false) }
     var modelQuery by remember { mutableStateOf("") }
     var showAi by remember { mutableStateOf(false) }
+    // Заметка открыта из AI-чата (по wikilink) → «назад» с корневого уровня истории вернёт в чат,
+    // а не в список Brain.
+    var noteFromAi by remember { mutableStateOf(false) }
     var searching by remember { mutableStateOf(false) }
     var queryText by remember { mutableStateOf("") } // локальный источник правды для поля поиска
     var editing by remember { mutableStateOf(false) }
@@ -122,10 +125,27 @@ fun App(
         showSettings -> ({ showSettings = false })
         // AI-чат открывается из нижней навигации — назад не нужно (переключение через Bottom Bar).
         editing -> ({ if (dirty) showUnsaved = true else editing = false }) // «Назад»: защита от потери правок
-        state.selected != null -> vm::back
+        // Заметка, открытая из AI: с корневого уровня истории «назад» возвращает в AI-чат.
+        state.selected != null -> ({
+            if (noteFromAi && vm.atHistoryRoot()) {
+                vm.clearSelection(); noteFromAi = false; showAi = true
+            } else {
+                vm.back()
+            }
+        })
         !state.atRoot -> vm::upFolder
         else -> null
     }
+
+    // Системная кнопка «назад»: повторяет логику стрелки в AppBar; на AI-чате уводит в Brain;
+    // на корне списка — отдаётся системе (сворачивание).
+    val handleBack: (() -> Unit)? = when {
+        homeSearching -> exitSearch
+        back != null -> back
+        showAi -> ({ showAi = false })
+        else -> null
+    }
+    PlatformBackHandler(enabled = handleBack != null) { handleBack?.invoke() }
 
     // Общий скролл-бихейвор: AppBar и поле поиска в списке скрываются/появляются вместе.
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
@@ -280,7 +300,7 @@ fun App(
                             onApprove = aiVm::approveWrite,
                             onReject = aiVm::rejectWrite,
                             files = state.allFiles,
-                            onOpenFile = { path -> showAi = false; vm.openPath(path) },
+                            onOpenFile = { path -> showAi = false; noteFromAi = true; vm.openPath(path) },
                         )
                     }
                     showAi && aiVm == null -> AiUnavailable(
@@ -288,7 +308,7 @@ fun App(
                     )
                     state.selected == null -> VaultListScreen(
                         state,
-                        onOpenFile = vm::open,
+                        onOpenFile = { noteFromAi = false; vm.open(it) },
                         onOpenFolder = vm::openFolder,
                         query = state.query,
                         results = state.results,

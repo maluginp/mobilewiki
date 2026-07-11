@@ -95,6 +95,26 @@ class VaultViewModelTest {
     }
 
     @Test
+    fun at_history_root_tracks_depth_and_clear_selection_resets() = runTest(dispatcher) {
+        val io = StandardTestDispatcher(testScheduler)
+        val fs = FakeFileSystem()
+        fs.createDirectories(root)
+        fs.write(root / "a.md") { writeUtf8("# A") }
+        fs.write(root / "b.md") { writeUtf8("# B") }
+        val model = VaultViewModel(VaultRepository(fs, root), io)
+
+        model.openPath((root / "a.md").toString()); advanceUntilIdle()
+        assertTrue(model.atHistoryRoot()) // одна заметка в истории
+        model.openPath((root / "b.md").toString()); advanceUntilIdle()
+        assertTrue(!model.atHistoryRoot()) // две — не корень
+
+        model.clearSelection()
+        assertNull(model.state.value.selected)
+        assertEquals("", model.state.value.content)
+        assertTrue(model.atHistoryRoot()) // история очищена
+    }
+
+    @Test
     fun open_path_loads_file_by_absolute_path() = runTest(dispatcher) {
         val io = StandardTestDispatcher(testScheduler)
         val fs = FakeFileSystem()
