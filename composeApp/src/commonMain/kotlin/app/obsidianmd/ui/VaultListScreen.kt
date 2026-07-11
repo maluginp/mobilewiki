@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
@@ -43,7 +44,8 @@ fun VaultListScreen(
     Box(Modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection)) {
         if (shown.isEmpty()) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(stringResource(Res.string.notes_empty))
+                if (state.loading) CircularProgressIndicator()
+                else Text(stringResource(Res.string.notes_empty))
             }
         } else {
             LazyColumn(Modifier.fillMaxSize()) {
