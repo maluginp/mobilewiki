@@ -10,11 +10,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
@@ -149,21 +147,33 @@ fun SettingsScreen(
 }
 
 // Текущая модель + карандаш; выбор — на отдельном экране ModelPickerScreen.
-@OptIn(ExperimentalMaterial3Api::class)
+// Обычный Row (не ListItem) — чтобы левый край совпадал с остальными полями секции.
 @Composable
 private fun ModelRow(model: String, onEdit: () -> Unit) {
-    ListItem(
-        headlineContent = {
-            Text(model.ifBlank { stringResource(Res.string.settings_model_none) })
-        },
-        overlineContent = { Text(stringResource(Res.string.settings_model_label)) },
-        supportingContent = { Text(stringResource(Res.string.settings_model_desc)) },
-        trailingContent = {
-            IconButton(onClick = onEdit) {
-                Icon(Icons.Filled.Edit, contentDescription = stringResource(Res.string.cd_edit_model))
-            }
-        },
-    )
+    Row(
+        Modifier.fillMaxWidth().padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(
+                stringResource(Res.string.settings_model_label),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                model.ifBlank { stringResource(Res.string.settings_model_none) },
+                style = MaterialTheme.typography.bodyLarge,
+            )
+            Text(
+                stringResource(Res.string.settings_model_desc),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        IconButton(onClick = onEdit) {
+            Icon(Icons.Filled.Edit, contentDescription = stringResource(Res.string.cd_edit_model))
+        }
+    }
 }
 
 @Composable
