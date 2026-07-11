@@ -72,10 +72,11 @@
     <string name="error_with_reason">Error: %1$s</string>
 
     <!-- AI chat -->
-    <string name="chat_you_prefix">You:</string>
-    <string name="chat_ai_prefix">AI:</string>
-    <string name="ai_thinking">AI is thinking…</string>
-    <string name="action_send">Send</string>
+    <string name="chat_empty_title">Ask your notes anything</string>
+    <string name="chat_empty_subtitle">Search, summarise or edit your vault — just type below.</string>
+    <string name="chat_input_hint">Message the assistant…</string>
+    <string name="cd_ai_avatar">AI assistant</string>
+    <string name="cd_send">Send message</string>
     <string name="ai_write_title">AI wants to write: %1$s</string>
     <string name="action_apply">Apply</string>
     <string name="action_reject">Reject</string>

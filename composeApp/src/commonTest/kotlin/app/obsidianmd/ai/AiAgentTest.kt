@@ -31,6 +31,32 @@ class AiAgentTest {
     }
 
     @Test
+    fun read_note_resolves_name_without_md_extension() = runTest {
+        val client = ScriptedClient(
+            listOf(
+                toolResp("read_note", """{"name":"welcome"}"""), // без .md
+                answer("готово"),
+            ),
+        )
+        AiAgent(client, repo(), { _, _ -> true }).ask(listOf(ChatMessage("user", "прочитай welcome")))
+        // результат тула (содержимое файла) ушёл модели на втором шаге, а не ENOENT-ошибка
+        assertTrue(client.lastSent.any { it.role == "tool" && it.content == "привет проект" })
+    }
+
+    @Test
+    fun read_note_missing_returns_not_found_not_error() = runTest {
+        val client = ScriptedClient(
+            listOf(
+                toolResp("read_note", """{"name":"ghost"}"""),
+                answer("нет такой"),
+            ),
+        )
+        val r = AiAgent(client, repo(), { _, _ -> true }).ask(listOf(ChatMessage("user", "прочитай ghost")))
+        assertEquals(AiResult.Answer("нет такой"), r) // не падаем, даём модели восстановиться
+        assertTrue(client.lastSent.any { it.role == "tool" && it.content!!.contains("not found") })
+    }
+
+    @Test
     fun write_tool_confirmed_writes_file() = runTest {
         val r = repo()
         val client = ScriptedClient(
@@ -66,6 +92,15 @@ class AiAgentTest {
         }
         val result = AiAgent(client, repo(), { _, _ -> true }).ask(listOf(ChatMessage("user", "hi")))
         assertEquals(AiResult.Failed("No auth credentials found"), result)
+    }
+
+    @Test
+    fun prepends_system_prompt_instructing_wikilinks() = runTest {
+        val client = ScriptedClient(listOf(answer("ok")))
+        AiAgent(client, repo(), { _, _ -> true }).ask(listOf(ChatMessage("user", "hi")))
+        val system = client.lastSent.firstOrNull()
+        assertEquals("system", system?.role)
+        assertTrue(system?.content?.contains("[[") == true, "system prompt must mention [[wikilink]] usage")
     }
 
     @Test

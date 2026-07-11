@@ -1,15 +1,18 @@
 package app.obsidianmd
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
@@ -71,9 +74,10 @@ import app.obsidianmd.ui.ModelPickerScreen
 import app.obsidianmd.ui.SettingsScreen
 import app.obsidianmd.ui.VaultListScreen
 import app.obsidianmd.ui.VaultViewModel
+import app.obsidianmd.ui.theme.AppTheme
 import org.jetbrains.compose.resources.stringResource
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun App(
     vm: VaultViewModel,
@@ -116,7 +120,7 @@ fun App(
     val back: (() -> Unit)? = when {
         showModelPicker -> ({ if (modelSearching) exitModelSearch() else showModelPicker = false })
         showSettings -> ({ showSettings = false })
-        showAi -> ({ showAi = false })
+        // AI-чат открывается из нижней навигации — назад не нужно (переключение через Bottom Bar).
         editing -> ({ if (dirty) showUnsaved = true else editing = false }) // «Назад»: защита от потери правок
         state.selected != null -> vm::back
         !state.atRoot -> vm::upFolder
@@ -126,7 +130,7 @@ fun App(
     // Общий скролл-бихейвор: AppBar и поле поиска в списке скрываются/появляются вместе.
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
-    MaterialTheme {
+    AppTheme {
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -224,18 +228,19 @@ fun App(
             },
             bottomBar = {
                 // Нижняя навигация появляется только при включённом AI: Brain (заметки) ↔ AI.
-                if (settings.aiEnabled && !showSettings) {
+                // Скрываем, пока открыта клавиатура, — иначе её место остаётся зазором над клавиатурой.
+                if (settings.aiEnabled && !showSettings && !WindowInsets.isImeVisible) {
                     NavigationBar {
                         NavigationBarItem(
                             selected = !showAi,
                             onClick = { showAi = false },
-                            icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = null) },
+                            icon = { Icon(Icons.Filled.Psychology, contentDescription = null) },
                             label = { Text(stringResource(Res.string.nav_brain)) },
                         )
                         NavigationBarItem(
                             selected = showAi,
                             onClick = { showAi = true },
-                            icon = { Icon(Icons.Filled.Face, contentDescription = null) },
+                            icon = { Icon(Icons.Filled.AutoAwesome, contentDescription = null) },
                             label = { Text(stringResource(Res.string.action_ai)) },
                         )
                     }
@@ -271,6 +276,8 @@ fun App(
                             onSend = aiVm::send,
                             onApprove = aiVm::approveWrite,
                             onReject = aiVm::rejectWrite,
+                            files = state.allFiles,
+                            onOpenFile = { path -> showAi = false; vm.openPath(path) },
                         )
                     }
                     showAi && aiVm == null -> AiUnavailable(
