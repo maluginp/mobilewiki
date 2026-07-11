@@ -99,6 +99,7 @@ class VaultViewModel(
     private suspend fun loadDir(dir: String) {
         // ponytail: allFiles обходит всё дерево на каждый вход в папку — ок для личного vault;
         // кэшировать, если станет медленно на больших хранилищах.
+        _state.value = _state.value.copy(loading = true)
         val entries = withContext(io) { repo.listEntries(dir) }
         val all = withContext(io) { repo.allFiles() }
         _state.value = _state.value.copy(
@@ -108,6 +109,7 @@ class VaultViewModel(
             atRoot = repo.isRoot(dir),
             query = "",
             results = emptyList(),
+            loading = false,
         )
     }
 
