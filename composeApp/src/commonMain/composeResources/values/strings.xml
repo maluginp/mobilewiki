@@ -58,6 +58,10 @@
     <string name="filter_ctx_32k">≥ 32K</string>
     <string name="filter_ctx_128k">≥ 128K</string>
     <string name="filter_ctx_1m">≥ 1M</string>
+    <string name="model_sort">Sort</string>
+    <string name="sort_name">Name</string>
+    <string name="sort_price_asc">Price ↑</string>
+    <string name="sort_price_desc">Price ↓</string>
 
     <!-- Sync status -->
     <string name="sync_syncing">Syncing…</string>

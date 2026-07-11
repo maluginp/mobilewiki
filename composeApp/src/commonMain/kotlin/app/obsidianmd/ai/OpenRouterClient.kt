@@ -92,6 +92,16 @@ enum class PriceFilter(val maxPerMillion: Double?) { ANY(null), FREE(0.0), UNDER
 /** Порог мин. размера контекста (null = любой). */
 enum class ContextFilter(val minContext: Long?) { ANY(null), K32(32_000), K128(128_000), M1(1_000_000) }
 
+/** Порядок сортировки списка моделей. */
+enum class SortOrder { NAME, PRICE_ASC, PRICE_DESC }
+
+/** Сортировка; модели без цены всегда в конце (и при ↑, и при ↓). */
+fun List<ModelInfo>.sortModels(order: SortOrder): List<ModelInfo> = when (order) {
+    SortOrder.NAME -> sortedBy { it.name.lowercase() }
+    SortOrder.PRICE_ASC -> sortedBy { it.pricePerMillion() ?: Double.MAX_VALUE }
+    SortOrder.PRICE_DESC -> sortedByDescending { it.pricePerMillion() ?: -1.0 }
+}
+
 /** Поиск + фильтры по цене/контексту. Модель без нужного поля отсекается активным фильтром. */
 fun List<ModelInfo>.filterModels(query: String, price: PriceFilter, context: ContextFilter): List<ModelInfo> =
     filter { m ->

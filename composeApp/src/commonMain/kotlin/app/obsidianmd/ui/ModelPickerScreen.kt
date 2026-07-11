@@ -36,9 +36,11 @@ import androidx.compose.ui.unit.dp
 import app.obsidianmd.ai.ContextFilter
 import app.obsidianmd.ai.ModelInfo
 import app.obsidianmd.ai.PriceFilter
+import app.obsidianmd.ai.SortOrder
 import app.obsidianmd.ai.contextLabel
 import app.obsidianmd.ai.filterModels
 import app.obsidianmd.ai.priceLabel
+import app.obsidianmd.ai.sortModels
 import app.obsidianmd.resources.Res
 import app.obsidianmd.resources.filter_any
 import app.obsidianmd.resources.filter_ctx_128k
@@ -49,7 +51,11 @@ import app.obsidianmd.resources.filter_price_under_1
 import app.obsidianmd.resources.filter_price_under_5
 import app.obsidianmd.resources.model_filter_context
 import app.obsidianmd.resources.model_filter_price
+import app.obsidianmd.resources.model_sort
 import app.obsidianmd.resources.models_empty
+import app.obsidianmd.resources.sort_name
+import app.obsidianmd.resources.sort_price_asc
+import app.obsidianmd.resources.sort_price_desc
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -65,7 +71,8 @@ fun ModelPickerScreen(
 ) {
     var price by remember { mutableStateOf(PriceFilter.ANY) }
     var context by remember { mutableStateOf(ContextFilter.ANY) }
-    val filtered = models.filterModels(query, price, context)
+    var sort by remember { mutableStateOf(SortOrder.NAME) }
+    val filtered = models.filterModels(query, price, context).sortModels(sort)
 
     // Первая загрузка (список пуст) — вертелка по центру. Дальше обновление показывает индикатор
     // самого pull-to-refresh, список не мигает.
@@ -74,7 +81,7 @@ fun ModelPickerScreen(
         return
     }
     Column(Modifier.fillMaxSize()) {
-        FilterBar(price, context, onPrice = { price = it }, onContext = { context = it })
+        FilterBar(price, context, sort, onPrice = { price = it }, onContext = { context = it }, onSort = { sort = it })
         PullToRefreshBox(isRefreshing = loading, onRefresh = onRefresh, modifier = Modifier.fillMaxSize()) {
             if (filtered.isEmpty()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -114,13 +121,23 @@ fun ModelPickerScreen(
 private fun FilterBar(
     price: PriceFilter,
     context: ContextFilter,
+    sort: SortOrder,
     onPrice: (PriceFilter) -> Unit,
     onContext: (ContextFilter) -> Unit,
+    onSort: (SortOrder) -> Unit,
 ) {
     Row(
         Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 12.dp, vertical = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
+        FilterMenuChip(
+            label = stringResource(Res.string.model_sort),
+            active = sort != SortOrder.NAME,
+            selectedLabel = stringResource(sort.label()),
+            options = SortOrder.entries,
+            optionLabel = { stringResource(it.label()) },
+            onSelect = onSort,
+        )
         FilterMenuChip(
             label = stringResource(Res.string.model_filter_price),
             active = price != PriceFilter.ANY,
@@ -181,4 +198,10 @@ private fun ContextFilter.label(): StringResource = when (this) {
     ContextFilter.K32 -> Res.string.filter_ctx_32k
     ContextFilter.K128 -> Res.string.filter_ctx_128k
     ContextFilter.M1 -> Res.string.filter_ctx_1m
+}
+
+private fun SortOrder.label(): StringResource = when (this) {
+    SortOrder.NAME -> Res.string.sort_name
+    SortOrder.PRICE_ASC -> Res.string.sort_price_asc
+    SortOrder.PRICE_DESC -> Res.string.sort_price_desc
 }

@@ -85,4 +85,25 @@ class ModelInfoTest {
         // ≤$5/M, ≥128K ctx → cheap, mid; query «mid» сужает до mid
         assertEquals(listOf("mid"), ids(price = PriceFilter.UNDER_5, ctx = ContextFilter.K128, q = "mid"))
     }
+
+    private val named = listOf(
+        ModelInfo("b", "Beta", pricing = ModelPricing(prompt = "0.000003")), // $3/M
+        ModelInfo("a", "Alpha", pricing = ModelPricing(prompt = "0.0000005")), // $0.5/M
+        ModelInfo("z", "Zeta"), // нет цены
+    )
+
+    @Test
+    fun sort_by_name_case_insensitive() {
+        assertEquals(listOf("Alpha", "Beta", "Zeta"), named.sortModels(SortOrder.NAME).map { it.name })
+    }
+
+    @Test
+    fun sort_by_price_ascending_unknown_last() {
+        assertEquals(listOf("a", "b", "z"), named.sortModels(SortOrder.PRICE_ASC).map { it.id })
+    }
+
+    @Test
+    fun sort_by_price_descending_unknown_last() {
+        assertEquals(listOf("b", "a", "z"), named.sortModels(SortOrder.PRICE_DESC).map { it.id })
+    }
 }
