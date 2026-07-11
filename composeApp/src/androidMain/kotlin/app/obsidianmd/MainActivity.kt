@@ -166,15 +166,20 @@ class MainActivity : ComponentActivity() {
             else -> {
                 val aiEnabled = settings.aiEnabled
                 val aiModel = settings.aiModel
+                val provider = settings.provider
                 val apiKeyStore: ApiKeyStore = koinInject()
                 // Чтение ключа зашифровано — не дёргаем его на каждой рекомпозиции, только при смене
-                // флага/модели/самого ключа (иначе только что сохранённый ключ не подхватится до перезапуска).
-                val aiKey = remember(aiEnabled, aiModel, settings.openRouterKey) {
-                    apiKeyStore.getKey()?.takeIf { it.isNotBlank() && aiEnabled }
+                // провайдера/флага/модели/самого ключа (иначе только что сохранённый ключ не подхватится).
+                val aiKey = remember(aiEnabled, aiModel, provider, settings.apiKey) {
+                    apiKeyStore.getKey(provider.id)?.takeIf { it.isNotBlank() && aiEnabled }
                 }
-                // key = aiModel: смена модели создаёт новый ViewModel с новым клиентом (история чата сбрасывается).
+                // key = provider+model: смена провайдера/модели создаёт новый ViewModel с новым клиентом
+                // (история чата сбрасывается).
+                val chatUrl = provider.resolvedChatUrl(settings.customBaseUrl)
                 val aiVm: AiViewModel? = aiKey?.let { key ->
-                    koinViewModel(key = aiModel) { parametersOf(aiModel, key) }
+                    koinViewModel(key = "${provider.id}:$aiModel:$chatUrl") {
+                        parametersOf(aiModel, key, chatUrl)
+                    }
                 }
                 App(
                     vaultVm,

@@ -68,11 +68,18 @@ fun ModelPickerScreen(
     query: String,
     onSelect: (String) -> Unit,
     onRefresh: () -> Unit,
+    showFilters: Boolean = true,
 ) {
     var price by remember { mutableStateOf(PriceFilter.ANY) }
     var context by remember { mutableStateOf(ContextFilter.ANY) }
     var sort by remember { mutableStateOf(SortOrder.NAME) }
-    val filtered = models.filterModels(query, price, context).sortModels(sort)
+    // Провайдер без метаданных моделей (цена/контекст) — фильтр/сортировка бессмысленны,
+    // показываем плоский список (только поиск по query).
+    val filtered = if (showFilters) {
+        models.filterModels(query, price, context).sortModels(sort)
+    } else {
+        models.filter { query.isBlank() || it.id.contains(query, true) || it.name.contains(query, true) }
+    }
 
     // Первая загрузка (список пуст) — вертелка по центру. Дальше обновление показывает индикатор
     // самого pull-to-refresh, список не мигает.
@@ -81,7 +88,9 @@ fun ModelPickerScreen(
         return
     }
     Column(Modifier.fillMaxSize()) {
-        FilterBar(price, context, sort, onPrice = { price = it }, onContext = { context = it }, onSort = { sort = it })
+        if (showFilters) {
+            FilterBar(price, context, sort, onPrice = { price = it }, onContext = { context = it }, onSort = { sort = it })
+        }
         PullToRefreshBox(isRefreshing = loading, onRefresh = onRefresh, modifier = Modifier.fillMaxSize()) {
             if (filtered.isEmpty()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

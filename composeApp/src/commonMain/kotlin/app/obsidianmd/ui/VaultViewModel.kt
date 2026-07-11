@@ -152,6 +152,15 @@ class VaultViewModel(
         }
     }
 
+    /** true, когда открыт последний уровень истории (следующий «назад» уводит из просмотра заметки). */
+    fun atHistoryRoot(): Boolean = history.size <= 1
+
+    /** Полностью закрыть просмотр заметки (сброс выбора и истории) — например, возврат в AI-чат. */
+    fun clearSelection() {
+        history.clear()
+        _state.value = _state.value.copy(selected = null, content = "")
+    }
+
     fun saveFile(path: String, content: String) {
         viewModelScope.launch {
             withContext(io) { repo.writeFile(path, content) }

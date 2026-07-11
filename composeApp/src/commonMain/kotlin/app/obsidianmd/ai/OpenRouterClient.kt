@@ -10,6 +10,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
+import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
@@ -21,8 +22,15 @@ import kotlinx.serialization.json.JsonPrimitive
 @Serializable
 data class FunctionCall(val name: String, val arguments: String)
 
+// type="function" обязателен по OpenAI-спеке при отправке assistant.tool_calls обратно; строгие
+// провайдеры (provod.ai) без него отвечают 400. @EncodeDefault — иначе значение по умолчанию
+// не сериализуется (encodeDefaults=false). OpenRouter принимал и без type.
 @Serializable
-data class ToolCall(val id: String = "", val function: FunctionCall)
+data class ToolCall(
+    val id: String = "",
+    @EncodeDefault(EncodeDefault.Mode.ALWAYS) val type: String = "function",
+    val function: FunctionCall,
+)
 
 @Serializable
 data class ChatMessage(
@@ -136,9 +144,13 @@ fun List<ModelInfo>.filterModels(query: String, price: PriceFilter, context: Con
 @Serializable
 private data class ModelsResponse(val data: List<ModelInfo>)
 
-/** Список моделей OpenRouter (для пикера в настройках). Ключ передаётся в заголовке. */
-suspend fun fetchModels(http: HttpClient, apiKey: String): List<ModelInfo> =
-    http.get("https://openrouter.ai/api/v1/models") {
+/** Список моделей OpenAI-совместимого провайдера (для пикера в настройках). Ключ — в заголовке. */
+suspend fun fetchModels(
+    http: HttpClient,
+    apiKey: String,
+    modelsUrl: String = AiProvider.OPENROUTER.modelsUrl,
+): List<ModelInfo> =
+    http.get(modelsUrl) {
         if (apiKey.isNotBlank()) header(HttpHeaders.Authorization, "Bearer $apiKey")
     }.body<ModelsResponse>().data.sortedBy { it.name.lowercase() }
 
@@ -153,13 +165,18 @@ internal val TOOLS: JsonElement = Json.parseToJsonElement(
     """.trimIndent(),
 )
 
+/**
+ * Клиент любого OpenAI-совместимого провайдера (OpenRouter, provod.ai, …): различаются лишь
+ * chatUrl и ключ. По умолчанию — OpenRouter (обратная совместимость со старыми вызовами).
+ */
 class OpenRouterClient(
     private val http: HttpClient,
     private val apiKey: String,
     private val model: String = DEFAULT_MODEL,
+    private val chatUrl: String = AiProvider.OPENROUTER.chatUrl,
 ) : ChatClient {
     override suspend fun chat(messages: List<ChatMessage>): ChatResponse {
-        val response = http.post("https://openrouter.ai/api/v1/chat/completions") {
+        val response = http.post(chatUrl) {
             header(HttpHeaders.Authorization, "Bearer $apiKey")
             contentType(ContentType.Application.Json)
             setBody(ChatRequest(model, messages, TOOLS))

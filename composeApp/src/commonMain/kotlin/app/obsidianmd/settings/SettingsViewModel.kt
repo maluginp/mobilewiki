@@ -2,6 +2,7 @@ package app.obsidianmd.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.obsidianmd.ai.AiProvider
 import app.obsidianmd.ai.ModelInfo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,7 +12,9 @@ import kotlinx.coroutines.launch
 
 data class SettingsState(
     val url: String = "",
-    val openRouterKey: String = "",
+    val provider: AiProvider = AiProvider.DEFAULT,
+    val customBaseUrl: String = "",
+    val apiKey: String = "",
     val aiEnabled: Boolean = false,
     val aiModel: String = "",
     val models: List<ModelInfo> = emptyList(),
@@ -21,15 +24,20 @@ data class SettingsState(
 class SettingsViewModel(
     private val store: RepoSettingsStore,
     private val apiKeyStore: app.obsidianmd.ai.ApiKeyStore? = null,
-    private val fetchModels: suspend () -> List<ModelInfo> = { emptyList() },
+    // Список моделей зависит от провайдера (его modelsUrl + ключ) и, для Custom, base URL.
+    private val fetchModels: suspend (AiProvider, String) -> List<ModelInfo> = { _, _ -> emptyList() },
 ) : ViewModel() {
     private val _state = MutableStateFlow(
-        SettingsState(
-            url = store.getRemoteUrl() ?: "",
-            openRouterKey = apiKeyStore?.getKey() ?: "",
-            aiEnabled = store.isAiEnabled(),
-            aiModel = store.getAiModel(),
-        ),
+        AiProvider.byId(store.getProvider()).let { provider ->
+            SettingsState(
+                url = store.getRemoteUrl() ?: "",
+                provider = provider,
+                customBaseUrl = store.getCustomBaseUrl(),
+                apiKey = apiKeyStore?.getKey(provider.id) ?: "",
+                aiEnabled = store.isAiEnabled(),
+                aiModel = store.getAiModel(provider.id).ifBlank { provider.defaultModel },
+            )
+        },
     )
     val state: StateFlow<SettingsState> = _state.asStateFlow()
 
@@ -48,13 +56,34 @@ class SettingsViewModel(
         if (enabled) loadModels()
     }
 
+    /** Смена провайдера: подтягиваем его собственные ключ и модель, сбрасываем список моделей. */
+    fun setProvider(provider: AiProvider) {
+        store.setProvider(provider.id)
+        _state.update {
+            it.copy(
+                provider = provider,
+                apiKey = apiKeyStore?.getKey(provider.id) ?: "",
+                aiModel = store.getAiModel(provider.id).ifBlank { provider.defaultModel },
+                models = emptyList(),
+            )
+        }
+        if (_state.value.aiEnabled) loadModels(force = true)
+    }
+
+    /** Base URL для Custom-провайдера; меняет модели → перезагружаем список. */
+    fun setCustomBaseUrl(url: String) {
+        store.setCustomBaseUrl(url)
+        _state.update { it.copy(customBaseUrl = url, models = emptyList()) }
+        if (_state.value.aiEnabled && _state.value.provider.needsBaseUrl) loadModels(force = true)
+    }
+
     fun saveKey(key: String) {
-        apiKeyStore?.saveKey(key)
-        _state.update { it.copy(openRouterKey = key) }
+        apiKeyStore?.saveKey(_state.value.provider.id, key)
+        _state.update { it.copy(apiKey = key) }
     }
 
     fun setAiModel(model: String) {
-        store.setAiModel(model)
+        store.setAiModel(_state.value.provider.id, model)
         _state.update { it.copy(aiModel = model) }
     }
 
@@ -72,7 +101,8 @@ class SettingsViewModel(
         if (!force && _state.value.models.isNotEmpty()) return
         viewModelScope.launch {
             _state.update { it.copy(modelsLoading = true) }
-            val list = runCatching { fetchModels() }.getOrDefault(emptyList())
+            val list = runCatching { fetchModels(_state.value.provider, _state.value.customBaseUrl) }
+                .getOrDefault(emptyList())
             _state.update { it.copy(models = list, modelsLoading = false) }
         }
     }
