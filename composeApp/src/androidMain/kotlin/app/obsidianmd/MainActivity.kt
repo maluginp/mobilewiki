@@ -4,6 +4,8 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import android.graphics.Color
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
@@ -47,7 +49,14 @@ import org.koin.core.parameter.parametersOf
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge() // TopAppBar draws under the status bar → no grey strip
+        // TopAppBar draws under the status bar → no grey strip. Force LIGHT bars (dark icons):
+        // the UI is always light (MaterialTheme = lightColorScheme), so default auto() would pick
+        // white icons in system dark mode → invisible on our light background.
+        // ponytail: hard-coded light bars because the app has no dark theme; revisit if one is added.
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
+        )
 
         setContent {
             KoinContext {
