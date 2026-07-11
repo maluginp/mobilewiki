@@ -65,13 +65,13 @@ class ModelInfoTest {
     }
 
     @Test
-    fun price_under_1_keeps_free_and_cheap_but_not_priced_higher_or_unknown() {
-        assertEquals(listOf("free", "cheap"), ids(price = PriceFilter.UNDER_1))
+    fun price_under_1_keeps_only_paid_within_threshold_no_free_no_unknown() {
+        assertEquals(listOf("cheap"), ids(price = PriceFilter.UNDER_1))
     }
 
     @Test
-    fun price_under_5_excludes_pricey_and_unknown() {
-        assertEquals(listOf("free", "cheap", "mid"), ids(price = PriceFilter.UNDER_5))
+    fun price_under_5_excludes_free_pricey_and_unknown() {
+        assertEquals(listOf("cheap", "mid"), ids(price = PriceFilter.UNDER_5))
     }
 
     @Test

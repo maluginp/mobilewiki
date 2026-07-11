@@ -107,7 +107,12 @@ fun List<ModelInfo>.filterModels(query: String, price: PriceFilter, context: Con
     filter { m ->
         val matchesQuery = query.isBlank() ||
             m.id.contains(query, ignoreCase = true) || m.name.contains(query, ignoreCase = true)
-        val matchesPrice = price.maxPerMillion?.let { max -> (m.pricePerMillion() ?: return@let false) <= max } ?: true
+        val matchesPrice = when (price) {
+            PriceFilter.ANY -> true
+            PriceFilter.FREE -> m.pricePerMillion() == 0.0
+            // «≤ $N/M» — только платные в пределах порога, бесплатные не показываем
+            else -> m.pricePerMillion()?.let { it > 0.0 && it <= price.maxPerMillion!! } ?: false
+        }
         val matchesContext = context.minContext?.let { min -> (m.contextLength ?: -1L) >= min } ?: true
         matchesQuery && matchesPrice && matchesContext
     }
