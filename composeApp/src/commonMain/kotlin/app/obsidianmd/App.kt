@@ -256,6 +256,7 @@ fun App(
                         query = modelQuery,
                         onSelect = { settingsVm.setAiModel(it); exitModelSearch(); showModelPicker = false },
                         onRefresh = settingsVm::reloadModels,
+                        showFilters = settings.provider.supportsModelFilters,
                     )
                     showSettings -> SettingsScreen(
                         state = settings,

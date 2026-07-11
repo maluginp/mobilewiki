@@ -69,4 +69,27 @@ class ModelPickerScreenTest {
         // список ещё пуст — строк моделей нет, показана вертелка (нет исключений при композиции)
         onNodeWithText("GPT-4o").assertDoesNotExist()
     }
+
+    @Test
+    fun filter_bar_shown_by_default() = runComposeUiTest {
+        setContent {
+            ModelPickerScreen(models, loading = false, selected = "", query = "", onSelect = {}, onRefresh = {})
+        }
+        onNodeWithText("Sort").assertExists()
+        onNodeWithText("Price").assertExists()
+    }
+
+    @Test
+    fun filter_bar_hidden_when_unsupported() = runComposeUiTest {
+        setContent {
+            ModelPickerScreen(
+                models, loading = false, selected = "", query = "",
+                onSelect = {}, onRefresh = {}, showFilters = false,
+            )
+        }
+        onNodeWithText("Sort").assertDoesNotExist()
+        onNodeWithText("Price").assertDoesNotExist()
+        // сами модели всё ещё показаны
+        onNodeWithText("GPT-4o").assertExists()
+    }
 }

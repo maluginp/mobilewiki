@@ -4,6 +4,8 @@ package app.obsidianmd.ai
  * Поддерживаемые AI-провайдеры. Все — OpenAI-совместимые (тот же /chat/completions и /models),
  * поэтому клиент один, различаются только базовые URL и формат ключа.
  * defaultModel — модель по умолчанию (пусто = провайдер требует явного выбора в пикере).
+ * supportsModelFilters — отдаёт ли /models метаданные (цена/контекст), т.е. имеет ли смысл
+ * показывать фильтр/сортировку в пикере моделей (OpenRouter — да, provod.ai — нет).
  */
 enum class AiProvider(
     val id: String,
@@ -12,6 +14,7 @@ enum class AiProvider(
     val modelsUrl: String,
     val keyExample: String,
     val defaultModel: String,
+    val supportsModelFilters: Boolean,
 ) {
     OPENROUTER(
         id = "openrouter",
@@ -20,6 +23,7 @@ enum class AiProvider(
         modelsUrl = "https://openrouter.ai/api/v1/models",
         keyExample = "sk-or-...",
         defaultModel = DEFAULT_MODEL,
+        supportsModelFilters = true,
     ),
     PROVOD(
         id = "provod",
@@ -28,6 +32,7 @@ enum class AiProvider(
         modelsUrl = "https://api.provod.ai/v1/models",
         keyExample = "sk_...",
         defaultModel = "",
+        supportsModelFilters = false,
     );
 
     companion object {
