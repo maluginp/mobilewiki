@@ -28,6 +28,7 @@ import app.obsidianmd.vault.VaultRepository
 import app.obsidianmd.vaultRoot
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.Dispatchers
@@ -46,6 +47,12 @@ val appModule = module {
     single {
         HttpClient(OkHttp) {
             install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
+            // LLM-ответ (тем более с прогоном тулов) не влезает в дефолтные ~10 с OkHttp.
+            install(HttpTimeout) {
+                requestTimeoutMillis = 120_000
+                socketTimeoutMillis = 120_000
+                connectTimeoutMillis = 30_000
+            }
         }
     }
 
