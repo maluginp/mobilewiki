@@ -1,9 +1,13 @@
 package app.obsidianmd.ai
 
-/** Клиент, отдающий заранее заданные ответы по шагам. */
+/** Клиент, отдающий заранее заданные ответы по шагам; запоминает последние отправленные сообщения. */
 class ScriptedClient(private val steps: List<ChatResponse>) : ChatClient {
     private var i = 0
-    override suspend fun chat(messages: List<ChatMessage>): ChatResponse = steps[i++]
+    var lastSent: List<ChatMessage> = emptyList(); private set
+    override suspend fun chat(messages: List<ChatMessage>): ChatResponse {
+        lastSent = messages
+        return steps[i++]
+    }
 }
 
 fun toolResp(name: String, args: String) = ChatResponse(

@@ -15,6 +15,13 @@ sealed interface AiResult {
     data class Failed(val reason: String) : AiResult
 }
 
+private const val SYSTEM_PROMPT =
+    "You are an assistant working inside the user's personal Markdown vault. " +
+        "Use the provided tools (search_notes, read_note, write_note) to find and edit notes. " +
+        "IMPORTANT: whenever you mention or reference a note/file from the vault in your reply, " +
+        "write it as an Obsidian wikilink in double brackets — e.g. [[note-name]] or [[folder/note]] — " +
+        "never as plain text or a normal Markdown link. This makes the reference clickable for the user."
+
 class AiAgent(
     private val client: ChatClient,
     private val repo: VaultRepository,
@@ -33,6 +40,9 @@ class AiAgent(
 
     private suspend fun run(history: List<ChatMessage>): AiResult {
         val messages = history.toMutableList()
+        if (messages.none { it.role == "system" }) {
+            messages.add(0, ChatMessage(role = "system", content = SYSTEM_PROMPT))
+        }
         repeat(maxSteps) {
             val msg = client.chat(messages).choices.firstOrNull()?.message
                 ?: return AiResult.Failed("empty response")

@@ -69,6 +69,15 @@ class AiAgentTest {
     }
 
     @Test
+    fun prepends_system_prompt_instructing_wikilinks() = runTest {
+        val client = ScriptedClient(listOf(answer("ok")))
+        AiAgent(client, repo(), { _, _ -> true }).ask(listOf(ChatMessage("user", "hi")))
+        val system = client.lastSent.firstOrNull()
+        assertEquals("system", system?.role)
+        assertTrue(system?.content?.contains("[[") == true, "system prompt must mention [[wikilink]] usage")
+    }
+
+    @Test
     fun exceeding_max_steps_fails() = runTest {
         val loop = List(10) { toolResp("search_notes", """{"query":"x"}""") }
         val agent = AiAgent(ScriptedClient(loop), repo(), { _, _ -> true }, maxSteps = 3)
