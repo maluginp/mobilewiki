@@ -30,15 +30,15 @@
     <string name="settings_repo_url_label">Repository URL</string>
     <string name="settings_repo_url_example">https://github.com/username/my-vault.git</string>
     <string name="settings_repo_url_desc">HTTPS link to the Git repository with your notes. The app clones it and keeps changes in sync.</string>
-    <string name="settings_key_label">OpenRouter key</string>
-    <string name="settings_key_example">sk-or-v1-abc123…</string>
-    <string name="settings_key_desc">API key from openrouter.ai/keys for the AI chat. Stored encrypted on this device only.</string>
+    <string name="settings_provider_label">AI provider</string>
+    <string name="settings_key_label">API key</string>
+    <string name="settings_key_desc">API key for the selected AI provider. Stored encrypted on this device only.</string>
     <string name="settings_saved">Saved ✓</string>
     <string name="settings_sync_title">Synchronization</string>
     <string name="settings_sync_desc">Pull the latest notes from the repository and push your local changes.</string>
     <string name="action_sync_now">Sync now</string>
     <string name="settings_ai_enable">Enable AI</string>
-    <string name="settings_ai_enable_desc">Turn on the in-app AI chat. When enabled, add your OpenRouter key below.</string>
+    <string name="settings_ai_enable_desc">Turn on the in-app AI chat. When enabled, pick a provider and add its API key below.</string>
     <string name="settings_model_label">AI model</string>
     <string name="settings_model_desc">Model used for the chat.</string>
     <string name="settings_model_loading">Loading models…</string>
@@ -80,7 +80,7 @@
     <string name="ai_write_title">AI wants to write: %1$s</string>
     <string name="action_apply">Apply</string>
     <string name="action_reject">Reject</string>
-    <string name="ai_unavailable">No OpenRouter key set — add it in Settings.</string>
+    <string name="ai_unavailable">No API key set — add it in Settings.</string>
     <string name="ai_open_settings">Open Settings</string>
 
     <!-- Onboarding -->

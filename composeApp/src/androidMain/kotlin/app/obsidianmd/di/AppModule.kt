@@ -55,7 +55,7 @@ val appModule = module {
         SettingsViewModel(
             store = get(),
             apiKeyStore = apiKeyStore,
-            fetchModels = { fetchModels(http, apiKeyStore.getKey().orEmpty()) },
+            fetchModels = { provider -> fetchModels(http, apiKeyStore.getKey(provider.id).orEmpty(), provider.modelsUrl) },
         )
     }
     viewModel { AuthViewModel(GitHubDeviceAuth(get(), BuildConfig.GITHUB_CLIENT_ID), get()) }
@@ -77,12 +77,13 @@ val appModule = module {
     }
     viewModel { RepoPickerViewModel(repos = GitHubRepos(get()), token = get<TokenStore>()::get) }
     viewModel { RepoValidationViewModel(access = GitHubRepoAccess(get()), token = get<TokenStore>()::get) }
-    // AI VM is parameterized: (model, key) come from current settings; changing model → new VM (chat resets).
-    viewModel { (model: String, key: String) ->
+    // AI VM is parameterized: (model, key, chatUrl) come from the current provider+settings;
+    // changing model or provider → new VM (chat resets).
+    viewModel { (model: String, key: String, chatUrl: String) ->
         val http = get<HttpClient>()
         val repo = get<VaultRepository>()
         AiViewModel { history, approver ->
-            AiAgent(OpenRouterClient(http, key, model), repo, approver).ask(history)
+            AiAgent(OpenRouterClient(http, key, model, chatUrl), repo, approver).ask(history)
         }
     }
 }

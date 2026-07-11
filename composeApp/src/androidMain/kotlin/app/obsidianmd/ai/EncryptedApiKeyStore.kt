@@ -13,6 +13,11 @@ class EncryptedApiKeyStore(context: Context) : ApiKeyStore {
         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
     )
 
-    override fun getKey(): String? = prefs.getString("openrouter_key", null)
-    override fun saveKey(key: String) { prefs.edit().putString("openrouter_key", key).apply() }
+    // Ключ на провайдера; "openrouter" оставлен на старом имени ради обратной совместимости
+    // с уже сохранённым ключом (до появления мультипровайдерности он лежал под "openrouter_key").
+    override fun getKey(provider: String): String? = prefs.getString(prefKey(provider), null)
+    override fun saveKey(provider: String, key: String) { prefs.edit().putString(prefKey(provider), key).apply() }
+
+    private fun prefKey(provider: String) =
+        if (provider == "openrouter") "openrouter_key" else "api_key_$provider"
 }

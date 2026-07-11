@@ -10,10 +10,15 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -28,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import app.obsidianmd.ai.AiProvider
 import app.obsidianmd.resources.Res
 import app.obsidianmd.resources.action_hide
 import app.obsidianmd.resources.action_save
@@ -39,8 +45,8 @@ import app.obsidianmd.resources.repo_pick_from_github
 import app.obsidianmd.resources.settings_ai_enable
 import app.obsidianmd.resources.settings_ai_enable_desc
 import app.obsidianmd.resources.settings_key_desc
-import app.obsidianmd.resources.settings_key_example
 import app.obsidianmd.resources.settings_key_label
+import app.obsidianmd.resources.settings_provider_label
 import app.obsidianmd.resources.settings_model_desc
 import app.obsidianmd.resources.settings_model_label
 import app.obsidianmd.resources.settings_model_none
@@ -69,11 +75,12 @@ fun SettingsScreen(
     syncStatus: SyncStatus,
     onSync: () -> Unit,
     onPickFromGitHub: () -> Unit = {},
+    onSetProvider: (AiProvider) -> Unit = {},
 ) {
     // Локальные черновики полей — правки живут в поле до нажатия «Сохранить».
     // Модель сохраняется сразу при выборе на экране пикера, поэтому черновика для неё нет.
     var url by remember(state.url) { mutableStateOf(state.url) }
-    var key by remember(state.openRouterKey) { mutableStateOf(state.openRouterKey) }
+    var key by remember(state.apiKey) { mutableStateOf(state.apiKey) }
     var saved by remember { mutableStateOf(false) }
 
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
@@ -122,9 +129,10 @@ fun SettingsScreen(
             modifier = Modifier.padding(top = 4.dp),
         )
         if (state.aiEnabled) {
+            ProviderDropdown(selected = state.provider, onSelect = { onSetProvider(it); saved = false })
             SettingField(
                 label = stringResource(Res.string.settings_key_label),
-                example = stringResource(Res.string.settings_key_example),
+                example = state.provider.keyExample,
                 description = stringResource(Res.string.settings_key_desc),
                 value = key,
                 onValueChange = { key = it; saved = false },
@@ -172,6 +180,35 @@ private fun ModelRow(model: String, onEdit: () -> Unit) {
         }
         IconButton(onClick = onEdit) {
             Icon(Icons.Filled.Edit, contentDescription = stringResource(Res.string.cd_edit_model))
+        }
+    }
+}
+
+// Выбор провайдера: readOnly-поле, раскрывающее список известных провайдеров.
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ProviderDropdown(selected: AiProvider, onSelect: (AiProvider) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
+        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+    ) {
+        OutlinedTextField(
+            value = selected.label,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(stringResource(Res.string.settings_provider_label)) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable),
+        )
+        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            AiProvider.entries.forEach { provider ->
+                DropdownMenuItem(
+                    text = { Text(provider.label) },
+                    onClick = { onSelect(provider); expanded = false },
+                )
+            }
         }
     }
 }

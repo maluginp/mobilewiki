@@ -1,5 +1,7 @@
 package app.obsidianmd.settings
 
+import app.obsidianmd.ai.AiProvider
+import app.obsidianmd.ai.FakeApiKeyStore
 import app.obsidianmd.ai.ModelInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -12,6 +14,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class SettingsViewModelTest {
@@ -69,6 +72,39 @@ class SettingsViewModelTest {
         advanceUntilIdle()
         assertEquals(models, vm.state.value.models)
         assertFalse(vm.state.value.modelsLoading)
+    }
+
+    @Test
+    fun switching_provider_swaps_key_and_model_and_persists() = runTest(dispatcher) {
+        val store = FakeRepoSettingsStore()
+        val keys = FakeApiKeyStore().apply {
+            saveKey("openrouter", "sk-or")
+            saveKey("provod", "sk_prov")
+        }
+        store.setAiModel("provod", "gpt-5.5")
+        val vm = SettingsViewModel(store, apiKeyStore = keys)
+        // старт — провайдер по умолчанию (OpenRouter) с его ключом
+        assertEquals(AiProvider.OPENROUTER, vm.state.value.provider)
+        assertEquals("sk-or", vm.state.value.apiKey)
+
+        vm.setProvider(AiProvider.PROVOD)
+        assertEquals(AiProvider.PROVOD, vm.state.value.provider)
+        assertEquals("sk_prov", vm.state.value.apiKey)
+        assertEquals("gpt-5.5", vm.state.value.aiModel)
+        assertEquals("provod", store.getProvider())
+    }
+
+    @Test
+    fun key_and_model_are_saved_under_current_provider() {
+        val store = FakeRepoSettingsStore()
+        val keys = FakeApiKeyStore()
+        val vm = SettingsViewModel(store, apiKeyStore = keys)
+        vm.setProvider(AiProvider.PROVOD)
+        vm.saveKey("sk_new")
+        vm.setAiModel("qwen-max")
+        assertEquals("sk_new", keys.getKey("provod"))
+        assertEquals("qwen-max", store.getAiModel("provod"))
+        assertNull(keys.getKey("openrouter"))
     }
 
     @Test

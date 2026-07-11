@@ -45,8 +45,18 @@ class SettingsScreenTest {
         // covered by the manual acceptance case instead.
         onNodeWithText("Repository URL").assertExists()
         onNodeWithText("HTTPS link", substring = true).assertExists()
-        onNodeWithText("OpenRouter key").assertExists()
+        onNodeWithText("API key").assertExists()
         onNodeWithText("Stored encrypted", substring = true).assertExists()
+    }
+
+    @Test
+    fun providerDropdownShownWhenAiEnabled() = runComposeUiTest {
+        setContent {
+            SettingsScreen(settings(aiEnabled = true), {}, {}, {}, {}, syncStatus = SyncStatus.Idle, onSync = {})
+        }
+        onNodeWithText("AI provider").assertExists()
+        // по умолчанию — OpenRouter
+        onNodeWithText("OpenRouter").assertExists()
     }
 
     @Test
@@ -55,7 +65,7 @@ class SettingsScreenTest {
             SettingsScreen(settings(aiEnabled = false), {}, {}, {}, {}, syncStatus = SyncStatus.Idle, onSync = {})
         }
         onNodeWithText("Enable AI").assertExists()
-        onNodeWithText("OpenRouter key").assertDoesNotExist()
+        onNodeWithText("API key").assertDoesNotExist()
     }
 
     @Test

@@ -263,6 +263,7 @@ fun App(
                         onSaveKey = { settingsVm.saveKey(it) },
                         onSetAiEnabled = { settingsVm.setAiEnabled(it) },
                         onEditModel = { settingsVm.ensureModels(); showModelPicker = true },
+                        onSetProvider = { settingsVm.setProvider(it) },
                         syncStatus = syncStatus,
                         onSync = vm::sync,
                         onPickFromGitHub = onPickRepoFromGitHub,

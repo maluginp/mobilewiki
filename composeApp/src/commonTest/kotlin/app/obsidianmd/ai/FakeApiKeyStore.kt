@@ -1,7 +1,7 @@
 package app.obsidianmd.ai
 
 class FakeApiKeyStore : ApiKeyStore {
-    private var key: String? = null
-    override fun getKey(): String? = key
-    override fun saveKey(key: String) { this.key = key }
+    private val keys = mutableMapOf<String, String>()
+    override fun getKey(provider: String): String? = keys[provider]
+    override fun saveKey(provider: String, key: String) { keys[provider] = key }
 }
