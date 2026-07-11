@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 data class SettingsState(
     val url: String = "",
     val provider: AiProvider = AiProvider.DEFAULT,
+    val customBaseUrl: String = "",
     val apiKey: String = "",
     val aiEnabled: Boolean = false,
     val aiModel: String = "",
@@ -23,14 +24,15 @@ data class SettingsState(
 class SettingsViewModel(
     private val store: RepoSettingsStore,
     private val apiKeyStore: app.obsidianmd.ai.ApiKeyStore? = null,
-    // Список моделей зависит от провайдера (его modelsUrl + ключ) — берём текущего провайдера на входе.
-    private val fetchModels: suspend (AiProvider) -> List<ModelInfo> = { emptyList() },
+    // Список моделей зависит от провайдера (его modelsUrl + ключ) и, для Custom, base URL.
+    private val fetchModels: suspend (AiProvider, String) -> List<ModelInfo> = { _, _ -> emptyList() },
 ) : ViewModel() {
     private val _state = MutableStateFlow(
         AiProvider.byId(store.getProvider()).let { provider ->
             SettingsState(
                 url = store.getRemoteUrl() ?: "",
                 provider = provider,
+                customBaseUrl = store.getCustomBaseUrl(),
                 apiKey = apiKeyStore?.getKey(provider.id) ?: "",
                 aiEnabled = store.isAiEnabled(),
                 aiModel = store.getAiModel(provider.id).ifBlank { provider.defaultModel },
@@ -68,6 +70,13 @@ class SettingsViewModel(
         if (_state.value.aiEnabled) loadModels(force = true)
     }
 
+    /** Base URL для Custom-провайдера; меняет модели → перезагружаем список. */
+    fun setCustomBaseUrl(url: String) {
+        store.setCustomBaseUrl(url)
+        _state.update { it.copy(customBaseUrl = url, models = emptyList()) }
+        if (_state.value.aiEnabled && _state.value.provider.needsBaseUrl) loadModels(force = true)
+    }
+
     fun saveKey(key: String) {
         apiKeyStore?.saveKey(_state.value.provider.id, key)
         _state.update { it.copy(apiKey = key) }
@@ -92,7 +101,8 @@ class SettingsViewModel(
         if (!force && _state.value.models.isNotEmpty()) return
         viewModelScope.launch {
             _state.update { it.copy(modelsLoading = true) }
-            val list = runCatching { fetchModels(_state.value.provider) }.getOrDefault(emptyList())
+            val list = runCatching { fetchModels(_state.value.provider, _state.value.customBaseUrl) }
+                .getOrDefault(emptyList())
             _state.update { it.copy(models = list, modelsLoading = false) }
         }
     }

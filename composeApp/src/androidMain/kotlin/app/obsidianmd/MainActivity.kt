@@ -175,9 +175,10 @@ class MainActivity : ComponentActivity() {
                 }
                 // key = provider+model: смена провайдера/модели создаёт новый ViewModel с новым клиентом
                 // (история чата сбрасывается).
+                val chatUrl = provider.resolvedChatUrl(settings.customBaseUrl)
                 val aiVm: AiViewModel? = aiKey?.let { key ->
-                    koinViewModel(key = "${provider.id}:$aiModel") {
-                        parametersOf(aiModel, key, provider.chatUrl)
+                    koinViewModel(key = "${provider.id}:$aiModel:$chatUrl") {
+                        parametersOf(aiModel, key, chatUrl)
                     }
                 }
                 App(

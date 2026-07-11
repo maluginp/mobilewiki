@@ -31,6 +31,9 @@
     <string name="settings_repo_url_example">https://github.com/username/my-vault.git</string>
     <string name="settings_repo_url_desc">HTTPS link to the Git repository with your notes. The app clones it and keeps changes in sync.</string>
     <string name="settings_provider_label">AI provider</string>
+    <string name="settings_base_url_label">Base URL</string>
+    <string name="settings_base_url_example">https://api.example.com/v1</string>
+    <string name="settings_base_url_desc">OpenAI-compatible endpoint base. The app appends /chat/completions and /models.</string>
     <string name="settings_key_label">API key</string>
     <string name="settings_key_desc">API key for the selected AI provider. Stored encrypted on this device only.</string>
     <string name="settings_saved">Saved ✓</string>

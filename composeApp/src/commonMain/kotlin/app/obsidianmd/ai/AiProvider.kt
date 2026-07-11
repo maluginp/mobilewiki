@@ -33,10 +33,39 @@ enum class AiProvider(
         keyExample = "sk_...",
         defaultModel = "",
         supportsModelFilters = false,
+    ),
+
+    // Любой OpenAI-совместимый эндпоинт: URL задаёт пользователь (base URL вида
+    // https://host/v1), из него достраиваются /chat/completions и /models.
+    CUSTOM(
+        id = "custom",
+        label = "Custom",
+        chatUrl = "",
+        modelsUrl = "",
+        keyExample = "sk-...",
+        defaultModel = "",
+        supportsModelFilters = false,
     );
+
+    val needsBaseUrl: Boolean get() = this == CUSTOM
+
+    /** URL /chat/completions: у CUSTOM собирается из base URL, у остальных — зашитый. */
+    fun resolvedChatUrl(customBaseUrl: String): String =
+        if (this == CUSTOM) joinUrl(customBaseUrl, "chat/completions") else chatUrl
+
+    /** URL /models: у CUSTOM собирается из base URL, у остальных — зашитый. */
+    fun resolvedModelsUrl(customBaseUrl: String): String =
+        if (this == CUSTOM) joinUrl(customBaseUrl, "models") else modelsUrl
 
     companion object {
         val DEFAULT = OPENROUTER
         fun byId(id: String?): AiProvider = entries.firstOrNull { it.id == id } ?: DEFAULT
     }
+}
+
+// base "https://host/v1" (+/- слэш) + "chat/completions" → "https://host/v1/chat/completions".
+// Пустой base → пусто (запрос уйдёт в никуда и вернёт понятную ошибку — пусть юзер задаст URL).
+private fun joinUrl(base: String, path: String): String {
+    val b = base.trim().trimEnd('/')
+    return if (b.isEmpty()) "" else "$b/$path"
 }

@@ -265,6 +265,7 @@ fun App(
                         onSetAiEnabled = { settingsVm.setAiEnabled(it) },
                         onEditModel = { settingsVm.ensureModels(); showModelPicker = true },
                         onSetProvider = { settingsVm.setProvider(it) },
+                        onSetCustomBaseUrl = { settingsVm.setCustomBaseUrl(it) },
                         syncStatus = syncStatus,
                         onSync = vm::sync,
                         onPickFromGitHub = onPickRepoFromGitHub,

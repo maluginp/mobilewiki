@@ -67,7 +67,7 @@ class SettingsViewModelTest {
     @Test
     fun enabling_ai_loads_models_into_state() = runTest(dispatcher) {
         val models = listOf(ModelInfo("openai/gpt-4o", "GPT-4o"))
-        val vm = SettingsViewModel(FakeRepoSettingsStore(), fetchModels = { models })
+        val vm = SettingsViewModel(FakeRepoSettingsStore(), fetchModels = { _, _ -> models })
         vm.setAiEnabled(true)
         advanceUntilIdle()
         assertEquals(models, vm.state.value.models)
@@ -108,11 +108,23 @@ class SettingsViewModelTest {
     }
 
     @Test
+    fun custom_base_url_persists_and_feeds_model_fetch() = runTest(dispatcher) {
+        val store = FakeRepoSettingsStore().apply { setProvider("custom"); setAiEnabled(true) }
+        var seenBase = ""
+        val vm = SettingsViewModel(store, fetchModels = { _, base -> seenBase = base; emptyList() })
+        vm.setCustomBaseUrl("https://my.host/v1")
+        advanceUntilIdle()
+        assertEquals("https://my.host/v1", store.getCustomBaseUrl())
+        assertEquals("https://my.host/v1", vm.state.value.customBaseUrl)
+        assertEquals("https://my.host/v1", seenBase)
+    }
+
+    @Test
     fun reload_refetches_even_when_already_loaded() = runTest(dispatcher) {
         var round = 0
         val vm = SettingsViewModel(
             FakeRepoSettingsStore().apply { setAiEnabled(true) },
-            fetchModels = { round++; listOf(ModelInfo("m$round")) },
+            fetchModels = { _, _ -> round++; listOf(ModelInfo("m$round")) },
         )
         advanceUntilIdle()
         assertEquals("m1", vm.state.value.models.single().id)

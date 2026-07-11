@@ -44,6 +44,9 @@ import app.obsidianmd.resources.error_with_reason
 import app.obsidianmd.resources.repo_pick_from_github
 import app.obsidianmd.resources.settings_ai_enable
 import app.obsidianmd.resources.settings_ai_enable_desc
+import app.obsidianmd.resources.settings_base_url_desc
+import app.obsidianmd.resources.settings_base_url_example
+import app.obsidianmd.resources.settings_base_url_label
 import app.obsidianmd.resources.settings_key_desc
 import app.obsidianmd.resources.settings_key_label
 import app.obsidianmd.resources.settings_provider_label
@@ -76,11 +79,13 @@ fun SettingsScreen(
     onSync: () -> Unit,
     onPickFromGitHub: () -> Unit = {},
     onSetProvider: (AiProvider) -> Unit = {},
+    onSetCustomBaseUrl: (String) -> Unit = {},
 ) {
     // Локальные черновики полей — правки живут в поле до нажатия «Сохранить».
     // Модель сохраняется сразу при выборе на экране пикера, поэтому черновика для неё нет.
     var url by remember(state.url) { mutableStateOf(state.url) }
     var key by remember(state.apiKey) { mutableStateOf(state.apiKey) }
+    var baseUrl by remember(state.customBaseUrl) { mutableStateOf(state.customBaseUrl) }
     var saved by remember { mutableStateOf(false) }
 
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
@@ -130,6 +135,15 @@ fun SettingsScreen(
         )
         if (state.aiEnabled) {
             ProviderDropdown(selected = state.provider, onSelect = { onSetProvider(it); saved = false })
+            if (state.provider.needsBaseUrl) {
+                SettingField(
+                    label = stringResource(Res.string.settings_base_url_label),
+                    example = stringResource(Res.string.settings_base_url_example),
+                    description = stringResource(Res.string.settings_base_url_desc),
+                    value = baseUrl,
+                    onValueChange = { baseUrl = it; saved = false },
+                )
+            }
             SettingField(
                 label = stringResource(Res.string.settings_key_label),
                 example = state.provider.keyExample,
@@ -141,7 +155,7 @@ fun SettingsScreen(
             ModelRow(model = state.aiModel, onEdit = onEditModel)
         }
         Button(
-            onClick = { onSave(url); onSaveKey(key); saved = true },
+            onClick = { onSave(url); onSaveKey(key); onSetCustomBaseUrl(baseUrl); saved = true },
             modifier = Modifier.padding(top = 8.dp),
         ) { Text(stringResource(Res.string.action_save)) }
         if (saved) {

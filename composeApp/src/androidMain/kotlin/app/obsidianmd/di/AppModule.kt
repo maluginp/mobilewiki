@@ -55,7 +55,9 @@ val appModule = module {
         SettingsViewModel(
             store = get(),
             apiKeyStore = apiKeyStore,
-            fetchModels = { provider -> fetchModels(http, apiKeyStore.getKey(provider.id).orEmpty(), provider.modelsUrl) },
+            fetchModels = { provider, base ->
+                fetchModels(http, apiKeyStore.getKey(provider.id).orEmpty(), provider.resolvedModelsUrl(base))
+            },
         )
     }
     viewModel { AuthViewModel(GitHubDeviceAuth(get(), BuildConfig.GITHUB_CLIENT_ID), get()) }
