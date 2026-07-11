@@ -48,7 +48,39 @@ private data class ChatRequest(val model: String, val messages: List<ChatMessage
 const val DEFAULT_MODEL = "openai/gpt-4o-mini"
 
 @Serializable
-data class ModelInfo(val id: String, val name: String = id)
+data class ModelPricing(val prompt: String = "", val completion: String = "")
+
+@Serializable
+data class ModelInfo(
+    val id: String,
+    val name: String = id,
+    @SerialName("context_length") val contextLength: Long? = null,
+    val pricing: ModelPricing? = null,
+)
+
+/** «128K ctx» / «1M ctx»; пусто, если размер неизвестен. */
+fun ModelInfo.contextLabel(): String {
+    val n = contextLength ?: return ""
+    return when {
+        n >= 1_000_000 -> "${n / 1_000_000}M ctx"
+        n >= 1_000 -> "${n / 1_000}K ctx"
+        else -> "$n ctx"
+    }
+}
+
+/** Цена входных токенов за 1M: «$0.15/M» / «Free»; пусто, если цены нет. */
+fun ModelInfo.priceLabel(): String {
+    val perToken = pricing?.prompt?.toDoubleOrNull() ?: return ""
+    if (perToken == 0.0) return "Free"
+    val perMillion = perToken * 1_000_000
+    val text = if (perMillion == perMillion.toLong().toDouble()) {
+        perMillion.toLong().toString()
+    } else {
+        // до 2 знаков без trailing-нулей
+        ((perMillion * 100).toLong() / 100.0).toString().trimEnd('0').trimEnd('.')
+    }
+    return "\$$text/M"
+}
 
 @Serializable
 private data class ModelsResponse(val data: List<ModelInfo>)

@@ -7,14 +7,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -34,6 +35,7 @@ import app.obsidianmd.resources.action_hide
 import app.obsidianmd.resources.action_save
 import app.obsidianmd.resources.action_show
 import app.obsidianmd.resources.action_sync_now
+import app.obsidianmd.resources.cd_edit_model
 import app.obsidianmd.resources.error_with_reason
 import app.obsidianmd.resources.repo_pick_from_github
 import app.obsidianmd.resources.settings_ai_enable
@@ -43,7 +45,7 @@ import app.obsidianmd.resources.settings_key_example
 import app.obsidianmd.resources.settings_key_label
 import app.obsidianmd.resources.settings_model_desc
 import app.obsidianmd.resources.settings_model_label
-import app.obsidianmd.resources.settings_model_loading
+import app.obsidianmd.resources.settings_model_none
 import app.obsidianmd.resources.settings_repo_url_desc
 import app.obsidianmd.resources.settings_repo_url_example
 import app.obsidianmd.resources.settings_repo_url_label
@@ -55,7 +57,6 @@ import app.obsidianmd.resources.sync_synced
 import app.obsidianmd.resources.sync_synced_conflicts
 import app.obsidianmd.resources.sync_syncing
 import app.obsidianmd.resources.sync_up_to_date
-import app.obsidianmd.ai.ModelInfo
 import app.obsidianmd.settings.SettingsState
 import app.obsidianmd.sync.SyncResult
 import org.jetbrains.compose.resources.stringResource
@@ -66,15 +67,15 @@ fun SettingsScreen(
     onSave: (String) -> Unit,
     onSaveKey: (String) -> Unit,
     onSetAiEnabled: (Boolean) -> Unit,
-    onSaveModel: (String) -> Unit,
+    onEditModel: () -> Unit,
     syncStatus: SyncStatus,
     onSync: () -> Unit,
     onPickFromGitHub: () -> Unit = {},
 ) {
     // Локальные черновики полей — правки живут в поле до нажатия «Сохранить».
+    // Модель сохраняется сразу при выборе на экране пикера, поэтому черновика для неё нет.
     var url by remember(state.url) { mutableStateOf(state.url) }
     var key by remember(state.openRouterKey) { mutableStateOf(state.openRouterKey) }
-    var model by remember(state.aiModel) { mutableStateOf(state.aiModel) }
     var saved by remember { mutableStateOf(false) }
 
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
@@ -131,15 +132,10 @@ fun SettingsScreen(
                 onValueChange = { key = it; saved = false },
                 secret = true,
             )
-            ModelField(
-                value = model,
-                onValueChange = { model = it; saved = false },
-                models = state.models,
-                loading = state.modelsLoading,
-            )
+            ModelRow(model = state.aiModel, onEdit = onEditModel)
         }
         Button(
-            onClick = { onSave(url); onSaveKey(key); onSaveModel(model); saved = true },
+            onClick = { onSave(url); onSaveKey(key); saved = true },
             modifier = Modifier.padding(top = 8.dp),
         ) { Text(stringResource(Res.string.action_save)) }
         if (saved) {
@@ -152,48 +148,22 @@ fun SettingsScreen(
     }
 }
 
+// Текущая модель + карандаш; выбор — на отдельном экране ModelPickerScreen.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ModelField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    models: List<ModelInfo>,
-    loading: Boolean,
-) {
-    var expanded by remember { mutableStateOf(false) }
-    val filtered = models.filter {
-        value.isBlank() || it.id.contains(value, ignoreCase = true) || it.name.contains(value, ignoreCase = true)
-    }
-    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
-        OutlinedTextField(
-            value = value,
-            onValueChange = { onValueChange(it); expanded = true },
-            label = { Text(stringResource(Res.string.settings_model_label)) },
-            supportingText = {
-                Text(
-                    if (loading) stringResource(Res.string.settings_model_loading)
-                    else stringResource(Res.string.settings_model_desc),
-                )
-            },
-            singleLine = true,
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-            modifier = Modifier
-                .menuAnchor(MenuAnchorType.PrimaryEditable)
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-        )
-        if (filtered.isNotEmpty()) {
-            ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                // ограничиваем список — моделей может быть сотни
-                filtered.take(50).forEach { m ->
-                    DropdownMenuItem(
-                        text = { Text(m.name) },
-                        onClick = { onValueChange(m.id); expanded = false },
-                    )
-                }
+private fun ModelRow(model: String, onEdit: () -> Unit) {
+    ListItem(
+        headlineContent = {
+            Text(model.ifBlank { stringResource(Res.string.settings_model_none) })
+        },
+        overlineContent = { Text(stringResource(Res.string.settings_model_label)) },
+        supportingContent = { Text(stringResource(Res.string.settings_model_desc)) },
+        trailingContent = {
+            IconButton(onClick = onEdit) {
+                Icon(Icons.Filled.Edit, contentDescription = stringResource(Res.string.cd_edit_model))
             }
-        }
-    }
+        },
+    )
 }
 
 @Composable

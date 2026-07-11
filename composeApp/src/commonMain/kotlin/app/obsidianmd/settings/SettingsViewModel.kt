@@ -58,10 +58,18 @@ class SettingsViewModel(
         _state.update { it.copy(aiModel = model) }
     }
 
-    // Список моделей тянем один раз (endpoint публичный, ключ — опционально). Пустой результат
-    // не кэшируется — при следующем включении AI попробуем снова.
-    private fun loadModels() {
-        if (_state.value.models.isNotEmpty() || _state.value.modelsLoading) return
+    /** Лениво подгрузить список при открытии пикера (если ещё не загружен). */
+    fun ensureModels() = loadModels()
+
+    /** Форс-перезагрузка списка (pull-to-refresh на экране выбора модели). */
+    fun reloadModels() = loadModels(force = true)
+
+    // Список моделей тянем лениво (endpoint публичный, ключ — опционально). Пустой результат
+    // не кэшируется — при следующем включении AI/открытии пикера попробуем снова.
+    // force=true игнорирует кэш (pull-to-refresh).
+    private fun loadModels(force: Boolean = false) {
+        if (_state.value.modelsLoading) return
+        if (!force && _state.value.models.isNotEmpty()) return
         viewModelScope.launch {
             _state.update { it.copy(modelsLoading = true) }
             val list = runCatching { fetchModels() }.getOrDefault(emptyList())

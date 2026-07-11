@@ -70,4 +70,18 @@ class SettingsViewModelTest {
         assertEquals(models, vm.state.value.models)
         assertFalse(vm.state.value.modelsLoading)
     }
+
+    @Test
+    fun reload_refetches_even_when_already_loaded() = runTest(dispatcher) {
+        var round = 0
+        val vm = SettingsViewModel(
+            FakeRepoSettingsStore().apply { setAiEnabled(true) },
+            fetchModels = { round++; listOf(ModelInfo("m$round")) },
+        )
+        advanceUntilIdle()
+        assertEquals("m1", vm.state.value.models.single().id)
+        vm.reloadModels()
+        advanceUntilIdle()
+        assertEquals("m2", vm.state.value.models.single().id)
+    }
 }

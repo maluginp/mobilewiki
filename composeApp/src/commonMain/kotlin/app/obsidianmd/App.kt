@@ -52,9 +52,11 @@ import app.obsidianmd.resources.cd_back
 import app.obsidianmd.resources.cd_close_search
 import app.obsidianmd.resources.cd_search
 import app.obsidianmd.resources.cd_settings
+import app.obsidianmd.resources.model_search_hint
 import app.obsidianmd.resources.nav_brain
 import app.obsidianmd.resources.search_hint
 import app.obsidianmd.resources.title_ai_chat
+import app.obsidianmd.resources.title_model_picker
 import app.obsidianmd.resources.title_note
 import app.obsidianmd.resources.title_notes
 import app.obsidianmd.resources.title_settings
@@ -65,6 +67,7 @@ import app.obsidianmd.ui.AiChatScreen
 import app.obsidianmd.ui.ConflictDialog
 import app.obsidianmd.ui.decodeImage
 import app.obsidianmd.ui.MarkdownScreen
+import app.obsidianmd.ui.ModelPickerScreen
 import app.obsidianmd.ui.SettingsScreen
 import app.obsidianmd.ui.VaultListScreen
 import app.obsidianmd.ui.VaultViewModel
@@ -83,6 +86,9 @@ fun App(
     val conflict = state.pendingConflict
     val settings by settingsVm.state.collectAsState()
     var showSettings by remember { mutableStateOf(false) }
+    var showModelPicker by remember { mutableStateOf(false) }
+    var modelSearching by remember { mutableStateOf(false) }
+    var modelQuery by remember { mutableStateOf("") }
     var showAi by remember { mutableStateOf(false) }
     var searching by remember { mutableStateOf(false) }
     var queryText by remember { mutableStateOf("") } // локальный источник правды для поля поиска
@@ -99,13 +105,16 @@ fun App(
     val homeSearching = onHome && searching
     val exitSearch = { searching = false; queryText = ""; vm.search("") }
     val title = when {
+        showModelPicker -> stringResource(Res.string.title_model_picker)
         showSettings -> stringResource(Res.string.title_settings)
         showAi -> stringResource(Res.string.title_ai_chat)
         state.selected != null -> state.selected?.name ?: stringResource(Res.string.title_note)
         !state.atRoot -> state.currentDir.substringAfterLast('/')
         else -> stringResource(Res.string.title_notes)
     }
+    val exitModelSearch = { modelSearching = false; modelQuery = "" }
     val back: (() -> Unit)? = when {
+        showModelPicker -> ({ if (modelSearching) exitModelSearch() else showModelPicker = false })
         showSettings -> ({ showSettings = false })
         showAi -> ({ showAi = false })
         editing -> ({ if (dirty) showUnsaved = true else editing = false }) // «Назад»: защита от потери правок
@@ -122,13 +131,17 @@ fun App(
             topBar = {
                 TopAppBar(
                     title = {
-                        if (homeSearching) {
+                        if (homeSearching || (showModelPicker && modelSearching)) {
                             val focus = remember { FocusRequester() }
                             LaunchedEffect(Unit) { focus.requestFocus() }
+                            val value = if (homeSearching) queryText else modelQuery
+                            val hint = if (homeSearching) Res.string.search_hint else Res.string.model_search_hint
                             TextField(
-                                value = queryText,
-                                onValueChange = { queryText = it; vm.search(it) },
-                                placeholder = { Text(stringResource(Res.string.search_hint)) },
+                                value = value,
+                                onValueChange = {
+                                    if (homeSearching) { queryText = it; vm.search(it) } else modelQuery = it
+                                },
+                                placeholder = { Text(stringResource(hint)) },
                                 singleLine = true,
                                 colors = TextFieldDefaults.colors(
                                     focusedContainerColor = Color.Transparent,
@@ -144,8 +157,8 @@ fun App(
                     },
                     scrollBehavior = if (onHome && !searching) scrollBehavior else null,
                     navigationIcon = {
-                        if (homeSearching) {
-                            IconButton(onClick = exitSearch) {
+                        if (homeSearching || (showModelPicker && modelSearching)) {
+                            IconButton(onClick = { if (homeSearching) exitSearch() else exitModelSearch() }) {
                                 Icon(
                                     Icons.Filled.Close,
                                     contentDescription = stringResource(Res.string.cd_close_search),
@@ -161,8 +174,15 @@ fun App(
                         }
                     },
                     actions = {
-                        if (homeSearching) {
+                        if (homeSearching || (showModelPicker && modelSearching)) {
                             // во время поиска — только поле; остальные действия скрыты
+                        } else if (showModelPicker) {
+                            IconButton(onClick = { modelSearching = true }) {
+                                Icon(
+                                    Icons.Filled.Search,
+                                    contentDescription = stringResource(Res.string.cd_search),
+                                )
+                            }
                         } else if (onHome) {
                             IconButton(onClick = { searching = true }) {
                                 Icon(
@@ -224,12 +244,20 @@ fun App(
         ) { padding ->
             Surface(Modifier.padding(padding)) {
                 when {
+                    showModelPicker -> ModelPickerScreen(
+                        models = settings.models,
+                        loading = settings.modelsLoading,
+                        selected = settings.aiModel,
+                        query = modelQuery,
+                        onSelect = { settingsVm.setAiModel(it); exitModelSearch(); showModelPicker = false },
+                        onRefresh = settingsVm::reloadModels,
+                    )
                     showSettings -> SettingsScreen(
                         state = settings,
                         onSave = { settingsVm.save(it) },
                         onSaveKey = { settingsVm.saveKey(it) },
                         onSetAiEnabled = { settingsVm.setAiEnabled(it) },
-                        onSaveModel = { settingsVm.setAiModel(it) },
+                        onEditModel = { settingsVm.ensureModels(); showModelPicker = true },
                         syncStatus = syncStatus,
                         onSync = vm::sync,
                         onPickFromGitHub = onPickRepoFromGitHub,

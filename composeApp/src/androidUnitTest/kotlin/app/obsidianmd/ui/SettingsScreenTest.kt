@@ -2,6 +2,7 @@ package app.obsidianmd.ui
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.isToggleable
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -62,7 +63,7 @@ class SettingsScreenTest {
         var savedUrl: String? = null
         setContent {
             SettingsScreen(settings(url = "x"), onSave = { savedUrl = it }, onSaveKey = {},
-                onSetAiEnabled = {}, onSaveModel = {}, syncStatus = SyncStatus.Idle, onSync = {})
+                onSetAiEnabled = {}, onEditModel = {}, syncStatus = SyncStatus.Idle, onSync = {})
         }
         onNodeWithText("Save").performScrollTo().performClick()
         assert(savedUrl == "x")
@@ -77,6 +78,20 @@ class SettingsScreenTest {
         }
         onNodeWithText("Sync now").performScrollTo().performClick()
         assert(synced)
+    }
+
+    @Test
+    fun modelRowShowsModelAndEditOpensPicker() = runComposeUiTest {
+        var edited = false
+        setContent {
+            SettingsScreen(
+                SettingsState(aiEnabled = true, aiModel = "openai/gpt-4o-mini"),
+                {}, {}, {}, onEditModel = { edited = true }, syncStatus = SyncStatus.Idle, onSync = {},
+            )
+        }
+        onNodeWithText("openai/gpt-4o-mini").performScrollTo().assertExists()
+        onNodeWithContentDescription("Change model").performScrollTo().performClick()
+        assert(edited)
     }
 
     @Test
