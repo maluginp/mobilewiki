@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,6 +37,7 @@ import app.obsidianmd.ui.RepoPickerScreen
 import app.obsidianmd.ui.RepoValidationScreen
 import app.obsidianmd.ui.VaultViewModel
 import app.obsidianmd.ui.WelcomeScreen
+import app.obsidianmd.ui.theme.AppTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.koin.compose.KoinContext
@@ -49,13 +49,13 @@ import org.koin.core.parameter.parametersOf
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // TopAppBar draws under the status bar → no grey strip. Force LIGHT bars (dark icons):
-        // the UI is always light (MaterialTheme = lightColorScheme), so default auto() would pick
-        // white icons in system dark mode → invisible on our light background.
-        // ponytail: hard-coded light bars because the app has no dark theme; revisit if one is added.
+        // TopAppBar draws under the status bar → no grey strip. auto() picks icon color from the
+        // system dark-mode setting — light theme → dark icons, dark theme → light icons — matching
+        // AppTheme (which follows isSystemInDarkTheme()). No configChanges declared → the activity
+        // recreates on theme switch and this re-runs with the new mode.
         enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
-            navigationBarStyle = SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
+            statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT),
         )
 
         setContent {
@@ -72,7 +72,7 @@ class MainActivity : ComponentActivity() {
                         koin.get<TokenStore>().get() != null
                     }
                 }
-                MaterialTheme {
+                AppTheme {
                     Surface {
                         val loggedIn = initialLoggedIn
                         if (loggedIn == null) {
