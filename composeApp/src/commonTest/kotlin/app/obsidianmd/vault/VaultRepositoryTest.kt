@@ -152,4 +152,25 @@ class VaultRepositoryTest {
         assertEquals(listOf("Alpha", "b"), docs.map { it.title }) // без заголовка → имя без .md
         assertEquals(listOf("a", "b"), docs.map { it.target })    // цель wikilink — базовое имя без .md
     }
+
+    @Test
+    fun lists_and_reads_skills_from_claude_and_codex() {
+        val fs = FakeFileSystem()
+        fs.createDirectories(root / ".claude" / "skills" / "summarize")
+        fs.write(root / ".claude" / "skills" / "summarize" / "SKILL.md") {
+            writeUtf8("---\nname: summarize\ndescription: Summarize notes\n---\nBody: do the thing.")
+        }
+        // frontmatter без name → имя берётся из папки; из .codex тоже подхватывается
+        fs.createDirectories(root / ".codex" / "skills" / "review")
+        fs.write(root / ".codex" / "skills" / "review" / "SKILL.md") {
+            writeUtf8("---\ndescription: Review code\n---\nReview body.")
+        }
+        val repo = VaultRepository(fs, root)
+
+        val skills = repo.listSkills()
+        assertEquals(listOf("review", "summarize"), skills.map { it.name })
+        assertEquals(listOf("Review code", "Summarize notes"), skills.map { it.description })
+        assertEquals("---\nname: summarize\ndescription: Summarize notes\n---\nBody: do the thing.", repo.readSkill("summarize"))
+        assertEquals(null, repo.readSkill("missing"))
+    }
 }

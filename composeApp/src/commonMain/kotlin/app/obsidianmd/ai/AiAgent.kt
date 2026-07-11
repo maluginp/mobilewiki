@@ -30,6 +30,16 @@ private const val SYSTEM_PROMPT =
         "write it as an Obsidian wikilink in double brackets — e.g. [[note-name]] or [[folder/note]] — " +
         "never as plain text or a normal Markdown link. This makes the reference clickable for the user."
 
+/** Базовый промпт + перечень доступных скиллов (если есть) — модель дочитывает их через read_skill. */
+private fun buildSystemPrompt(skills: List<app.obsidianmd.vault.SkillMeta>): String {
+    if (skills.isEmpty()) return SYSTEM_PROMPT
+    val list = skills.joinToString("\n") { "- ${it.name}: ${it.description}" }
+    return SYSTEM_PROMPT +
+        "\n\nAvailable skills — reusable instructions for specific tasks. When a user's request " +
+        "matches one, call read_skill with its name to load the full instructions, then follow them:\n" +
+        list
+}
+
 class AiAgent(
     private val client: ChatClient,
     private val repo: VaultRepository,
@@ -51,7 +61,8 @@ class AiAgent(
     private suspend fun run(history: List<ChatMessage>): AiResult {
         val messages = history.toMutableList()
         if (messages.none { it.role == "system" }) {
-            messages.add(0, ChatMessage(role = "system", content = SYSTEM_PROMPT))
+            val prompt = withContext(io) { buildSystemPrompt(repo.listSkills()) }
+            messages.add(0, ChatMessage(role = "system", content = prompt))
         }
         repeat(maxSteps) {
             val msg = client.chat(messages).choices.firstOrNull()?.message
@@ -73,6 +84,10 @@ class AiAgent(
                             // Модель часто даёт имя без .md / без папки — резолвим как wikilink.
                             resolveWikiLink(name, repo.allFiles())?.let { repo.readFile(it.absPath) }
                                 ?: "note not found: $name"
+                        }
+                        "read_skill" -> {
+                            val name = args["name"]!!.jsonPrimitive.content
+                            repo.readSkill(name) ?: "skill not found: $name"
                         }
                         "write_note" -> {
                             val name = args["name"]!!.jsonPrimitive.content

@@ -160,7 +160,8 @@ internal val TOOLS: JsonElement = Json.parseToJsonElement(
     [
       {"type":"function","function":{"name":"search_notes","description":"Find notes by substring (name + content)","parameters":{"type":"object","properties":{"query":{"type":"string"}},"required":["query"]}}},
       {"type":"function","function":{"name":"read_note","description":"Read a note by file name","parameters":{"type":"object","properties":{"name":{"type":"string"}},"required":["name"]}}},
-      {"type":"function","function":{"name":"write_note","description":"Create or overwrite a note (requires user confirmation)","parameters":{"type":"object","properties":{"name":{"type":"string"},"content":{"type":"string"}},"required":["name","content"]}}}
+      {"type":"function","function":{"name":"write_note","description":"Create or overwrite a note (requires user confirmation)","parameters":{"type":"object","properties":{"name":{"type":"string"},"content":{"type":"string"}},"required":["name","content"]}}},
+      {"type":"function","function":{"name":"read_skill","description":"Read the full instructions of an available skill by its name (see the skills list in the system prompt)","parameters":{"type":"object","properties":{"name":{"type":"string"}},"required":["name"]}}}
     ]
     """.trimIndent(),
 )

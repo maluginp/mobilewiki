@@ -67,6 +67,36 @@ class VaultRepository(
             DocRef(relPath = it.relPath, title = firstHeading(readFile(it.absPath)) ?: base, target = base)
         }
 
+    // --- Skills: инструкции для AI-агента из .claude/skills/<slug>/SKILL.md и .codex/skills/... ---
+    // Формат совместим с Claude Code: frontmatter name/description + тело.
+
+    /** Скиллы, найденные в vault. body грузится лениво (только name/description для system prompt). */
+    fun listSkills(): List<SkillMeta> {
+        val out = mutableListOf<SkillMeta>()
+        for (base in listOf(".claude", ".codex")) {
+            val skillsDir = root / base / "skills"
+            if (!fs.exists(skillsDir)) continue
+            for (dir in fs.list(skillsDir)) {
+                if (!fs.metadata(dir).isDirectory) continue
+                val file = dir / "SKILL.md"
+                if (!fs.exists(file)) continue
+                val fm = frontmatter(fs.read(file) { readUtf8() })
+                out.add(
+                    SkillMeta(
+                        name = fm["name"]?.ifBlank { null } ?: dir.name,
+                        description = fm["description"].orEmpty(),
+                        path = file.toString(),
+                    ),
+                )
+            }
+        }
+        return out.sortedBy { it.name.lowercase() }
+    }
+
+    /** Полный текст SKILL.md по имени скилла; null, если такого нет. */
+    fun readSkill(name: String): String? =
+        listSkills().firstOrNull { it.name == name }?.let { readFile(it.path) }
+
     fun readBytes(path: String): ByteArray = fs.read(path.toPath()) { readByteArray() }
 
     val rootPath: String get() = root.toString()
