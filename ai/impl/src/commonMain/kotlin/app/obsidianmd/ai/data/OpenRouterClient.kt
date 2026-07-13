@@ -17,7 +17,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 
-class OpenRouterException(message: String) : Exception(message)
+internal class OpenRouterException(message: String) : Exception(message)
 
 /** Понятное сообщение об ошибке из «чужого» тела ответа (шлюз/прокси/security policy),
  *  которое не ложится в схему ChatResponse: {"error":"..."} / {"error":{"message":"..."}} / {"message":"..."}.
@@ -38,7 +38,7 @@ private data class ChatRequest(val model: String, val messages: List<ChatMessage
 private data class ModelsResponse(val data: List<ModelInfo>)
 
 /** Список моделей OpenAI-совместимого провайдера (для пикера в настройках). Ключ — в заголовке. */
-suspend fun fetchModels(
+internal suspend fun fetchModels(
     http: HttpClient,
     apiKey: String,
     modelsUrl: String = AiProvider.OPENROUTER.modelsUrl,
@@ -63,7 +63,7 @@ internal val TOOLS: JsonElement = Json.parseToJsonElement(
  * Клиент любого OpenAI-совместимого провайдера (OpenRouter, provod.ai, …): различаются лишь
  * chatUrl и ключ. По умолчанию — OpenRouter (обратная совместимость со старыми вызовами).
  */
-class OpenRouterClient(
+internal class OpenRouterClient(
     private val http: HttpClient,
     private val apiKey: String,
     private val model: String = DEFAULT_MODEL,
