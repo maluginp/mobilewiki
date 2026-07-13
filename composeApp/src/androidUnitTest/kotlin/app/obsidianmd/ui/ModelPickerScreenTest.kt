@@ -4,6 +4,8 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.runComposeUiTest
 import app.obsidianmd.ai.ModelInfo
 import app.obsidianmd.ai.ModelPricing
@@ -34,7 +36,7 @@ class ModelPickerScreenTest {
     @Test
     fun rows_show_name_slug_context_and_price() = runComposeUiTest {
         setContent {
-            ModelPickerScreen(models, loading = false, selected = "", query = "", onSelect = {}, onRefresh = {})
+            ModelPickerScreen(models, loading = false, selected = "", onSelect = {}, onRefresh = {}, onNavigateBack = {})
         }
         onNodeWithText("GPT-4o").assertIsDisplayed()
         onNodeWithText("openai/gpt-4o", substring = true).assertIsDisplayed()
@@ -46,7 +48,7 @@ class ModelPickerScreenTest {
     fun tapping_a_row_selects_its_id() = runComposeUiTest {
         var picked: String? = null
         setContent {
-            ModelPickerScreen(models, loading = false, selected = "", query = "", onSelect = { picked = it }, onRefresh = {})
+            ModelPickerScreen(models, loading = false, selected = "", onSelect = { picked = it }, onRefresh = {}, onNavigateBack = {})
         }
         onNodeWithText("Claude 3.5").performClick()
         assert(picked == "anthropic/claude-3.5")
@@ -55,8 +57,11 @@ class ModelPickerScreenTest {
     @Test
     fun query_filters_the_list() = runComposeUiTest {
         setContent {
-            ModelPickerScreen(models, loading = false, selected = "", query = "claude", onSelect = {}, onRefresh = {})
+            ModelPickerScreen(models, loading = false, selected = "", onSelect = {}, onRefresh = {}, onNavigateBack = {})
         }
+        // Открываем поиск (иконка «Search») и вводим запрос — список фильтруется по нему.
+        onNodeWithContentDescription("Search").performClick()
+        onNodeWithText("Search models").performTextInput("claude")
         onNodeWithText("Claude 3.5").assertIsDisplayed()
         onNodeWithText("GPT-4o").assertDoesNotExist()
     }
@@ -64,7 +69,7 @@ class ModelPickerScreenTest {
     @Test
     fun spinner_shown_while_loading_empty() = runComposeUiTest {
         setContent {
-            ModelPickerScreen(emptyList(), loading = true, selected = "", query = "", onSelect = {}, onRefresh = {})
+            ModelPickerScreen(emptyList(), loading = true, selected = "", onSelect = {}, onRefresh = {}, onNavigateBack = {})
         }
         // список ещё пуст — строк моделей нет, показана вертелка (нет исключений при композиции)
         onNodeWithText("GPT-4o").assertDoesNotExist()
@@ -73,7 +78,7 @@ class ModelPickerScreenTest {
     @Test
     fun filter_bar_shown_by_default() = runComposeUiTest {
         setContent {
-            ModelPickerScreen(models, loading = false, selected = "", query = "", onSelect = {}, onRefresh = {})
+            ModelPickerScreen(models, loading = false, selected = "", onSelect = {}, onRefresh = {}, onNavigateBack = {})
         }
         onNodeWithText("Sort").assertExists()
         onNodeWithText("Price").assertExists()
@@ -83,8 +88,8 @@ class ModelPickerScreenTest {
     fun filter_bar_hidden_when_unsupported() = runComposeUiTest {
         setContent {
             ModelPickerScreen(
-                models, loading = false, selected = "", query = "",
-                onSelect = {}, onRefresh = {}, showFilters = false,
+                models, loading = false, selected = "",
+                onSelect = {}, onRefresh = {}, onNavigateBack = {}, showFilters = false,
             )
         }
         onNodeWithText("Sort").assertDoesNotExist()

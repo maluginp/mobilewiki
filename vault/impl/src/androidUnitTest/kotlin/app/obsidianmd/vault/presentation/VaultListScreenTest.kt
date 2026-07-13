@@ -1,7 +1,6 @@
 package app.obsidianmd.vault.presentation
 
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
@@ -31,8 +30,10 @@ class VaultListScreenTest {
             VaultListScreen(
                 entries = emptyList(), loading = true, refreshing = false,
                 query = "", results = emptyList(),
+                title = "Notes",
+                onQueryChange = {},
                 onOpenFile = {}, onOpenFolder = {}, onRefresh = {},
-                scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
+                onOpenSettings = {}, onBack = null, bottomBar = {},
             )
         }
         onNodeWithText("No files").assertDoesNotExist()
@@ -44,8 +45,10 @@ class VaultListScreenTest {
             VaultListScreen(
                 entries = emptyList(), loading = false, refreshing = false,
                 query = "", results = emptyList(),
+                title = "Notes",
+                onQueryChange = {},
                 onOpenFile = {}, onOpenFolder = {}, onRefresh = {},
-                scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
+                onOpenSettings = {}, onBack = null, bottomBar = {},
             )
         }
         onNodeWithText("No files").assertIsDisplayed()

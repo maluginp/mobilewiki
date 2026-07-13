@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
@@ -21,9 +22,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,7 +43,9 @@ import app.obsidianmd.resources.action_hide
 import app.obsidianmd.resources.action_save
 import app.obsidianmd.resources.action_show
 import app.obsidianmd.resources.action_sync_now
+import app.obsidianmd.resources.cd_back
 import app.obsidianmd.resources.cd_edit_model
+import app.obsidianmd.resources.title_settings
 import app.obsidianmd.resources.error_with_reason
 import app.obsidianmd.resources.repo_pick_from_github
 import app.obsidianmd.resources.settings_ai_enable
@@ -69,6 +74,7 @@ import app.obsidianmd.settings.SettingsState
 import app.obsidianmd.sync.SyncResult
 import org.jetbrains.compose.resources.stringResource
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     state: SettingsState,
@@ -78,6 +84,7 @@ fun SettingsScreen(
     onEditModel: () -> Unit,
     syncStatus: SyncStatus,
     onSync: () -> Unit,
+    onNavigateBack: () -> Unit,
     onPickFromGitHub: () -> Unit = {},
     onSetProvider: (AiProvider) -> Unit = {},
     onSetCustomBaseUrl: (String) -> Unit = {},
@@ -89,7 +96,25 @@ fun SettingsScreen(
     var baseUrl by remember(state.customBaseUrl) { mutableStateOf(state.customBaseUrl) }
     var saved by remember { mutableStateOf(false) }
 
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(Res.string.title_settings)) },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(Res.string.cd_back),
+                        )
+                    }
+                },
+            )
+        },
+    ) { padding ->
+        Column(
+            Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+                .padding(padding).padding(16.dp),
+        ) {
         Text(stringResource(Res.string.settings_sync_title), style = MaterialTheme.typography.titleMedium)
         Text(
             stringResource(Res.string.settings_sync_desc),
@@ -165,6 +190,7 @@ fun SettingsScreen(
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(top = 8.dp),
             )
+        }
         }
     }
 }

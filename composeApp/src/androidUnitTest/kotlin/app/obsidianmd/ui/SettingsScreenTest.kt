@@ -39,7 +39,7 @@ class SettingsScreenTest {
     @Test
     fun showsLabelAndDescriptionForEachSetting() = runComposeUiTest {
         setContent {
-            SettingsScreen(settings(aiEnabled = true), {}, {}, {}, {}, syncStatus = SyncStatus.Idle, onSync = {})
+            SettingsScreen(settings(aiEnabled = true), {}, {}, {}, {}, syncStatus = SyncStatus.Idle, onSync = {}, onNavigateBack = {})
         }
         // Label + description (supportingText) are real semantics nodes; the example is a
         // decorative placeholder Compose doesn't expose to the semantics tree, so it's
@@ -53,7 +53,7 @@ class SettingsScreenTest {
     @Test
     fun providerDropdownShownWhenAiEnabled() = runComposeUiTest {
         setContent {
-            SettingsScreen(settings(aiEnabled = true), {}, {}, {}, {}, syncStatus = SyncStatus.Idle, onSync = {})
+            SettingsScreen(settings(aiEnabled = true), {}, {}, {}, {}, syncStatus = SyncStatus.Idle, onSync = {}, onNavigateBack = {})
         }
         onNodeWithText("AI provider").assertExists()
         // по умолчанию — OpenRouter
@@ -63,7 +63,7 @@ class SettingsScreenTest {
     @Test
     fun keySectionHiddenUntilAiEnabled() = runComposeUiTest {
         setContent {
-            SettingsScreen(settings(aiEnabled = false), {}, {}, {}, {}, syncStatus = SyncStatus.Idle, onSync = {})
+            SettingsScreen(settings(aiEnabled = false), {}, {}, {}, {}, syncStatus = SyncStatus.Idle, onSync = {}, onNavigateBack = {})
         }
         onNodeWithText("Enable AI").assertExists()
         onNodeWithText("API key").assertDoesNotExist()
@@ -74,7 +74,7 @@ class SettingsScreenTest {
         var savedUrl: String? = null
         setContent {
             SettingsScreen(settings(url = "x"), onSave = { savedUrl = it }, onSaveKey = {},
-                onSetAiEnabled = {}, onEditModel = {}, syncStatus = SyncStatus.Idle, onSync = {})
+                onSetAiEnabled = {}, onEditModel = {}, syncStatus = SyncStatus.Idle, onSync = {}, onNavigateBack = {})
         }
         onNodeWithText("Save").performScrollTo().performClick()
         assert(savedUrl == "x")
@@ -85,7 +85,7 @@ class SettingsScreenTest {
     fun syncButtonTriggersSync() = runComposeUiTest {
         var synced = false
         setContent {
-            SettingsScreen(settings(), {}, {}, {}, {}, syncStatus = SyncStatus.Idle, onSync = { synced = true })
+            SettingsScreen(settings(), {}, {}, {}, {}, syncStatus = SyncStatus.Idle, onSync = { synced = true }, onNavigateBack = {})
         }
         onNodeWithText("Sync now").performScrollTo().performClick()
         assert(synced)
@@ -98,6 +98,7 @@ class SettingsScreenTest {
             SettingsScreen(
                 SettingsState(aiEnabled = true, aiModel = "openai/gpt-4o-mini"),
                 {}, {}, {}, onEditModel = { edited = true }, syncStatus = SyncStatus.Idle, onSync = {},
+                onNavigateBack = {},
             )
         }
         onNodeWithText("openai/gpt-4o-mini").performScrollTo().assertExists()
@@ -110,7 +111,7 @@ class SettingsScreenTest {
         var enabled: Boolean? = null
         setContent {
             SettingsScreen(settings(), {}, {}, onSetAiEnabled = { enabled = it }, {},
-                syncStatus = SyncStatus.Idle, onSync = {})
+                syncStatus = SyncStatus.Idle, onSync = {}, onNavigateBack = {})
         }
         onNode(isToggleable()).performScrollTo().performClick()
         assert(enabled == true)

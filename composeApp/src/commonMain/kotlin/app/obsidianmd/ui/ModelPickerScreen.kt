@@ -11,26 +11,39 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import app.obsidianmd.ai.ContextFilter
@@ -49,10 +62,15 @@ import app.obsidianmd.resources.filter_ctx_32k
 import app.obsidianmd.resources.filter_price_free
 import app.obsidianmd.resources.filter_price_under_1
 import app.obsidianmd.resources.filter_price_under_5
+import app.obsidianmd.resources.cd_back
+import app.obsidianmd.resources.cd_close_search
+import app.obsidianmd.resources.cd_search
 import app.obsidianmd.resources.model_filter_context
 import app.obsidianmd.resources.model_filter_price
+import app.obsidianmd.resources.model_search_hint
 import app.obsidianmd.resources.model_sort
 import app.obsidianmd.resources.models_empty
+import app.obsidianmd.resources.title_model_picker
 import app.obsidianmd.resources.sort_name
 import app.obsidianmd.resources.sort_price_asc
 import app.obsidianmd.resources.sort_price_desc
@@ -65,11 +83,13 @@ fun ModelPickerScreen(
     models: List<ModelInfo>,
     loading: Boolean,
     selected: String,
-    query: String,
     onSelect: (String) -> Unit,
     onRefresh: () -> Unit,
+    onNavigateBack: () -> Unit,
     showFilters: Boolean = true,
 ) {
+    var query by remember { mutableStateOf("") }
+    var searching by remember { mutableStateOf(false) }
     var price by remember { mutableStateOf(PriceFilter.ANY) }
     var context by remember { mutableStateOf(ContextFilter.ANY) }
     var sort by remember { mutableStateOf(SortOrder.NAME) }
@@ -81,45 +101,96 @@ fun ModelPickerScreen(
         models.filter { query.isBlank() || it.id.contains(query, true) || it.name.contains(query, true) }
     }
 
-    // Первая загрузка (список пуст) — вертелка по центру. Дальше обновление показывает индикатор
-    // самого pull-to-refresh, список не мигает.
-    if (loading && models.isEmpty()) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
-        return
-    }
-    Column(Modifier.fillMaxSize()) {
-        if (showFilters) {
-            FilterBar(price, context, sort, onPrice = { price = it }, onContext = { context = it }, onSort = { sort = it })
-        }
-        PullToRefreshBox(isRefreshing = loading, onRefresh = onRefresh, modifier = Modifier.fillMaxSize()) {
-            if (filtered.isEmpty()) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(
-                        stringResource(Res.string.models_empty),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(24.dp),
-                    )
-                }
-                return@PullToRefreshBox
-            }
-            LazyColumn(Modifier.fillMaxSize()) {
-                items(filtered, key = { it.id }) { m ->
-                    ListItem(
-                        headlineContent = { Text(m.name, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                        supportingContent = {
-                            val meta = listOf(m.contextLabel(), m.priceLabel()).filter { it.isNotEmpty() }
-                            Text(
-                                (listOf(m.id) + meta).joinToString("  ·  "),
-                                style = MaterialTheme.typography.bodySmall,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    if (searching) {
+                        val focus = remember { FocusRequester() }
+                        LaunchedEffect(Unit) { focus.requestFocus() }
+                        TextField(
+                            value = query,
+                            onValueChange = { query = it },
+                            placeholder = { Text(stringResource(Res.string.model_search_hint)) },
+                            singleLine = true,
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                            ),
+                            modifier = Modifier.fillMaxWidth().focusRequester(focus),
+                        )
+                    } else {
+                        Text(stringResource(Res.string.title_model_picker))
+                    }
+                },
+                navigationIcon = {
+                    if (searching) {
+                        IconButton(onClick = { searching = false; query = "" }) {
+                            Icon(Icons.Filled.Close, contentDescription = stringResource(Res.string.cd_close_search))
+                        }
+                    } else {
+                        IconButton(onClick = onNavigateBack) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(Res.string.cd_back),
                             )
-                        },
-                        trailingContent = {
-                            if (m.id == selected) Icon(Icons.Filled.Check, contentDescription = null)
-                        },
-                        modifier = Modifier.clickable { onSelect(m.id) },
-                    )
+                        }
+                    }
+                },
+                actions = {
+                    if (!searching) {
+                        IconButton(onClick = { searching = true }) {
+                            Icon(Icons.Filled.Search, contentDescription = stringResource(Res.string.cd_search))
+                        }
+                    }
+                },
+            )
+        },
+    ) { padding ->
+        Box(Modifier.fillMaxSize().padding(padding)) {
+            // Первая загрузка (список пуст) — вертелка по центру. Дальше обновление показывает
+            // индикатор самого pull-to-refresh, список не мигает.
+            if (loading && models.isEmpty()) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+            } else {
+                Column(Modifier.fillMaxSize()) {
+                    if (showFilters) {
+                        FilterBar(price, context, sort, onPrice = { price = it }, onContext = { context = it }, onSort = { sort = it })
+                    }
+                    PullToRefreshBox(isRefreshing = loading, onRefresh = onRefresh, modifier = Modifier.fillMaxSize()) {
+                        if (filtered.isEmpty()) {
+                            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                Text(
+                                    stringResource(Res.string.models_empty),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(24.dp),
+                                )
+                            }
+                            return@PullToRefreshBox
+                        }
+                        LazyColumn(Modifier.fillMaxSize()) {
+                            items(filtered, key = { it.id }) { m ->
+                                ListItem(
+                                    headlineContent = { Text(m.name, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                                    supportingContent = {
+                                        val meta = listOf(m.contextLabel(), m.priceLabel()).filter { it.isNotEmpty() }
+                                        Text(
+                                            (listOf(m.id) + meta).joinToString("  ·  "),
+                                            style = MaterialTheme.typography.bodySmall,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
+                                        )
+                                    },
+                                    trailingContent = {
+                                        if (m.id == selected) Icon(Icons.Filled.Check, contentDescription = null)
+                                    },
+                                    modifier = Modifier.clickable { onSelect(m.id) },
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }

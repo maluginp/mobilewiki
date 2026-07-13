@@ -1,26 +1,32 @@
 package app.obsidianmd.vault
 
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 
 /**
  * Точка входа UI фичи vault для навигации основного модуля. Реализация — в :vault:impl
  * (internal), подключается через DI. Основной модуль не знает о конкретных экранах фичи.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 interface VaultPresentationProvider {
-    /** Экран списка файлов/папок vault. */
+    /**
+     * Экран списка файлов/папок vault со своим TopAppBar (заголовок, поиск, действие «настройки»).
+     * @param title заголовок (имя папки или «Заметки» для корня)
+     * @param onBack null на корне; стрелка «назад» для вложенной папки
+     * @param bottomBar общий слот нижней навигации приложения
+     */
     @Composable
     fun ListScreen(
+        title: String,
         entries: List<VaultEntry>,
         loading: Boolean,
         refreshing: Boolean,
         query: String,
         results: List<MdFile>,
+        onQueryChange: (String) -> Unit,
         onOpenFile: (MdFile) -> Unit,
         onOpenFolder: (VaultEntry) -> Unit,
         onRefresh: () -> Unit,
-        scrollBehavior: TopAppBarScrollBehavior,
+        onOpenSettings: () -> Unit,
+        onBack: (() -> Unit)?,
+        bottomBar: @Composable () -> Unit,
     )
 }

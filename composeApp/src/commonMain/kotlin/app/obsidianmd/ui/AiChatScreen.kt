@@ -34,10 +34,13 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -71,6 +74,7 @@ import app.obsidianmd.resources.chat_empty_subtitle
 import app.obsidianmd.resources.chat_empty_title
 import app.obsidianmd.resources.chat_input_hint
 import app.obsidianmd.resources.error_with_reason
+import app.obsidianmd.resources.title_ai_chat
 import com.mikepenz.markdown.m3.Markdown
 import com.mikepenz.markdown.m3.markdownColor
 import com.mikepenz.markdown.m3.markdownTypography
@@ -79,6 +83,7 @@ import org.jetbrains.compose.resources.stringResource
 private val BUBBLE_RADIUS = 18.dp        // = MaterialTheme.shapes.large
 private val BUBBLE_MAX_WIDTH = 300.dp     // максимальная ширина пузыря сообщения
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AiChatScreen(
     messages: List<ChatTurn>,
@@ -89,6 +94,7 @@ fun AiChatScreen(
     onReject: () -> Unit,
     files: List<VaultFile> = emptyList(),
     onOpenFile: (String) -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
 ) {
     var input by remember { mutableStateOf("") }
     val thinking = status is AiStatus.Thinking
@@ -100,10 +106,14 @@ fun AiChatScreen(
         if (lastIndex >= 0) listState.animateScrollToItem(lastIndex)
     }
 
+    Scaffold(
+        topBar = { TopAppBar(title = { Text(stringResource(Res.string.title_ai_chat)) }) },
+        bottomBar = bottomBar,
+    ) { scaffoldPadding ->
     // Поднимаем поле ввода над клавиатурой (а не уводим весь экран с AppBar вверх).
     // Вычитаем navigationBars: Scaffold уже добавил их в content padding — иначе двойной отступ.
     Column(
-        Modifier.fillMaxSize()
+        Modifier.fillMaxSize().padding(scaffoldPadding)
             .windowInsetsPadding(WindowInsets.ime.exclude(WindowInsets.navigationBars)),
     ) {
         if (messages.isEmpty() && !thinking && status !is AiStatus.Failed) {
@@ -127,6 +137,7 @@ fun AiChatScreen(
             sendEnabled = input.isNotBlank() && !thinking,
             onSend = { onSend(input); input = "" },
         )
+    }
     }
 
     if (pendingWrite != null) {
