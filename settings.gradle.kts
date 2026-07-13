@@ -1,6 +1,7 @@
 rootProject.name = "obsidian-git-md"
 
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google()
         mavenCentral()
@@ -17,3 +18,4 @@ dependencyResolutionManagement {
 }
 
 include(":composeApp")
+include(":sync:api")
