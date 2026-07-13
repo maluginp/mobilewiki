@@ -92,6 +92,7 @@ import app.obsidianmd.ui.SettingsScreen
 import app.obsidianmd.ui.SyncStatus
 import app.obsidianmd.ui.VaultViewModel
 import app.obsidianmd.ui.LoginScreen
+import app.obsidianmd.ui.WelcomeScreen
 import app.obsidianmd.ui.RepoPickerScreen
 import app.obsidianmd.ui.ManualUrlScreen
 import app.obsidianmd.ui.RepoValidationScreen
@@ -283,12 +284,18 @@ fun AppNavHost(initialStack: List<Route>) {
                 sceneStrategies = listOf(rememberListDetailSceneStrategy<NavKey>()),
                 entryProvider = entryProvider {
                     entry<Route.Login> {
-                        val uriHandler = LocalUriHandler.current
-                        LoginScreen(
-                            state = authState,
-                            onLogin = authVm::login,
-                            onOpenUrl = { uriHandler.openUri(it) },
-                        )
+                        // Idle — приветствие с кнопкой входа; после старта авторизации тот же
+                        // маршрут показывает код/ожидание (без лишнего промежуточного экрана).
+                        if (authState is AuthState.Idle) {
+                            WelcomeScreen(onSignIn = authVm::login)
+                        } else {
+                            val uriHandler = LocalUriHandler.current
+                            LoginScreen(
+                                state = authState,
+                                onLogin = authVm::login,
+                                onOpenUrl = { uriHandler.openUri(it) },
+                            )
+                        }
                     }
                     entry<Route.RepoPicker> { RepoPickerRoute(backStack) }
                     entry<Route.RepoManualUrl> {
