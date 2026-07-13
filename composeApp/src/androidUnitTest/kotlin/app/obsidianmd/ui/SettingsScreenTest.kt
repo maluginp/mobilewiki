@@ -2,8 +2,6 @@ package app.obsidianmd.ui
 
 
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.isToggleable
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -17,7 +15,8 @@ import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
 // Seed Compose-UI test: proves the harness works and guards the settings UX
-// (localized label + description strings + save confirmation + moved Sync action).
+// (localized repo label + description + save confirmation + Sync action). AI-часть
+// секции проверяется в :ai:impl (AiSettingsSectionContentTest).
 @OptIn(ExperimentalTestApi::class)
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
@@ -33,48 +32,26 @@ class SettingsScreenTest {
             .set(null, RuntimeEnvironment.getApplication())
     }
 
-    private fun settings(url: String = "", aiEnabled: Boolean = false) =
-        SettingsState(url = url, aiEnabled = aiEnabled)
+    private fun settings(url: String = "") = SettingsState(url = url)
 
     @Test
     fun showsLabelAndDescriptionForEachSetting() = runComposeUiTest {
         setContent {
-            SettingsScreen(settings(aiEnabled = true), {}, {}, {}, {}, syncStatus = SyncStatus.Idle, onSync = {}, onNavigateBack = {})
+            SettingsScreen(settings(), onSave = {}, syncStatus = SyncStatus.Idle, onSync = {}, onNavigateBack = {})
         }
         // Label + description (supportingText) are real semantics nodes; the example is a
         // decorative placeholder Compose doesn't expose to the semantics tree, so it's
         // covered by the manual acceptance case instead.
         onNodeWithText("Repository URL").assertExists()
         onNodeWithText("HTTPS link", substring = true).assertExists()
-        onNodeWithText("API key").assertExists()
-        onNodeWithText("Stored encrypted", substring = true).assertExists()
-    }
-
-    @Test
-    fun providerDropdownShownWhenAiEnabled() = runComposeUiTest {
-        setContent {
-            SettingsScreen(settings(aiEnabled = true), {}, {}, {}, {}, syncStatus = SyncStatus.Idle, onSync = {}, onNavigateBack = {})
-        }
-        onNodeWithText("AI provider").assertExists()
-        // по умолчанию — OpenRouter
-        onNodeWithText("OpenRouter").assertExists()
-    }
-
-    @Test
-    fun keySectionHiddenUntilAiEnabled() = runComposeUiTest {
-        setContent {
-            SettingsScreen(settings(aiEnabled = false), {}, {}, {}, {}, syncStatus = SyncStatus.Idle, onSync = {}, onNavigateBack = {})
-        }
-        onNodeWithText("Enable AI").assertExists()
-        onNodeWithText("API key").assertDoesNotExist()
     }
 
     @Test
     fun saveShowsConfirmation() = runComposeUiTest {
         var savedUrl: String? = null
         setContent {
-            SettingsScreen(settings(url = "x"), onSave = { savedUrl = it }, onSaveKey = {},
-                onSetAiEnabled = {}, onEditModel = {}, syncStatus = SyncStatus.Idle, onSync = {}, onNavigateBack = {})
+            SettingsScreen(settings(url = "x"), onSave = { savedUrl = it },
+                syncStatus = SyncStatus.Idle, onSync = {}, onNavigateBack = {})
         }
         onNodeWithText("Save").performScrollTo().performClick()
         assert(savedUrl == "x")
@@ -85,35 +62,10 @@ class SettingsScreenTest {
     fun syncButtonTriggersSync() = runComposeUiTest {
         var synced = false
         setContent {
-            SettingsScreen(settings(), {}, {}, {}, {}, syncStatus = SyncStatus.Idle, onSync = { synced = true }, onNavigateBack = {})
+            SettingsScreen(settings(), onSave = {}, syncStatus = SyncStatus.Idle,
+                onSync = { synced = true }, onNavigateBack = {})
         }
         onNodeWithText("Sync now").performScrollTo().performClick()
         assert(synced)
-    }
-
-    @Test
-    fun modelRowShowsModelAndEditOpensPicker() = runComposeUiTest {
-        var edited = false
-        setContent {
-            SettingsScreen(
-                SettingsState(aiEnabled = true, aiModel = "openai/gpt-4o-mini"),
-                {}, {}, {}, onEditModel = { edited = true }, syncStatus = SyncStatus.Idle, onSync = {},
-                onNavigateBack = {},
-            )
-        }
-        onNodeWithText("openai/gpt-4o-mini").performScrollTo().assertExists()
-        onNodeWithContentDescription("Change model").performScrollTo().performClick()
-        assert(edited)
-    }
-
-    @Test
-    fun toggleTriggersOnSetAiEnabled() = runComposeUiTest {
-        var enabled: Boolean? = null
-        setContent {
-            SettingsScreen(settings(), {}, {}, onSetAiEnabled = { enabled = it }, {},
-                syncStatus = SyncStatus.Idle, onSync = {}, onNavigateBack = {})
-        }
-        onNode(isToggleable()).performScrollTo().performClick()
-        assert(enabled == true)
     }
 }

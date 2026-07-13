@@ -1,4 +1,4 @@
-package app.obsidianmd.ui
+package app.obsidianmd.ai
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -46,14 +46,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import app.obsidianmd.ai.ContextFilter
-import app.obsidianmd.ai.ModelInfo
-import app.obsidianmd.ai.PriceFilter
-import app.obsidianmd.ai.SortOrder
-import app.obsidianmd.ai.contextLabel
-import app.obsidianmd.ai.filterModels
-import app.obsidianmd.ai.priceLabel
-import app.obsidianmd.ai.sortModels
 import app.obsidianmd.resources.Res
 import app.obsidianmd.resources.filter_any
 import app.obsidianmd.resources.filter_ctx_128k
@@ -79,7 +71,7 @@ import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ModelPickerScreen(
+internal fun ModelPickerScreen(
     models: List<ModelInfo>,
     loading: Boolean,
     selected: String,

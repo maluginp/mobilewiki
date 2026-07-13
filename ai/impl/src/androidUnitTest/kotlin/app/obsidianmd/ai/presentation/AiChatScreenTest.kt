@@ -1,4 +1,4 @@
-package app.obsidianmd.ui
+package app.obsidianmd.ai
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
@@ -11,8 +11,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.runComposeUiTest
-import app.obsidianmd.ai.AiStatus
-import app.obsidianmd.ai.ChatTurn
 import app.obsidianmd.vault.VaultFile
 import org.junit.Before
 import org.junit.Test

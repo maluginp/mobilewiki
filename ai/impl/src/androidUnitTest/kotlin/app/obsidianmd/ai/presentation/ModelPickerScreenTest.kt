@@ -1,4 +1,4 @@
-package app.obsidianmd.ui
+package app.obsidianmd.ai
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
@@ -7,8 +7,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.runComposeUiTest
-import app.obsidianmd.ai.ModelInfo
-import app.obsidianmd.ai.ModelPricing
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
