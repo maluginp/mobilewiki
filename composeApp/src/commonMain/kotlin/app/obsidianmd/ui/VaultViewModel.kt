@@ -165,6 +165,29 @@ class VaultViewModel(
         _state.value = _state.value.copy(selected = null, content = "")
     }
 
+    // --- Навигация через Nav3-бэкстек: историю держит стек, не VM. ---
+
+    /** Открыть содержимое папки (маршрут VaultList(dir)). */
+    fun openDir(dir: String) {
+        viewModelScope.launch { loadDir(dir) }
+    }
+
+    /** Загрузить заметку по пути (маршрут Note(path)); без внутренней истории. */
+    fun openNote(path: String) {
+        val name = path.substringAfterLast('/')
+        Analytics.event("note_open", mapOf("source" to "nav"))
+        viewModelScope.launch {
+            _state.value = _state.value.copy(selected = MdFile(name, path), loading = true)
+            val text = withContext(io) { repo.readFile(path) }
+            _state.value = _state.value.copy(content = text, loading = false)
+        }
+    }
+
+    /** Сбросить открытую заметку (пустой detail-пейн на широком экране). */
+    fun clearNote() {
+        _state.value = _state.value.copy(selected = null, content = "")
+    }
+
     fun saveFile(path: String, content: String) {
         Analytics.event("note_save")
         viewModelScope.launch {

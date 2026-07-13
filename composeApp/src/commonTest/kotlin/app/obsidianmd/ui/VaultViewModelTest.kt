@@ -130,6 +130,34 @@ class VaultViewModelTest {
     }
 
     @Test
+    fun openNote_loads_content_without_history() = runTest(dispatcher) {
+        val io = StandardTestDispatcher(testScheduler)
+        val model = vm(io, mapOf("$root/a.md" to "hello"))
+        model.openNote("$root/a.md"); advanceUntilIdle()
+        assertEquals("hello", model.state.value.content)
+        assertEquals("a.md", model.state.value.selected?.name)
+    }
+
+    @Test
+    fun openDir_lists_entries_and_sets_current_dir() = runTest(dispatcher) {
+        val io = StandardTestDispatcher(testScheduler)
+        val model = vm(io, mapOf("$root/sub/b.md" to "x"))
+        model.openDir("$root/sub"); advanceUntilIdle()
+        assertEquals(listOf("b.md"), model.state.value.entries.map { it.name })
+        assertEquals("$root/sub", model.state.value.currentDir)
+    }
+
+    @Test
+    fun clearNote_resets_selection_and_content() = runTest(dispatcher) {
+        val io = StandardTestDispatcher(testScheduler)
+        val model = vm(io, mapOf("$root/a.md" to "hello"))
+        model.openNote("$root/a.md"); advanceUntilIdle()
+        model.clearNote()
+        assertNull(model.state.value.selected)
+        assertEquals("", model.state.value.content)
+    }
+
+    @Test
     fun search_updates_query_and_results() = runTest(dispatcher) {
         val model = VaultViewModel(
             FakeVaultRepository(root, mapOf("$root/a.md" to "важный проект", "$root/b.md" to "ничего")),
