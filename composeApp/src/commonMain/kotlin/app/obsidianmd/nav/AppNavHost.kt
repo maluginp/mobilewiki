@@ -432,12 +432,12 @@ fun AppNavHost(initialStack: List<Route>) {
 private fun RepoPickerRoute(backStack: androidx.navigation3.runtime.NavBackStack<NavKey>) {
     val pickerVm: RepoPickerViewModel = koinViewModel()
     LaunchedEffect(Unit) { pickerVm.load() }
-    val picked by pickerVm.picked.collectAsState()
-    LaunchedEffect(picked) { picked?.let { backStack.add(Route.RepoValidate(it)) } }
     val pickerState by pickerVm.state.collectAsState()
     RepoPickerScreen(
         state = pickerState,
-        onChoose = pickerVm::pick,
+        // Навигация прямо из выбора — не через залипающий StateFlow picked
+        // (иначе повторный вход авто-выбирал прежний репозиторий).
+        onChoose = { url -> backStack.add(Route.RepoValidate(url)) },
         onRetry = pickerVm::load,
         onEnterManually = { backStack.add(Route.RepoManualUrl) },
         onBack = if (backStack.size > 1) ({ backStack.removeLastOrNull(); Unit }) else null,
