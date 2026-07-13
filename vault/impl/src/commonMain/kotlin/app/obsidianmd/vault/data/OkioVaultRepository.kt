@@ -12,16 +12,11 @@ import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
 
-/** Собирает [VaultRepository] для vault по абсолютному пути (системная ФС). */
-fun createVaultRepository(rootPath: String): VaultRepository =
-    OkioVaultRepository(FileSystem.SYSTEM, rootPath.toPath())
-
-/** Собирает [VaultRepository] на произвольной okio-ФС и корне — для тестов (FakeFileSystem). */
-fun createVaultRepository(fs: FileSystem, root: Path): VaultRepository =
-    OkioVaultRepository(fs, root)
-
-/** Реализация [VaultRepository] поверх okio-файловой системы. */
-internal class OkioVaultRepository(
+/**
+ * Реализация [VaultRepository] поверх okio-файловой системы.
+ * Создаётся только в DI-модуле фичи (см. `di/vaultPlatformModule`); в проде — с [FileSystem.SYSTEM].
+ */
+class OkioVaultRepository(
     private val fs: FileSystem,
     private val root: Path,
 ) : VaultRepository {

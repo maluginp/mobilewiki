@@ -1,7 +1,7 @@
 package app.obsidianmd.ai
 
 import app.obsidianmd.vault.VaultRepository
-import app.obsidianmd.vault.data.createVaultRepository
+import app.obsidianmd.vault.data.OkioVaultRepository
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
@@ -14,7 +14,7 @@ private fun repo(): VaultRepository {
     val fs = FakeFileSystem()
     fs.createDirectories(root)
     fs.write(root / "welcome.md") { writeUtf8("привет проект") }
-    return createVaultRepository(fs, root)
+    return OkioVaultRepository(fs, root)
 }
 
 class AiAgentTest {

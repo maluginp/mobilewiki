@@ -15,7 +15,7 @@ class VaultRepositoryTest {
         val fs = FakeFileSystem()
         fs.createDirectories(root)
         files.forEach { fs.write(root / it) { writeUtf8("x") } }
-        return createVaultRepository(fs, root)
+        return OkioVaultRepository(fs, root)
     }
 
     @Test
@@ -35,7 +35,7 @@ class VaultRepositoryTest {
         fs.write(root / "a.md") { writeUtf8("x") }
         fs.write(root / "note.txt") { writeUtf8("x") }
         fs.createDirectories(root / ".git")
-        val repo = createVaultRepository(fs, root)
+        val repo = OkioVaultRepository(fs, root)
 
         val entries = repo.listEntries(root.toString())
         assertEquals(listOf("alpha", "Zeta", "a.md", "b.md"), entries.map { it.name })
@@ -47,7 +47,7 @@ class VaultRepositoryTest {
         val fs = FakeFileSystem()
         fs.createDirectories(root / "Daily")
         fs.write(root / "Daily" / "mon.md") { writeUtf8("x") }
-        val repo = createVaultRepository(fs, root)
+        val repo = OkioVaultRepository(fs, root)
 
         val sub = (root / "Daily").toString()
         assertEquals(listOf("mon.md"), repo.listEntries(sub).map { it.name })
@@ -65,7 +65,7 @@ class VaultRepositoryTest {
         fs.write(root / "sub" / "b.md") { writeUtf8("x") }
         fs.write(root / "sub" / "pic.png") { writeUtf8("x") }
         fs.write(root / ".git" / "cfg") { writeUtf8("x") }
-        val repo = createVaultRepository(fs, root)
+        val repo = OkioVaultRepository(fs, root)
 
         val rels = repo.allFiles().map { it.relPath }
         assertEquals(listOf("a.md", "sub/b.md", "sub/pic.png"), rels)
@@ -82,7 +82,7 @@ class VaultRepositoryTest {
         val fs = FakeFileSystem()
         fs.createDirectories(root)
         fs.write(root / "a.md") { writeUtf8("# Hello") }
-        val repo = createVaultRepository(fs, root)
+        val repo = OkioVaultRepository(fs, root)
         assertEquals("# Hello", repo.readFile((root / "a.md").toString()))
     }
 
@@ -90,7 +90,7 @@ class VaultRepositoryTest {
     fun writes_new_and_overwrites_existing() {
         val fs = FakeFileSystem()
         fs.createDirectories(root)
-        val repo = createVaultRepository(fs, root)
+        val repo = OkioVaultRepository(fs, root)
         val path = (root / "note.md").toString()
 
         repo.writeFile(path, "# Hi")
@@ -104,7 +104,7 @@ class VaultRepositoryTest {
     fun path_for_resolves_under_root() {
         val fs = FakeFileSystem()
         fs.createDirectories(root)
-        val repo = createVaultRepository(fs, root)
+        val repo = OkioVaultRepository(fs, root)
         repo.writeFile(repo.pathFor("x.md"), "hi")
         assertEquals("hi", repo.readFile(repo.pathFor("x.md")))
         assertEquals(listOf("x.md"), repo.listMarkdownFiles().map { it.name })
@@ -117,7 +117,7 @@ class VaultRepositoryTest {
         fs.write(root / "todo.md") { writeUtf8("список дел") }
         fs.write(root / "notes.md") { writeUtf8("важный проект здесь") }
         fs.write(root / "misc.md") { writeUtf8("ничего") }
-        val repo = createVaultRepository(fs, root)
+        val repo = OkioVaultRepository(fs, root)
 
         assertEquals(listOf("notes.md"), repo.search("проект").map { it.name })
         assertEquals(listOf("todo.md"), repo.search("todo").map { it.name })
@@ -134,7 +134,7 @@ class VaultRepositoryTest {
         fs.write(root / "sub" / "match-name.md") { writeUtf8("x") }
         fs.write(root / "sub" / "deep" / "bybody.md") { writeUtf8("нужное слово") }
         fs.write(root / ".git" / "config.md") { writeUtf8("нужное слово") } // dot-каталог пропускается
-        val repo = createVaultRepository(fs, root)
+        val repo = OkioVaultRepository(fs, root)
 
         assertEquals(listOf("match-name.md"), repo.search("match-name").map { it.name })
         assertEquals(listOf("bybody.md"), repo.search("нужное").map { it.name })
@@ -147,7 +147,7 @@ class VaultRepositoryTest {
         fs.write(root / "a.md") { writeUtf8("# Alpha\nbody") }
         fs.write(root / "sub" / "b.md") { writeUtf8("no heading here") }
         fs.write(root / "pic.png") { writeUtf8("x") } // не .md — пропускается
-        val repo = createVaultRepository(fs, root)
+        val repo = OkioVaultRepository(fs, root)
 
         val docs = repo.documents()
         assertEquals(listOf("a.md", "sub/b.md"), docs.map { it.relPath })
@@ -167,7 +167,7 @@ class VaultRepositoryTest {
         fs.write(root / ".codex" / "skills" / "review" / "SKILL.md") {
             writeUtf8("---\ndescription: Review code\n---\nReview body.")
         }
-        val repo = createVaultRepository(fs, root)
+        val repo = OkioVaultRepository(fs, root)
 
         val skills = repo.listSkills()
         assertEquals(listOf("review", "summarize"), skills.map { it.name })
