@@ -1,6 +1,5 @@
 package app.obsidianmd.ui
 
-import app.obsidianmd.vault.presentation.SyncStatus
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row

@@ -23,8 +23,10 @@ import app.obsidianmd.sync.JGitSync
 import app.obsidianmd.sync.SyncConfig
 import app.obsidianmd.sync.SyncConfigProvider
 import app.obsidianmd.sync.UiConflictResolver
+import app.obsidianmd.ui.VaultViewModel
 import app.obsidianmd.vault.VaultRepository
 import io.ktor.client.HttpClient
+import kotlinx.coroutines.Dispatchers
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -75,6 +77,16 @@ val appModule = module {
         )
     }
     viewModel { AuthViewModel(GitHubDeviceAuth(get(), BuildConfig.GITHUB_CLIENT_ID), get()) }
+    // Оболочка заметок: просмотр/поиск/синк поверх VaultRepository (из :vault:impl) и sync-контрактов.
+    viewModel {
+        VaultViewModel(
+            repo = get(),
+            io = Dispatchers.IO,
+            gitSync = get(),
+            syncConfigProvider = get<SyncConfigProvider>()::provide,
+            resolver = get(),
+        )
+    }
     viewModel { RepoPickerViewModel(repos = GitHubRepos(get()), token = get<TokenStore>()::get) }
     viewModel { RepoValidationViewModel(access = GitHubRepoAccess(get()), token = get<TokenStore>()::get) }
     // AI VM is parameterized: (model, key, chatUrl) come from the current provider+settings;

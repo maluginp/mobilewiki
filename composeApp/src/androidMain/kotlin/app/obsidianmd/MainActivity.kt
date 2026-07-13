@@ -35,7 +35,7 @@ import app.obsidianmd.ui.LoginScreen
 import app.obsidianmd.ui.ManualUrlScreen
 import app.obsidianmd.ui.RepoPickerScreen
 import app.obsidianmd.ui.RepoValidationScreen
-import app.obsidianmd.vault.presentation.VaultViewModel
+import app.obsidianmd.ui.VaultViewModel
 import app.obsidianmd.ui.WelcomeScreen
 import app.obsidianmd.ui.theme.AppTheme
 import kotlinx.coroutines.Dispatchers

@@ -16,7 +16,7 @@ import okio.Path.Companion.toPath
  * Реализация [VaultRepository] поверх okio-файловой системы.
  * Создаётся только в DI-модуле фичи (см. `di/vaultPlatformModule`); в проде — с [FileSystem.SYSTEM].
  */
-class OkioVaultRepository(
+internal class OkioVaultRepository(
     private val fs: FileSystem,
     private val root: Path,
 ) : VaultRepository {

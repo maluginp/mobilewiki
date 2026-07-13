@@ -72,9 +72,9 @@ import app.obsidianmd.ui.decodeImage
 import app.obsidianmd.ui.MarkdownScreen
 import app.obsidianmd.ui.ModelPickerScreen
 import app.obsidianmd.ui.SettingsScreen
+import app.obsidianmd.ui.SyncStatus
+import app.obsidianmd.ui.VaultViewModel
 import app.obsidianmd.vault.VaultPresentationProvider
-import app.obsidianmd.vault.presentation.SyncStatus
-import app.obsidianmd.vault.presentation.VaultViewModel
 import app.obsidianmd.ui.theme.AppTheme
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
