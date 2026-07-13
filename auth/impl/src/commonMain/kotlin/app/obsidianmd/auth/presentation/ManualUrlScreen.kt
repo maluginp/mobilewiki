@@ -1,4 +1,4 @@
-package app.obsidianmd.ui
+package app.obsidianmd.auth.presentation
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -27,7 +27,7 @@ import app.obsidianmd.resources.repo_pick_manual_title
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun ManualUrlScreen(
+internal fun ManualUrlScreen(
     onSubmit: (String) -> Unit,
     onBack: () -> Unit,
 ) {

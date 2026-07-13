@@ -1,19 +1,11 @@
 package app.obsidianmd.di
 
-import app.obsidianmd.BuildConfig
 import app.obsidianmd.ai.AiAgent
 import app.obsidianmd.ai.AiViewModel
 import app.obsidianmd.ai.ApiKeyStore
 import app.obsidianmd.ai.EncryptedApiKeyStore
 import app.obsidianmd.ai.OpenRouterClient
 import app.obsidianmd.ai.fetchModels
-import app.obsidianmd.auth.AuthViewModel
-import app.obsidianmd.auth.EncryptedTokenStore
-import app.obsidianmd.auth.GitHubDeviceAuth
-import app.obsidianmd.auth.GitHubRepoAccess
-import app.obsidianmd.auth.GitHubRepos
-import app.obsidianmd.auth.RepoPickerViewModel
-import app.obsidianmd.auth.RepoValidationViewModel
 import app.obsidianmd.auth.TokenStore
 import app.obsidianmd.settings.RepoSettingsStore
 import app.obsidianmd.settings.SettingsViewModel
@@ -37,7 +29,7 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 val appModule = module {
-    single<TokenStore> { EncryptedTokenStore(androidContext()) }
+    // TokenStore регистрируется в authModule (:auth:impl); здесь используется через общий граф.
     single<RepoSettingsStore> { SharedPrefsRepoSettingsStore(androidContext()) }
     single<ApiKeyStore> { EncryptedApiKeyStore(androidContext()) }
     single<GitSync> { JGitSync() }
@@ -76,7 +68,6 @@ val appModule = module {
             },
         )
     }
-    viewModel { AuthViewModel(GitHubDeviceAuth(get(), BuildConfig.GITHUB_CLIENT_ID), get()) }
     // Оболочка заметок: просмотр/поиск/синк поверх VaultRepository (из :vault:impl) и sync-контрактов.
     viewModel {
         VaultViewModel(
@@ -87,8 +78,6 @@ val appModule = module {
             resolver = get(),
         )
     }
-    viewModel { RepoPickerViewModel(repos = GitHubRepos(get()), token = get<TokenStore>()::get) }
-    viewModel { RepoValidationViewModel(access = GitHubRepoAccess(get()), token = get<TokenStore>()::get) }
     // AI VM is parameterized: (model, key, chatUrl) come from the current provider+settings;
     // changing model or provider → new VM (chat resets).
     viewModel { (model: String, key: String, chatUrl: String) ->

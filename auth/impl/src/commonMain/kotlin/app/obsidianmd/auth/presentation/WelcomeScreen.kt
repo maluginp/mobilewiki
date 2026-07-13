@@ -1,4 +1,4 @@
-package app.obsidianmd.ui
+package app.obsidianmd.auth.presentation
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -21,7 +21,7 @@ import app.obsidianmd.resources.onboarding_title
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun WelcomeScreen(onSignIn: () -> Unit) {
+internal fun WelcomeScreen(onSignIn: () -> Unit) {
     Column(
         Modifier.fillMaxSize().padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,

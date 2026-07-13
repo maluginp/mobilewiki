@@ -1,4 +1,4 @@
-package app.obsidianmd.ui
+package app.obsidianmd.auth.presentation
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -34,7 +34,7 @@ import app.obsidianmd.resources.repo_check_unknown_title
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun RepoValidationScreen(
+internal fun RepoValidationScreen(
     state: ValidationState,
     onContinue: () -> Unit,
     onRetry: () -> Unit,

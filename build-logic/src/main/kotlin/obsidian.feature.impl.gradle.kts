@@ -16,7 +16,7 @@ kotlin {
 }
 
 android {
-    compileSdk = 34
+    compileSdk = 37
     defaultConfig { minSdk = 24 }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

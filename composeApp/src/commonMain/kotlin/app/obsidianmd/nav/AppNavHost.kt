@@ -48,7 +48,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
@@ -56,10 +55,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import app.obsidianmd.ai.AiViewModel
 import app.obsidianmd.ai.ApiKeyStore
-import app.obsidianmd.auth.AuthState
-import app.obsidianmd.auth.AuthViewModel
-import app.obsidianmd.auth.RepoPickerViewModel
-import app.obsidianmd.auth.RepoValidationViewModel
+import app.obsidianmd.auth.AuthPresentationProvider
 import app.obsidianmd.resources.Res
 import app.obsidianmd.resources.action_ai
 import app.obsidianmd.resources.action_discard
@@ -91,11 +87,6 @@ import app.obsidianmd.ui.ModelPickerScreen
 import app.obsidianmd.ui.SettingsScreen
 import app.obsidianmd.ui.SyncStatus
 import app.obsidianmd.ui.VaultViewModel
-import app.obsidianmd.ui.LoginScreen
-import app.obsidianmd.ui.WelcomeScreen
-import app.obsidianmd.ui.RepoPickerScreen
-import app.obsidianmd.ui.ManualUrlScreen
-import app.obsidianmd.ui.RepoValidationScreen
 import app.obsidianmd.ui.decodeImage
 import app.obsidianmd.vault.VaultPresentationProvider
 import org.jetbrains.compose.resources.stringResource
@@ -124,18 +115,10 @@ fun AppNavHost(initialStack: List<Route>) {
 
     val vm: VaultViewModel = koinViewModel()
     val settingsVm: SettingsViewModel = koinViewModel()
-    val authVm: AuthViewModel = koinViewModel()
+    val auth = koinInject<AuthPresentationProvider>()
 
     val state by vm.state.collectAsState()
     val settings by settingsVm.state.collectAsState()
-    val authState by authVm.state.collectAsState()
-
-    // Успешный логин с экрана онбординга → пересобрать стек (список или выбор репо).
-    LaunchedEffect(authState) {
-        if (authState is AuthState.Success && top?.isOnboarding == true) {
-            backStack.resetTo(startStack(hasToken = true, hasRepo = settings.url.isNotBlank()))
-        }
-    }
 
     // Транзитный UI-стейт (не навигация): поиск в списке/пикере, режим правки заметки.
     var searching by remember { mutableStateOf(false) }
@@ -284,38 +267,31 @@ fun AppNavHost(initialStack: List<Route>) {
                 sceneStrategies = listOf(rememberListDetailSceneStrategy<NavKey>()),
                 entryProvider = entryProvider {
                     entry<Route.Login> {
-                        // Idle — приветствие с кнопкой входа; после старта авторизации тот же
-                        // маршрут показывает код/ожидание (без лишнего промежуточного экрана).
-                        if (authState is AuthState.Idle) {
-                            WelcomeScreen(onSignIn = authVm::login)
-                        } else {
-                            val uriHandler = LocalUriHandler.current
-                            LoginScreen(
-                                state = authState,
-                                onLogin = authVm::login,
-                                onOpenUrl = { uriHandler.openUri(it) },
-                            )
-                        }
+                        auth.Login(onSignedIn = {
+                            backStack.resetTo(startStack(hasToken = true, hasRepo = settings.url.isNotBlank()))
+                        })
                     }
-                    entry<Route.RepoPicker> { RepoPickerRoute(backStack) }
+                    entry<Route.RepoPicker> {
+                        auth.RepoPicker(
+                            onChosen = { url -> backStack.add(Route.RepoValidate(url)) },
+                            onEnterManually = { backStack.add(Route.RepoManualUrl) },
+                            onBack = if (backStack.size > 1) ({ backStack.removeLastOrNull(); Unit }) else null,
+                        )
+                    }
                     entry<Route.RepoManualUrl> {
-                        ManualUrlScreen(
+                        auth.ManualUrl(
                             onSubmit = { url -> backStack.add(Route.RepoValidate(url)) },
                             onBack = { backStack.removeLastOrNull() },
                         )
                     }
                     entry<Route.RepoValidate> { key ->
-                        val validationVm: RepoValidationViewModel = koinViewModel()
-                        LaunchedEffect(key.url) { validationVm.validate(key.url) }
-                        val vs by validationVm.state.collectAsState()
-                        RepoValidationScreen(
-                            state = vs,
+                        auth.RepoValidate(
+                            url = key.url,
                             onContinue = {
                                 settingsVm.save(key.url)
                                 backStack.resetTo(stackAfterRepoChosen())
                                 vm.sync()
                             },
-                            onRetry = { validationVm.validate(key.url) },
                             onBack = { backStack.removeLastOrNull() },
                         )
                     }
@@ -425,23 +401,6 @@ fun AppNavHost(initialStack: List<Route>) {
             }
         }
     }
-}
-
-/** Выбор репозитория: подгрузка списка, переход к валидации при выборе. */
-@Composable
-private fun RepoPickerRoute(backStack: androidx.navigation3.runtime.NavBackStack<NavKey>) {
-    val pickerVm: RepoPickerViewModel = koinViewModel()
-    LaunchedEffect(Unit) { pickerVm.load() }
-    val pickerState by pickerVm.state.collectAsState()
-    RepoPickerScreen(
-        state = pickerState,
-        // Навигация прямо из выбора — не через залипающий StateFlow picked
-        // (иначе повторный вход авто-выбирал прежний репозиторий).
-        onChoose = { url -> backStack.add(Route.RepoValidate(url)) },
-        onRetry = pickerVm::load,
-        onEnterManually = { backStack.add(Route.RepoManualUrl) },
-        onBack = if (backStack.size > 1) ({ backStack.removeLastOrNull(); Unit }) else null,
-    )
 }
 
 /**

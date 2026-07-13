@@ -1,4 +1,4 @@
-package app.obsidianmd.ui
+package app.obsidianmd.auth.presentation
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed

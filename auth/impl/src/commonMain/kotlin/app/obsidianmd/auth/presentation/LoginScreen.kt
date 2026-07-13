@@ -1,4 +1,4 @@
-package app.obsidianmd.ui
+package app.obsidianmd.auth.presentation
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -34,7 +34,7 @@ import app.obsidianmd.resources.login_waiting
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun LoginScreen(
+internal fun LoginScreen(
     state: AuthState,
     onLogin: () -> Unit,
     onOpenUrl: (String) -> Unit,
