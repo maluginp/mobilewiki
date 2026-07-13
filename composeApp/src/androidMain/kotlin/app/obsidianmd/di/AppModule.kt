@@ -15,23 +15,20 @@ import app.obsidianmd.auth.GitHubRepos
 import app.obsidianmd.auth.RepoPickerViewModel
 import app.obsidianmd.auth.RepoValidationViewModel
 import app.obsidianmd.auth.TokenStore
-import app.obsidianmd.createRepository
 import app.obsidianmd.settings.RepoSettingsStore
 import app.obsidianmd.settings.SettingsViewModel
 import app.obsidianmd.settings.SharedPrefsRepoSettingsStore
 import app.obsidianmd.sync.GitSync
 import app.obsidianmd.sync.JGitSync
 import app.obsidianmd.sync.SyncConfig
+import app.obsidianmd.sync.SyncConfigProvider
 import app.obsidianmd.sync.UiConflictResolver
-import app.obsidianmd.vault.presentation.VaultViewModel
 import app.obsidianmd.vault.VaultRepository
-import app.obsidianmd.vaultRoot
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
@@ -41,9 +38,19 @@ val appModule = module {
     single<TokenStore> { EncryptedTokenStore(androidContext()) }
     single<RepoSettingsStore> { SharedPrefsRepoSettingsStore(androidContext()) }
     single<ApiKeyStore> { EncryptedApiKeyStore(androidContext()) }
-    single<VaultRepository> { createRepository(androidContext()) }
     single<GitSync> { JGitSync() }
     single { UiConflictResolver() }
+    // SyncConfig собирается тут (знаем настройки + токен); localPath — из vault-репозитория.
+    single<SyncConfigProvider> {
+        val settingsStore = get<RepoSettingsStore>()
+        val tokenStore = get<TokenStore>()
+        val repo = get<VaultRepository>()
+        SyncConfigProvider {
+            settingsStore.getRemoteUrl()?.takeIf { it.isNotBlank() }?.let { url ->
+                SyncConfig(remoteUrl = url, localPath = repo.rootPath, token = tokenStore.get())
+            }
+        }
+    }
     single {
         HttpClient(OkHttp) {
             install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
@@ -68,22 +75,6 @@ val appModule = module {
         )
     }
     viewModel { AuthViewModel(GitHubDeviceAuth(get(), BuildConfig.GITHUB_CLIENT_ID), get()) }
-    viewModel {
-        val settingsStore = get<RepoSettingsStore>()
-        val tokenStore = get<TokenStore>()
-        val root = vaultRoot(androidContext())
-        VaultViewModel(
-            repo = get(),
-            io = Dispatchers.IO,
-            gitSync = get(),
-            syncConfigProvider = {
-                settingsStore.getRemoteUrl()?.takeIf { it.isNotBlank() }?.let { url ->
-                    SyncConfig(remoteUrl = url, localPath = root.toString(), token = tokenStore.get())
-                }
-            },
-            resolver = get(),
-        )
-    }
     viewModel { RepoPickerViewModel(repos = GitHubRepos(get()), token = get<TokenStore>()::get) }
     viewModel { RepoValidationViewModel(access = GitHubRepoAccess(get()), token = get<TokenStore>()::get) }
     // AI VM is parameterized: (model, key, chatUrl) come from the current provider+settings;

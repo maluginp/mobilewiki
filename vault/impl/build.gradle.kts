@@ -20,6 +20,11 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.androidx.lifecycle.viewmodel)
         }
+        androidMain.dependencies {
+            // DI фичи (di/VaultModule) — Koin + androidContext
+            implementation(libs.koin.core)
+            implementation(libs.koin.android)
+        }
         commonTest.dependencies {
             implementation(kotlin("test"))
             implementation(libs.okio.fakefilesystem)

@@ -25,8 +25,9 @@ kotlin {
         commonMain.dependencies {
             implementation(project(":core:analytics"))
             implementation(project(":core:translations"))
-            implementation(project(":sync:api"))
-            implementation(project(":vault:api"))
+            // api-модули фич — через api(), impl-модули — через implementation()
+            api(project(":sync:api"))
+            api(project(":vault:api"))
             implementation(project(":vault:impl"))
             implementation(compose.runtime)
             implementation(compose.foundation)

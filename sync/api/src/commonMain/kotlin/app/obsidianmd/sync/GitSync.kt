@@ -27,3 +27,12 @@ fun interface ConflictResolver {
 interface GitSync {
     suspend fun sync(config: SyncConfig, resolver: ConflictResolver): SyncResult
 }
+
+/**
+ * Поставщик актуального [SyncConfig] (remote/token/путь). Реализуется в основном модуле
+ * (знает настройки и авторизацию); фичи получают его через DI, не завися от settings/auth.
+ * `null` — репозиторий ещё не настроен.
+ */
+fun interface SyncConfigProvider {
+    fun provide(): SyncConfig?
+}

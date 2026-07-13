@@ -5,14 +5,14 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import app.obsidianmd.auth.EncryptedTokenStore
 import app.obsidianmd.settings.SharedPrefsRepoSettingsStore
-import app.obsidianmd.vaultRoot
+import app.obsidianmd.vault.data.vaultRootPath
 
 class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
         val ctx = applicationContext
         val tokenStore = EncryptedTokenStore(ctx)
         val settingsStore = SharedPrefsRepoSettingsStore(ctx)
-        val vaultPath = vaultRoot(ctx).toString()
+        val vaultPath = vaultRootPath(ctx)
         val runner = BackgroundSyncRunner(JGitSync()) {
             settingsStore.getRemoteUrl()?.takeIf { it.isNotBlank() }?.let { url ->
                 SyncConfig(remoteUrl = url, localPath = vaultPath, token = tokenStore.get())
