@@ -72,10 +72,12 @@ import app.obsidianmd.ui.decodeImage
 import app.obsidianmd.ui.MarkdownScreen
 import app.obsidianmd.ui.ModelPickerScreen
 import app.obsidianmd.ui.SettingsScreen
-import app.obsidianmd.vault.presentation.VaultListScreen
+import app.obsidianmd.vault.VaultPresentationProvider
+import app.obsidianmd.vault.presentation.SyncStatus
 import app.obsidianmd.vault.presentation.VaultViewModel
 import app.obsidianmd.ui.theme.AppTheme
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -85,6 +87,7 @@ fun App(
     aiVm: AiViewModel?,
     onPickRepoFromGitHub: () -> Unit = {},
 ) {
+    val vaultPresentation = koinInject<VaultPresentationProvider>()
     val state by vm.state.collectAsState()
     val syncStatus = state.syncStatus
     val conflict = state.pendingConflict
@@ -306,14 +309,16 @@ fun App(
                     showAi && aiVm == null -> AiUnavailable(
                         onOpenSettings = { showAi = false; showSettings = true },
                     )
-                    state.selected == null -> VaultListScreen(
-                        state,
-                        onOpenFile = { noteFromAi = false; vm.open(it) },
-                        onOpenFolder = vm::openFolder,
+                    state.selected == null -> vaultPresentation.ListScreen(
+                        entries = state.entries,
+                        loading = state.loading,
+                        refreshing = state.syncStatus is SyncStatus.Running,
                         query = state.query,
                         results = state.results,
-                        scrollBehavior = scrollBehavior,
+                        onOpenFile = { noteFromAi = false; vm.open(it) },
+                        onOpenFolder = vm::openFolder,
                         onRefresh = vm::sync,
+                        scrollBehavior = scrollBehavior,
                     )
                     else -> MarkdownScreen(
                         content = state.content,

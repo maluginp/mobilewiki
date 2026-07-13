@@ -1,6 +1,8 @@
 package app.obsidianmd.vault.di
 
 import app.obsidianmd.sync.SyncConfigProvider
+import app.obsidianmd.vault.VaultPresentationProvider
+import app.obsidianmd.vault.presentation.VaultPresentationProviderImpl
 import app.obsidianmd.vault.presentation.VaultViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
@@ -12,6 +14,7 @@ import org.koin.dsl.module
  */
 val vaultModule = module {
     includes(vaultPlatformModule)
+    single<VaultPresentationProvider> { VaultPresentationProviderImpl() }
     viewModel {
         VaultViewModel(
             repo = get(),

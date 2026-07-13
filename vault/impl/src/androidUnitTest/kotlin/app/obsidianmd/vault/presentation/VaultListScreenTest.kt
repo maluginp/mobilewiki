@@ -1,7 +1,4 @@
-package app.obsidianmd.ui
-
-import app.obsidianmd.vault.presentation.VaultListScreen
-import app.obsidianmd.vault.presentation.VaultState
+package app.obsidianmd.vault.presentation
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TopAppBarDefaults
@@ -32,11 +29,10 @@ class VaultListScreenTest {
     fun loader_shown_instead_of_no_files_while_loading() = runComposeUiTest {
         setContent {
             VaultListScreen(
-                state = VaultState(loading = true, entries = emptyList()),
-                onOpenFile = {}, onOpenFolder = {},
+                entries = emptyList(), loading = true, refreshing = false,
                 query = "", results = emptyList(),
+                onOpenFile = {}, onOpenFolder = {}, onRefresh = {},
                 scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
-                onRefresh = {},
             )
         }
         onNodeWithText("No files").assertDoesNotExist()
@@ -46,11 +42,10 @@ class VaultListScreenTest {
     fun no_files_shown_when_loaded_and_empty() = runComposeUiTest {
         setContent {
             VaultListScreen(
-                state = VaultState(loading = false, entries = emptyList()),
-                onOpenFile = {}, onOpenFolder = {},
+                entries = emptyList(), loading = false, refreshing = false,
                 query = "", results = emptyList(),
+                onOpenFile = {}, onOpenFolder = {}, onRefresh = {},
                 scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
-                onRefresh = {},
             )
         }
         onNodeWithText("No files").assertIsDisplayed()

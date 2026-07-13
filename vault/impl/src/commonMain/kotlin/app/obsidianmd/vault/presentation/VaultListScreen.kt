@@ -29,23 +29,24 @@ import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun VaultListScreen(
-    state: VaultState,
-    onOpenFile: (MdFile) -> Unit,
-    onOpenFolder: (VaultEntry) -> Unit,
+internal fun VaultListScreen(
+    entries: List<VaultEntry>,
+    loading: Boolean,
+    refreshing: Boolean,
     query: String,
     results: List<MdFile>,
-    scrollBehavior: TopAppBarScrollBehavior,
+    onOpenFile: (MdFile) -> Unit,
+    onOpenFolder: (VaultEntry) -> Unit,
     onRefresh: () -> Unit,
+    scrollBehavior: TopAppBarScrollBehavior,
 ) {
     // При поиске показываем найденные файлы (плоско, по всему vault), иначе — содержимое папки.
     val shown: List<VaultEntry> =
-        if (query.isBlank()) state.entries
+        if (query.isBlank()) entries
         else results.map { VaultEntry(it.name, it.path, isFolder = false) }
 
     // Pull-to-refresh синхронизирует vault (git pull), затем перечитывает текущую папку.
     // При поиске отключаем — жест конфликтует с прокруткой результатов и синк тут неуместен.
-    val refreshing = state.syncStatus is SyncStatus.Running
     PullToRefreshBox(
         isRefreshing = refreshing,
         onRefresh = onRefresh,
@@ -53,7 +54,7 @@ fun VaultListScreen(
     ) {
         if (shown.isEmpty()) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                if (state.loading) CircularProgressIndicator()
+                if (loading) CircularProgressIndicator()
                 else Text(stringResource(Res.string.notes_empty))
             }
         } else {
