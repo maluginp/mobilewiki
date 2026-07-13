@@ -134,4 +134,5 @@
     <string name="conflict_message">This file was changed both locally and on the server. Which version do you want to keep?</string>
     <string name="conflict_keep_local">Keep local</string>
     <string name="conflict_take_server">Take server</string>
+    <string name="notes_empty">No files</string>
 </resources>

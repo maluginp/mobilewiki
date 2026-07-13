@@ -8,11 +8,21 @@
 ```
 build-logic/                 convention-плагины (obsidian.feature.api / .impl)
 core/analytics/              общий core-модуль (expect/actual Analytics)
+core/translations/           все строковые ресурсы (единый generated Res)
 sync/api/                    контракты синка + UiConflictResolver
 vault/api/                   контракты vault: модели + interface VaultRepository
 vault/impl/                  data / domain / presentation
 composeApp/                  агрегатор: DI, навигация, зависит от всех :impl
 ```
+
+## Строки/переводы
+
+Все строки — в `:core:translations` (никаких `composeResources` в фичах).
+Пакет generated-класса оставлен `app.obsidianmd.resources`, поэтому импорты
+`app.obsidianmd.resources.Res` / `.<string>` едины по проекту. Модуль отдаёт
+ресурсы через `api(compose.components.resources)`; любой модуль с UI просто
+подключает `implementation(project(":core:translations"))`.
+Новую строку добавляй в `core/translations/.../values/strings.xml`.
 
 ## Правила зависимостей
 

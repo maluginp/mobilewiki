@@ -21,8 +21,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import app.obsidianmd.vault.presentation.resources.Res
-import app.obsidianmd.vault.presentation.resources.notes_empty
+import app.obsidianmd.resources.Res
+import app.obsidianmd.resources.notes_empty
 import app.obsidianmd.vault.MdFile
 import app.obsidianmd.vault.VaultEntry
 import org.jetbrains.compose.resources.stringResource
