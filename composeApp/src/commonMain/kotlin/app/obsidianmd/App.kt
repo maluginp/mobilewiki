@@ -313,6 +313,7 @@ fun App(
                         query = state.query,
                         results = state.results,
                         scrollBehavior = scrollBehavior,
+                        onRefresh = vm::sync,
                     )
                     else -> MarkdownScreen(
                         content = state.content,

@@ -33,6 +33,7 @@ class VaultListScreenTest {
                 onOpenFile = {}, onOpenFolder = {},
                 query = "", results = emptyList(),
                 scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
+                onRefresh = {},
             )
         }
         onNodeWithText("No files").assertDoesNotExist()
@@ -46,6 +47,7 @@ class VaultListScreenTest {
                 onOpenFile = {}, onOpenFolder = {},
                 query = "", results = emptyList(),
                 scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
+                onRefresh = {},
             )
         }
         onNodeWithText("No files").assertIsDisplayed()

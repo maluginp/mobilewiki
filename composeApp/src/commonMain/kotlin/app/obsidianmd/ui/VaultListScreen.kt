@@ -16,6 +16,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,13 +36,21 @@ fun VaultListScreen(
     query: String,
     results: List<MdFile>,
     scrollBehavior: TopAppBarScrollBehavior,
+    onRefresh: () -> Unit,
 ) {
     // При поиске показываем найденные файлы (плоско, по всему vault), иначе — содержимое папки.
     val shown: List<VaultEntry> =
         if (query.isBlank()) state.entries
         else results.map { VaultEntry(it.name, it.path, isFolder = false) }
 
-    Box(Modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection)) {
+    // Pull-to-refresh синхронизирует vault (git pull), затем перечитывает текущую папку.
+    // При поиске отключаем — жест конфликтует с прокруткой результатов и синк тут неуместен.
+    val refreshing = state.syncStatus is SyncStatus.Running
+    PullToRefreshBox(
+        isRefreshing = refreshing,
+        onRefresh = onRefresh,
+        modifier = Modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
+    ) {
         if (shown.isEmpty()) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 if (state.loading) CircularProgressIndicator()
