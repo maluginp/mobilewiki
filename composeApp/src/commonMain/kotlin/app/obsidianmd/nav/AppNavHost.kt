@@ -91,7 +91,6 @@ import app.obsidianmd.ui.ModelPickerScreen
 import app.obsidianmd.ui.SettingsScreen
 import app.obsidianmd.ui.SyncStatus
 import app.obsidianmd.ui.VaultViewModel
-import app.obsidianmd.ui.WelcomeScreen
 import app.obsidianmd.ui.LoginScreen
 import app.obsidianmd.ui.RepoPickerScreen
 import app.obsidianmd.ui.ManualUrlScreen
@@ -108,7 +107,7 @@ private fun androidx.navigation3.runtime.NavBackStack<NavKey>.resetTo(items: Lis
 }
 
 private val Route.isOnboarding: Boolean
-    get() = this is Route.Welcome || this is Route.Login || this is Route.RepoPicker ||
+    get() = this is Route.Login || this is Route.RepoPicker ||
         this is Route.RepoManualUrl || this is Route.RepoValidate
 
 /**
@@ -283,9 +282,6 @@ fun AppNavHost(initialStack: List<Route>) {
                 // На широких экранах список + заметка показываются рядом (list-detail).
                 sceneStrategies = listOf(rememberListDetailSceneStrategy<NavKey>()),
                 entryProvider = entryProvider {
-                    entry<Route.Welcome> {
-                        WelcomeScreen(onSignIn = { authVm.login(); backStack.add(Route.Login) })
-                    }
                     entry<Route.Login> {
                         val uriHandler = LocalUriHandler.current
                         LoginScreen(

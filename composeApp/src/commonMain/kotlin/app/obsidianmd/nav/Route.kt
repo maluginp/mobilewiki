@@ -11,7 +11,6 @@ import kotlinx.serialization.modules.subclass
 @Serializable
 sealed interface Route : NavKey {
     // Онбординг
-    @Serializable data object Welcome : Route
     @Serializable data object Login : Route
     @Serializable data object RepoPicker : Route
     @Serializable data object RepoManualUrl : Route
@@ -31,7 +30,6 @@ sealed interface Route : NavKey {
  */
 val navSerializersModule: SerializersModule = SerializersModule {
     polymorphic(NavKey::class) {
-        subclass(Route.Welcome::class, Route.Welcome.serializer())
         subclass(Route.Login::class, Route.Login.serializer())
         subclass(Route.RepoPicker::class, Route.RepoPicker.serializer())
         subclass(Route.RepoManualUrl::class, Route.RepoManualUrl.serializer())

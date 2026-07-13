@@ -4,9 +4,9 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class StartStackTest {
-    // Нет токена → приветствие (первый экран онбординга).
-    @Test fun no_token_starts_at_welcome() {
-        assertEquals(listOf(Route.Welcome), startStack(hasToken = false, hasRepo = false))
+    // Нет токена → экран логина (он же показывает кнопку входа в состоянии Idle).
+    @Test fun no_token_starts_at_login() {
+        assertEquals(listOf(Route.Login), startStack(hasToken = false, hasRepo = false))
     }
 
     // Токен есть, репо нет → выбор репо; выхода назад нет (репо обязателен) → один экран в стеке.

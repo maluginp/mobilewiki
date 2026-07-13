@@ -2,7 +2,7 @@ package app.obsidianmd.nav
 
 /** Стартовый бэкстек по состоянию авторизации/репозитория. */
 fun startStack(hasToken: Boolean, hasRepo: Boolean): List<Route> = when {
-    !hasToken -> listOf(Route.Welcome)
+    !hasToken -> listOf(Route.Login)
     !hasRepo -> listOf(Route.RepoPicker)
     else -> listOf(Route.VaultList())
 }
