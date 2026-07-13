@@ -23,6 +23,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(project(":core:analytics"))
             implementation(project(":sync:api"))
             implementation(project(":vault:api"))
             implementation(project(":vault:impl"))

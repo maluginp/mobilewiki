@@ -24,7 +24,6 @@
     <string name="action_hide">Hide</string>
 
     <!-- Notes list -->
-    <string name="notes_empty">No files</string>
 
     <!-- Settings -->
     <string name="settings_repo_url_label">Repository URL</string>

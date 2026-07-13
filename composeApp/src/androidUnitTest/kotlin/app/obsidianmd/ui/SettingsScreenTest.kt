@@ -1,5 +1,7 @@
 package app.obsidianmd.ui
 
+import app.obsidianmd.vault.presentation.SyncStatus
+
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.onNodeWithContentDescription

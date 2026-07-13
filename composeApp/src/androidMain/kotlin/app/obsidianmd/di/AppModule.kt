@@ -23,7 +23,7 @@ import app.obsidianmd.sync.GitSync
 import app.obsidianmd.sync.JGitSync
 import app.obsidianmd.sync.SyncConfig
 import app.obsidianmd.sync.UiConflictResolver
-import app.obsidianmd.ui.VaultViewModel
+import app.obsidianmd.vault.presentation.VaultViewModel
 import app.obsidianmd.vault.VaultRepository
 import app.obsidianmd.vaultRoot
 import io.ktor.client.HttpClient

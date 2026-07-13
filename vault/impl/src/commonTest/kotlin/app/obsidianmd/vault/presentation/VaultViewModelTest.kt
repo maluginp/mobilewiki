@@ -1,4 +1,4 @@
-package app.obsidianmd.ui
+package app.obsidianmd.vault.presentation
 
 import app.obsidianmd.vault.MdFile
 import app.obsidianmd.vault.VaultRepository

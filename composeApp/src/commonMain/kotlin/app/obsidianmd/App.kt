@@ -72,8 +72,8 @@ import app.obsidianmd.ui.decodeImage
 import app.obsidianmd.ui.MarkdownScreen
 import app.obsidianmd.ui.ModelPickerScreen
 import app.obsidianmd.ui.SettingsScreen
-import app.obsidianmd.ui.VaultListScreen
-import app.obsidianmd.ui.VaultViewModel
+import app.obsidianmd.vault.presentation.VaultListScreen
+import app.obsidianmd.vault.presentation.VaultViewModel
 import app.obsidianmd.ui.theme.AppTheme
 import org.jetbrains.compose.resources.stringResource
 
