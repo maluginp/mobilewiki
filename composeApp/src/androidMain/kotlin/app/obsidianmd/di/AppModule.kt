@@ -1,11 +1,5 @@
 package app.obsidianmd.di
 
-import app.obsidianmd.ai.AiAgent
-import app.obsidianmd.ai.AiViewModel
-import app.obsidianmd.ai.ApiKeyStore
-import app.obsidianmd.ai.EncryptedApiKeyStore
-import app.obsidianmd.ai.OpenRouterClient
-import app.obsidianmd.ai.fetchModels
 import app.obsidianmd.auth.TokenStore
 import app.obsidianmd.settings.RepoSettingsStore
 import app.obsidianmd.settings.SettingsViewModel
@@ -31,7 +25,6 @@ import org.koin.dsl.module
 val appModule = module {
     // TokenStore регистрируется в authModule (:auth:impl); здесь используется через общий граф.
     single<RepoSettingsStore> { SharedPrefsRepoSettingsStore(androidContext()) }
-    single<ApiKeyStore> { EncryptedApiKeyStore(androidContext()) }
     single<GitSync> { JGitSync() }
     single { UiConflictResolver() }
     // SyncConfig собирается тут (знаем настройки + токен); localPath — из vault-репозитория.
@@ -57,17 +50,7 @@ val appModule = module {
         }
     }
 
-    viewModel {
-        val apiKeyStore = get<ApiKeyStore>()
-        val http = get<HttpClient>()
-        SettingsViewModel(
-            store = get(),
-            apiKeyStore = apiKeyStore,
-            fetchModels = { provider, base ->
-                fetchModels(http, apiKeyStore.getKey(provider.id).orEmpty(), provider.resolvedModelsUrl(base))
-            },
-        )
-    }
+    viewModel { SettingsViewModel(store = get()) }
     // Оболочка заметок: просмотр/поиск/синк поверх VaultRepository (из :vault:impl) и sync-контрактов.
     viewModel {
         VaultViewModel(
@@ -77,14 +60,5 @@ val appModule = module {
             syncConfigProvider = get<SyncConfigProvider>()::provide,
             resolver = get(),
         )
-    }
-    // AI VM is parameterized: (model, key, chatUrl) come from the current provider+settings;
-    // changing model or provider → new VM (chat resets).
-    viewModel { (model: String, key: String, chatUrl: String) ->
-        val http = get<HttpClient>()
-        val repo = get<VaultRepository>()
-        AiViewModel { history, approver ->
-            AiAgent(OpenRouterClient(http, key, model, chatUrl), repo, approver).ask(history)
-        }
     }
 }
