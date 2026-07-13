@@ -33,7 +33,7 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(libs.navigation3.ui)
-            // adaptive-navigation3 (list-detail, Task 6) требует AGP 9.1 + compileSdk 37 — подключается в Task 6
+            implementation(libs.adaptive.navigation3)
             implementation(compose.materialIconsExtended) // ponytail: bundles all icons; slim to material-icons-core if APK size matters
             implementation(compose.ui)
             implementation(libs.kotlinx.coroutines.core)

@@ -31,6 +31,12 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
+import androidx.compose.material3.adaptive.navigation3.rememberListDetailSceneStrategy
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.ui.Alignment
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -65,6 +71,7 @@ import app.obsidianmd.resources.cd_back
 import app.obsidianmd.resources.cd_close_search
 import app.obsidianmd.resources.cd_search
 import app.obsidianmd.resources.cd_settings
+import app.obsidianmd.resources.detail_empty
 import app.obsidianmd.resources.model_search_hint
 import app.obsidianmd.resources.nav_brain
 import app.obsidianmd.resources.search_hint
@@ -109,7 +116,7 @@ private val Route.isOnboarding: Boolean
  * заметки, настройки и AI живут в одном стеке. TopAppBar и нижняя навигация зависят
  * от верхнего маршрута; режим правки и поиск — транзитный UI-стейт хоста.
  */
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class, ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun AppNavHost(initialStack: List<Route>) {
     val backStack = rememberNavBackStack(navSavedStateConfiguration, *initialStack.toTypedArray())
@@ -273,6 +280,8 @@ fun AppNavHost(initialStack: List<Route>) {
             NavDisplay(
                 backStack = backStack,
                 onBack = { backStack.removeLastOrNull() },
+                // На широких экранах список + заметка показываются рядом (list-detail).
+                sceneStrategies = listOf(rememberListDetailSceneStrategy<NavKey>()),
                 entryProvider = entryProvider {
                     entry<Route.Welcome> {
                         WelcomeScreen(onSignIn = { authVm.login(); backStack.add(Route.Login) })
@@ -307,7 +316,17 @@ fun AppNavHost(initialStack: List<Route>) {
                             onBack = { backStack.removeLastOrNull() },
                         )
                     }
-                    entry<Route.VaultList> { key ->
+                    entry<Route.VaultList>(
+                        metadata = ListDetailSceneStrategy.listPane {
+                            // Пустой detail-пейн на широком экране, пока заметка не выбрана.
+                            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                Text(
+                                    stringResource(Res.string.detail_empty),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        },
+                    ) { key ->
                         LaunchedEffect(key.dir) { vm.openDir(key.dir) }
                         koinInject<VaultPresentationProvider>().ListScreen(
                             entries = state.entries,
@@ -321,7 +340,7 @@ fun AppNavHost(initialStack: List<Route>) {
                             scrollBehavior = scrollBehavior,
                         )
                     }
-                    entry<Route.Note> { key ->
+                    entry<Route.Note>(metadata = ListDetailSceneStrategy.detailPane()) { key ->
                         LaunchedEffect(key.path) { editing = false; vm.openNote(key.path) }
                         LaunchedEffect(editing) { if (editing) vm.loadDocuments() }
                         MarkdownScreen(
