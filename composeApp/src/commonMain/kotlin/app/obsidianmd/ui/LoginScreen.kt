@@ -30,7 +30,6 @@ import app.obsidianmd.resources.login_error
 import app.obsidianmd.resources.login_instructions
 import app.obsidianmd.resources.login_open_github
 import app.obsidianmd.resources.login_sign_in
-import app.obsidianmd.resources.login_signed_in
 import app.obsidianmd.resources.login_waiting
 import org.jetbrains.compose.resources.stringResource
 
@@ -76,7 +75,8 @@ fun LoginScreen(
                 CircularProgressIndicator(Modifier.padding(top = 24.dp))
                 Text(stringResource(Res.string.login_waiting), Modifier.padding(top = 8.dp))
             }
-            AuthState.Success -> Text(stringResource(Res.string.login_signed_in))
+            // Успех — не показываем экран-подтверждение, сразу спиннер: хост тут же уводит в приложение.
+            AuthState.Success -> CircularProgressIndicator()
             is AuthState.Failed -> {
                 Text(stringResource(Res.string.login_error, state.reason))
                 Button(onClick = onLogin, modifier = Modifier.padding(top = 16.dp)) {
