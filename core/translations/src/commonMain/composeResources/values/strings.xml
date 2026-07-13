@@ -2,6 +2,7 @@
     <!-- App bar / navigation -->
     <string name="title_notes">Notes</string>
     <string name="title_note">Note</string>
+    <string name="detail_empty">Select a note</string>
     <string name="title_settings">Settings</string>
     <string name="title_ai_chat">AI Chat</string>
     <string name="cd_back">Back</string>

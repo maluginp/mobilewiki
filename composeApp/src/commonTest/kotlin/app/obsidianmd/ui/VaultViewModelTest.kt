@@ -46,87 +46,31 @@ class VaultViewModelTest {
     }
 
     @Test
-    fun wikilink_navigation_pushes_history_back_returns_to_previous_note() = runTest(dispatcher) {
+    fun openNote_loads_content_without_history() = runTest(dispatcher) {
         val io = StandardTestDispatcher(testScheduler)
-        val model = vm(io, mapOf("$root/a.md" to "# A", "$root/b.md" to "# B"))
-
-        model.open(MdFile("a.md", "$root/a.md")); advanceUntilIdle()
-        model.openPath("$root/b.md"); advanceUntilIdle()
-        assertEquals("b.md", model.state.value.selected?.name)
-        assertEquals("# B", model.state.value.content)
-
-        model.back(); advanceUntilIdle() // назад к исходной заметке, не к списку
+        val model = vm(io, mapOf("$root/a.md" to "hello"))
+        model.openNote("$root/a.md"); advanceUntilIdle()
+        assertEquals("hello", model.state.value.content)
         assertEquals("a.md", model.state.value.selected?.name)
-        assertEquals("# A", model.state.value.content)
-
-        model.back(); advanceUntilIdle() // назад к списку
-        assertNull(model.state.value.selected)
     }
 
     @Test
-    fun open_from_list_resets_history() = runTest(dispatcher) {
+    fun openDir_lists_entries_and_sets_current_dir() = runTest(dispatcher) {
         val io = StandardTestDispatcher(testScheduler)
-        val model = vm(io, mapOf("$root/a.md" to "# A", "$root/b.md" to "# B"))
-
-        model.open(MdFile("a.md", "$root/a.md")); advanceUntilIdle()
-        model.openPath("$root/b.md"); advanceUntilIdle()
-        // открытие из списка начинает историю заново
-        model.open(MdFile("a.md", "$root/a.md")); advanceUntilIdle()
-        model.back(); advanceUntilIdle()
-        assertNull(model.state.value.selected) // сразу к списку, без b.md
+        val model = vm(io, mapOf("$root/sub/b.md" to "x"))
+        model.openDir("$root/sub"); advanceUntilIdle()
+        assertEquals(listOf("b.md"), model.state.value.entries.map { it.name })
+        assertEquals("$root/sub", model.state.value.currentDir)
     }
 
     @Test
-    fun at_history_root_tracks_depth_and_clear_selection_resets() = runTest(dispatcher) {
+    fun clearNote_resets_selection_and_content() = runTest(dispatcher) {
         val io = StandardTestDispatcher(testScheduler)
-        val model = vm(io, mapOf("$root/a.md" to "# A", "$root/b.md" to "# B"))
-
-        model.openPath("$root/a.md"); advanceUntilIdle()
-        assertTrue(model.atHistoryRoot()) // одна заметка в истории
-        model.openPath("$root/b.md"); advanceUntilIdle()
-        assertTrue(!model.atHistoryRoot()) // две — не корень
-
-        model.clearSelection()
+        val model = vm(io, mapOf("$root/a.md" to "hello"))
+        model.openNote("$root/a.md"); advanceUntilIdle()
+        model.clearNote()
         assertNull(model.state.value.selected)
         assertEquals("", model.state.value.content)
-        assertTrue(model.atHistoryRoot()) // история очищена
-    }
-
-    @Test
-    fun open_path_loads_file_by_absolute_path() = runTest(dispatcher) {
-        val io = StandardTestDispatcher(testScheduler)
-        val model = vm(io, mapOf("$root/sub/b.md" to "# B"))
-
-        model.openPath("$root/sub/b.md"); advanceUntilIdle()
-        assertEquals("b.md", model.state.value.selected?.name)
-        assertEquals("# B", model.state.value.content)
-    }
-
-    @Test
-    fun open_folder_lists_its_contents_up_returns_to_root() = runTest(dispatcher) {
-        val io = StandardTestDispatcher(testScheduler)
-        val model = vm(io, mapOf("$root/Daily/mon.md" to "# Mon"))
-        model.refresh(); advanceUntilIdle()
-
-        val folder = model.state.value.entries.first { it.isFolder }
-        model.openFolder(folder); advanceUntilIdle()
-        assertEquals(listOf("mon.md"), model.state.value.entries.map { it.name })
-        assertTrue(!model.state.value.atRoot)
-
-        model.upFolder(); advanceUntilIdle()
-        assertEquals(listOf("Daily"), model.state.value.entries.map { it.name })
-        assertTrue(model.state.value.atRoot)
-    }
-
-    @Test
-    fun open_loads_content_back_clears_it() = runTest(dispatcher) {
-        val io = StandardTestDispatcher(testScheduler)
-        val model = vm(io)
-        model.refresh(); advanceUntilIdle()
-        model.open(model.state.value.entries.first().let { MdFile(it.name, it.path) }); advanceUntilIdle()
-        assertEquals("# A", model.state.value.content)
-        model.back()
-        assertNull(model.state.value.selected)
     }
 
     @Test

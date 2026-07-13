@@ -89,15 +89,6 @@ class VaultViewModel(
         viewModelScope.launch { loadDir(_state.value.currentDir.ifBlank { repo.rootPath }) }
     }
 
-    fun openFolder(entry: VaultEntry) {
-        if (!entry.isFolder) return
-        viewModelScope.launch { loadDir(entry.path) }
-    }
-
-    fun upFolder() {
-        viewModelScope.launch { loadDir(repo.parentOf(_state.value.currentDir.ifBlank { repo.rootPath })) }
-    }
-
     private suspend fun loadDir(dir: String) {
         // ponytail: allFiles обходит всё дерево на каждый вход в папку — ок для личного vault;
         // кэшировать, если станет медленно на больших хранилищах.
@@ -115,53 +106,29 @@ class VaultViewModel(
         )
     }
 
-    // Стек истории просмотра: открытие из списка сбрасывает его, wikilink — добавляет,
-    // «Назад» возвращает к предыдущей заметке (а не сразу к списку).
-    private val history = ArrayDeque<MdFile>()
-
-    /** Открыть файл по абсолютному пути (навигация по wikilink) — добавляет в историю. */
-    fun openPath(absPath: String) {
-        val file = MdFile(absPath.substringAfterLast('/'), absPath)
-        Analytics.event("note_open", mapOf("source" to "wikilink"))
-        history.addLast(file)
-        loadSelected(file)
-    }
-
     /** Байты файла (для отрисовки картинок-эмбедов). */
     fun bytesOf(absPath: String): ByteArray = repo.readBytes(absPath)
 
-    /** Открыть файл из списка — начинает историю заново. */
-    fun open(file: MdFile) {
-        Analytics.event("note_open", mapOf("source" to "list"))
-        history.clear()
-        history.addLast(file)
-        loadSelected(file)
+    // --- Навигация через Nav3-бэкстек: историю держит стек, не VM. ---
+
+    /** Открыть содержимое папки (маршрут VaultList(dir)); пустой dir = корень. */
+    fun openDir(dir: String) {
+        viewModelScope.launch { loadDir(dir.ifBlank { repo.rootPath }) }
     }
 
-    private fun loadSelected(file: MdFile) {
+    /** Загрузить заметку по пути (маршрут Note(path)); без внутренней истории. */
+    fun openNote(path: String) {
+        val name = path.substringAfterLast('/')
+        Analytics.event("note_open", mapOf("source" to "nav"))
         viewModelScope.launch {
-            _state.value = _state.value.copy(selected = file, loading = true)
-            val text = withContext(io) { repo.readFile(file.path) }
+            _state.value = _state.value.copy(selected = MdFile(name, path), loading = true)
+            val text = withContext(io) { repo.readFile(path) }
             _state.value = _state.value.copy(content = text, loading = false)
         }
     }
 
-    fun back() {
-        if (history.isNotEmpty()) history.removeLast()
-        val prev = history.lastOrNull()
-        if (prev == null) {
-            _state.value = _state.value.copy(selected = null, content = "")
-        } else {
-            loadSelected(prev)
-        }
-    }
-
-    /** true, когда открыт последний уровень истории (следующий «назад» уводит из просмотра заметки). */
-    fun atHistoryRoot(): Boolean = history.size <= 1
-
-    /** Полностью закрыть просмотр заметки (сброс выбора и истории) — например, возврат в AI-чат. */
-    fun clearSelection() {
-        history.clear()
+    /** Сбросить открытую заметку (пустой detail-пейн на широком экране). */
+    fun clearNote() {
         _state.value = _state.value.copy(selected = null, content = "")
     }
 

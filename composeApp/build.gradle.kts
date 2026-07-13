@@ -32,6 +32,8 @@ kotlin {
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
+            implementation(libs.navigation3.ui)
+            implementation(libs.adaptive.navigation3)
             implementation(compose.materialIconsExtended) // ponytail: bundles all icons; slim to material-icons-core if APK size matters
             implementation(compose.ui)
             implementation(libs.kotlinx.coroutines.core)
