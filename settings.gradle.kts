@@ -19,3 +19,5 @@ dependencyResolutionManagement {
 
 include(":composeApp")
 include(":sync:api")
+include(":vault:api")
+include(":vault:impl")

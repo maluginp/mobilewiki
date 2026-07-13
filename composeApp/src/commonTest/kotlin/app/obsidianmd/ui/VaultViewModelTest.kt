@@ -2,6 +2,7 @@ package app.obsidianmd.ui
 
 import app.obsidianmd.vault.MdFile
 import app.obsidianmd.vault.VaultRepository
+import app.obsidianmd.vault.data.createVaultRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -30,7 +31,7 @@ class VaultViewModelTest {
         val fs = FakeFileSystem()
         fs.createDirectories(root)
         fs.write(root / "a.md") { writeUtf8("# A") }
-        return VaultViewModel(VaultRepository(fs, root), io)
+        return VaultViewModel(createVaultRepository(fs, root), io)
     }
 
     @Test
@@ -50,7 +51,7 @@ class VaultViewModelTest {
         fs.createDirectories(root / "sub")
         fs.write(root / "a.md") { writeUtf8("x") }
         fs.write(root / "sub" / "b.md") { writeUtf8("x") }
-        val model = VaultViewModel(VaultRepository(fs, root), io)
+        val model = VaultViewModel(createVaultRepository(fs, root), io)
         model.refresh(); advanceUntilIdle()
         assertEquals(listOf("a.md", "sub/b.md"), model.state.value.allFiles.map { it.relPath })
     }
@@ -62,7 +63,7 @@ class VaultViewModelTest {
         fs.createDirectories(root)
         fs.write(root / "a.md") { writeUtf8("# A") }
         fs.write(root / "b.md") { writeUtf8("# B") }
-        val model = VaultViewModel(VaultRepository(fs, root), io)
+        val model = VaultViewModel(createVaultRepository(fs, root), io)
 
         model.open(MdFile("a.md", (root / "a.md").toString())); advanceUntilIdle()
         model.openPath((root / "b.md").toString()); advanceUntilIdle()
@@ -84,7 +85,7 @@ class VaultViewModelTest {
         fs.createDirectories(root)
         fs.write(root / "a.md") { writeUtf8("# A") }
         fs.write(root / "b.md") { writeUtf8("# B") }
-        val model = VaultViewModel(VaultRepository(fs, root), io)
+        val model = VaultViewModel(createVaultRepository(fs, root), io)
 
         model.open(MdFile("a.md", (root / "a.md").toString())); advanceUntilIdle()
         model.openPath((root / "b.md").toString()); advanceUntilIdle()
@@ -101,7 +102,7 @@ class VaultViewModelTest {
         fs.createDirectories(root)
         fs.write(root / "a.md") { writeUtf8("# A") }
         fs.write(root / "b.md") { writeUtf8("# B") }
-        val model = VaultViewModel(VaultRepository(fs, root), io)
+        val model = VaultViewModel(createVaultRepository(fs, root), io)
 
         model.openPath((root / "a.md").toString()); advanceUntilIdle()
         assertTrue(model.atHistoryRoot()) // одна заметка в истории
@@ -120,7 +121,7 @@ class VaultViewModelTest {
         val fs = FakeFileSystem()
         fs.createDirectories(root / "sub")
         fs.write(root / "sub" / "b.md") { writeUtf8("# B") }
-        val model = VaultViewModel(VaultRepository(fs, root), io)
+        val model = VaultViewModel(createVaultRepository(fs, root), io)
 
         model.openPath((root / "sub" / "b.md").toString()); advanceUntilIdle()
         assertEquals("b.md", model.state.value.selected?.name)
@@ -133,7 +134,7 @@ class VaultViewModelTest {
         val fs = FakeFileSystem()
         fs.createDirectories(root / "Daily")
         fs.write(root / "Daily" / "mon.md") { writeUtf8("# Mon") }
-        val model = VaultViewModel(VaultRepository(fs, root), io)
+        val model = VaultViewModel(createVaultRepository(fs, root), io)
         model.refresh(); advanceUntilIdle()
 
         val folder = model.state.value.entries.first { it.isFolder }
@@ -163,7 +164,7 @@ class VaultViewModelTest {
         fs.createDirectories(root)
         fs.write(root / "a.md") { writeUtf8("важный проект") }
         fs.write(root / "b.md") { writeUtf8("ничего") }
-        val model = VaultViewModel(VaultRepository(fs, root), StandardTestDispatcher(testScheduler))
+        val model = VaultViewModel(createVaultRepository(fs, root), StandardTestDispatcher(testScheduler))
 
         model.search("проект")
         advanceUntilIdle()
@@ -177,7 +178,7 @@ class VaultViewModelTest {
         val fs = FakeFileSystem()
         fs.createDirectories(root)
         fs.write(root / "a.md") { writeUtf8("old") }
-        val repo = VaultRepository(fs, root)
+        val repo = createVaultRepository(fs, root)
         val model = VaultViewModel(repo, StandardTestDispatcher(testScheduler))
         val path = (root / "a.md").toString()
 
@@ -210,7 +211,7 @@ class VaultViewModelTest {
         fs.write(root / "a.md") { writeUtf8("# A") }
         val fake = FakeGitSync(app.obsidianmd.sync.SyncResult.Synced(pushed = true, conflictsResolved = 0))
         val model = VaultViewModel(
-            VaultRepository(fs, root), StandardTestDispatcher(testScheduler),
+            createVaultRepository(fs, root), StandardTestDispatcher(testScheduler),
             gitSync = fake, syncConfigProvider = { syncConfig() },
         )
         model.sync()
@@ -238,7 +239,7 @@ class VaultViewModelTest {
         val fs = FakeFileSystem(); fs.createDirectories(root)
         val resolver = app.obsidianmd.sync.UiConflictResolver()
         val model = VaultViewModel(
-            VaultRepository(fs, root), StandardTestDispatcher(testScheduler),
+            createVaultRepository(fs, root), StandardTestDispatcher(testScheduler),
             gitSync = ConflictingGitSync(), syncConfigProvider = { syncConfig() }, resolver = resolver,
         )
         model.sync()
@@ -257,7 +258,7 @@ class VaultViewModelTest {
         val fs = FakeFileSystem(); fs.createDirectories(root)
         val fake = FakeGitSync(app.obsidianmd.sync.SyncResult.Cloned)
         val model = VaultViewModel(
-            VaultRepository(fs, root), StandardTestDispatcher(testScheduler),
+            createVaultRepository(fs, root), StandardTestDispatcher(testScheduler),
             gitSync = fake, syncConfigProvider = { null },
         )
         model.sync()

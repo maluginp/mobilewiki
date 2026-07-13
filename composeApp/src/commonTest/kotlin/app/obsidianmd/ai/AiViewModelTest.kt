@@ -1,6 +1,7 @@
 package app.obsidianmd.ai
 
 import app.obsidianmd.vault.VaultRepository
+import app.obsidianmd.vault.data.createVaultRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -26,7 +27,7 @@ class AiViewModelTest {
     private fun repo(): VaultRepository {
         val fs = FakeFileSystem()
         fs.createDirectories(root)
-        return VaultRepository(fs, root)
+        return createVaultRepository(fs, root)
     }
 
     @Test
