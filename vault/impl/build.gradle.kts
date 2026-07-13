@@ -19,10 +19,12 @@ kotlin {
             implementation(compose.materialIconsExtended)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.androidx.lifecycle.viewmodel)
+            // DI фичи (di/VaultModule) — Koin в commonMain
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose.viewmodel)
         }
         androidMain.dependencies {
-            // DI фичи (di/VaultModule) — Koin + androidContext
-            implementation(libs.koin.core)
+            // androidContext() для платформенного модуля
             implementation(libs.koin.android)
         }
         commonTest.dependencies {
