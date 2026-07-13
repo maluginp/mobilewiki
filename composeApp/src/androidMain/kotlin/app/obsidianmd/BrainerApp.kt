@@ -4,6 +4,7 @@ import android.app.Application
 import io.appmetrica.analytics.AppMetrica
 import io.appmetrica.analytics.AppMetricaConfig
 import app.obsidianmd.di.appModule
+import app.obsidianmd.vault.di.vaultModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.androix.startup.KoinStartup // sic: Koin 4.0.1 ships this package name misspelled
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -20,6 +21,6 @@ class BrainerApp : Application(), KoinStartup {
     // Koin is started by the androidx App Startup Initializer (KoinInitializer), not in onCreate.
     override fun onKoinStartup() = koinConfiguration {
         androidContext(this@BrainerApp)
-        modules(appModule)
+        modules(appModule, vaultModule)
     }
 }

@@ -1,0 +1,138 @@
+<resources>
+    <!-- App bar / navigation -->
+    <string name="title_notes">Notes</string>
+    <string name="title_note">Note</string>
+    <string name="title_settings">Settings</string>
+    <string name="title_ai_chat">AI Chat</string>
+    <string name="cd_back">Back</string>
+    <string name="cd_settings">Settings</string>
+    <string name="cd_search">Search</string>
+    <string name="cd_close_search">Close search</string>
+    <string name="search_hint">Search notes</string>
+    <string name="action_ai">AI</string>
+    <string name="nav_brain">Brain</string>
+
+    <!-- Common actions -->
+    <string name="action_save">Save</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_discard">Don't save</string>
+    <string name="link_note_title">Link to a note</string>
+    <string name="unsaved_title">Unsaved changes</string>
+    <string name="unsaved_message">You have unsaved changes. Save before leaving?</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_show">Show</string>
+    <string name="action_hide">Hide</string>
+
+    <!-- Notes list -->
+
+    <!-- Settings -->
+    <string name="settings_repo_url_label">Repository URL</string>
+    <string name="settings_repo_url_example">https://github.com/username/my-vault.git</string>
+    <string name="settings_repo_url_desc">HTTPS link to the Git repository with your notes. The app clones it and keeps changes in sync.</string>
+    <string name="settings_provider_label">AI provider</string>
+    <string name="settings_base_url_label">Base URL</string>
+    <string name="settings_base_url_example">https://api.example.com/v1</string>
+    <string name="settings_base_url_desc">OpenAI-compatible endpoint base. The app appends /chat/completions and /models.</string>
+    <string name="settings_key_label">API key</string>
+    <string name="settings_key_desc">API key for the selected AI provider. Stored encrypted on this device only.</string>
+    <string name="settings_saved">Saved ✓</string>
+    <string name="settings_sync_title">Synchronization</string>
+    <string name="settings_sync_desc">Pull the latest notes from the repository and push your local changes.</string>
+    <string name="action_sync_now">Sync now</string>
+    <string name="settings_ai_enable">Enable AI</string>
+    <string name="settings_ai_enable_desc">Turn on the in-app AI chat. When enabled, pick a provider and add its API key below.</string>
+    <string name="settings_model_label">AI model</string>
+    <string name="settings_model_desc">Model used for the chat.</string>
+    <string name="settings_model_loading">Loading models…</string>
+    <string name="settings_model_none">Not selected</string>
+    <string name="cd_edit_model">Change model</string>
+
+    <!-- Model picker -->
+    <string name="title_model_picker">AI model</string>
+    <string name="model_search_hint">Search models</string>
+    <string name="models_empty">No models available. Pull to refresh.</string>
+    <string name="model_filter_price">Price</string>
+    <string name="model_filter_context">Context</string>
+    <string name="filter_any">Any</string>
+    <string name="filter_price_free">Free</string>
+    <string name="filter_price_under_1">≤ $1/M</string>
+    <string name="filter_price_under_5">≤ $5/M</string>
+    <string name="filter_ctx_32k">≥ 32K</string>
+    <string name="filter_ctx_128k">≥ 128K</string>
+    <string name="filter_ctx_1m">≥ 1M</string>
+    <string name="model_sort">Sort</string>
+    <string name="sort_name">Name</string>
+    <string name="sort_price_asc">Price ↑</string>
+    <string name="sort_price_desc">Price ↓</string>
+
+    <!-- Sync status -->
+    <string name="sync_syncing">Syncing…</string>
+    <string name="sync_done_cloned">Done: cloned</string>
+    <string name="sync_up_to_date">Up to date</string>
+    <string name="sync_synced">Synced</string>
+    <string name="sync_synced_conflicts">Synced (conflicts: %1$d)</string>
+    <string name="error_with_reason">Error: %1$s</string>
+
+    <!-- AI chat -->
+    <string name="chat_empty_title">Ask your notes anything</string>
+    <string name="chat_empty_subtitle">Search, summarise or edit your vault — just type below.</string>
+    <string name="chat_input_hint">Message the assistant…</string>
+    <string name="cd_ai_avatar">AI assistant</string>
+    <string name="cd_send">Send message</string>
+    <string name="ai_write_title">AI wants to write: %1$s</string>
+    <string name="action_apply">Apply</string>
+    <string name="action_reject">Reject</string>
+    <string name="ai_unavailable">No API key set — add it in Settings.</string>
+    <string name="ai_open_settings">Open Settings</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_title">Welcome to Brainer</string>
+    <string name="onboarding_body">Read and edit your Markdown vault straight from a GitHub repository. Notes stay in sync over git.</string>
+    <string name="onboarding_sign_in">Sign in with GitHub</string>
+
+    <!-- Login -->
+    <string name="login_sign_in">Sign in with GitHub</string>
+    <string name="login_code">Code: %1$s</string>
+    <string name="login_copy_code">Copy code</string>
+    <string name="login_code_copied">Copied ✓</string>
+    <string name="login_open_github">Open GitHub</string>
+    <string name="login_instructions">How to authorize:\n1. Copy the code above.\n2. Tap “Open GitHub” and paste the code there.\n3. Approve access — this screen continues automatically.</string>
+    <string name="login_waiting">Waiting for confirmation…</string>
+    <string name="login_signed_in">Signed in</string>
+    <string name="login_error">Sign-in error: %1$s</string>
+    <string name="action_retry">Retry</string>
+
+    <!-- Repository picker -->
+    <string name="repo_pick_title">Choose a repository</string>
+    <string name="repo_pick_loading">Loading your repositories…</string>
+    <string name="repo_pick_search">Search repositories</string>
+    <string name="repo_pick_search_hint">e.g. username/notes</string>
+    <string name="repo_pick_not_found">No repositories match your search.</string>
+    <string name="repo_pick_manual_label">Repository URL</string>
+    <string name="repo_pick_manual_hint">https://github.com/name/repo.git</string>
+    <string name="repo_pick_manual_title">Enter a repository URL</string>
+    <string name="repo_pick_enter_manually">Can't find it? Enter a URL manually</string>
+    <string name="repo_pick_from_github">Choose from GitHub</string>
+    <string name="repo_pick_error">Couldn't load your repositories</string>
+    <string name="action_continue">Continue</string>
+    <string name="action_back">Back</string>
+
+    <!-- Repository access validation -->
+    <string name="repo_check_checking">Checking access…</string>
+    <string name="repo_check_ok_title">Access confirmed</string>
+    <string name="repo_check_ok_body">You have access to this repository.</string>
+    <string name="repo_check_denied_title">No access to this repository</string>
+    <string name="repo_check_denied_body">GitHub returned an error (%1$d). Things to check:</string>
+    <string name="repo_check_denied_hint1">• The repository URL is correct (owner/name).</string>
+    <string name="repo_check_denied_hint2">• Your GitHub account has access to it (it may be private or in an org).</string>
+    <string name="repo_check_denied_hint3">• You granted the app the "repo" scope when signing in.</string>
+    <string name="repo_check_unknown_title">Couldn't verify access</string>
+    <string name="repo_check_unknown_body">We couldn't reach GitHub to verify access (no network, or not a GitHub URL). You can continue anyway.</string>
+
+    <!-- Conflict dialog -->
+    <string name="conflict_title">Conflict: %1$s</string>
+    <string name="conflict_message">This file was changed both locally and on the server. Which version do you want to keep?</string>
+    <string name="conflict_keep_local">Keep local</string>
+    <string name="conflict_take_server">Take server</string>
+    <string name="notes_empty">No files</string>
+</resources>

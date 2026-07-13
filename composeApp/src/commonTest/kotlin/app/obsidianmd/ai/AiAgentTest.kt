@@ -1,20 +1,14 @@
 package app.obsidianmd.ai
 
+import app.obsidianmd.vault.FakeVaultRepository
 import app.obsidianmd.vault.VaultRepository
 import kotlinx.coroutines.test.runTest
-import okio.Path.Companion.toPath
-import okio.fakefilesystem.FakeFileSystem
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-private val root = "/vault".toPath()
-private fun repo(): VaultRepository {
-    val fs = FakeFileSystem()
-    fs.createDirectories(root)
-    fs.write(root / "welcome.md") { writeUtf8("привет проект") }
-    return VaultRepository(fs, root)
-}
+private fun repo(): VaultRepository =
+    FakeVaultRepository(seed = mapOf("/vault/welcome.md" to "привет проект"))
 
 class AiAgentTest {
     @Test

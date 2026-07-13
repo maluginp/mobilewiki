@@ -23,12 +23,17 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(project(":core:analytics"))
+            implementation(project(":core:translations"))
+            // api-модули фич — через api(), impl-модули — через implementation()
+            api(project(":sync:api"))
+            api(project(":vault:api"))
+            implementation(project(":vault:impl"))
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.materialIconsExtended) // ponytail: bundles all icons; slim to material-icons-core if APK size matters
             implementation(compose.ui)
-            implementation(compose.components.resources)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.okio)
@@ -68,11 +73,6 @@ kotlin {
             implementation(libs.robolectric)
         }
     }
-}
-
-compose.resources {
-    publicResClass = true
-    packageOfResClass = "app.obsidianmd.resources"
 }
 
 android {
