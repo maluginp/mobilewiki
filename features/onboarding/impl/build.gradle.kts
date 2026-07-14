@@ -18,8 +18,12 @@ kotlin {
         commonMain.dependencies {
             implementation(project(":features:onboarding:api"))
             implementation(project(":core:auth"))
+            implementation(project(":features:settings:api"))
             implementation(project(":core:analytics"))
             implementation(project(":core:translations"))
+            // вложенный бэкстек флоу онбординга
+            implementation(libs.navigation3.ui)
+            implementation(libs.koin.compose)
             // presentation-слой фичи: экраны онбординга
             implementation(compose.runtime)
             implementation(compose.foundation)

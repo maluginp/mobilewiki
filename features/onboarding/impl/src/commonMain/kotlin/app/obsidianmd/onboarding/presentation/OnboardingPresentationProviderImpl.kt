@@ -1,66 +1,94 @@
 package app.obsidianmd.onboarding.presentation
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
-import app.obsidianmd.onboarding.OnboardingPresentationProvider
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.ui.NavDisplay
 import app.obsidianmd.onboarding.AuthState
 import app.obsidianmd.onboarding.AuthViewModel
+import app.obsidianmd.onboarding.OnboardingPresentationProvider
+import app.obsidianmd.onboarding.OnboardingStart
 import app.obsidianmd.onboarding.RepoPickerViewModel
 import app.obsidianmd.onboarding.RepoValidationViewModel
+import app.obsidianmd.settings.RepoSettingsStore
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
+/**
+ * Весь флоу онбординга в одном composable: свой вложенный бэкстек (Step), свои переходы и запись
+ * выбранного репозитория. Наружу — только startAt (с чего начать) и onFinished (когда закончили).
+ * Онбординг-экраны рисуются на всю ширину с учётом системных вставок (нет своего Scaffold).
+ */
 internal class OnboardingPresentationProviderImpl : OnboardingPresentationProvider {
 
     @Composable
-    override fun Login(onSignedIn: () -> Unit) {
-        val vm: AuthViewModel = koinViewModel()
-        val state by vm.state.collectAsState()
-        LaunchedEffect(state) { if (state is AuthState.Success) onSignedIn() }
-        // Idle — приветствие с кнопкой; после старта авторизации тот же экран показывает код.
-        if (state is AuthState.Idle) {
-            WelcomeScreen(onSignIn = vm::login)
-        } else {
-            val uriHandler = LocalUriHandler.current
-            LoginScreen(state = state, onLogin = vm::login, onOpenUrl = { uriHandler.openUri(it) })
+    override fun Onboarding(startAt: OnboardingStart, onFinished: () -> Unit) {
+        val settings = koinInject<RepoSettingsStore>()
+        val backStack = rememberNavBackStack(onboardingSavedState, startStep(startAt))
+
+        Box(Modifier.safeDrawingPadding()) {
+            NavDisplay(
+                backStack = backStack,
+                onBack = { backStack.removeLastOrNull() },
+                entryProvider = entryProvider {
+                    entry<Step.Login> {
+                        val vm: AuthViewModel = koinViewModel()
+                        val state by vm.state.collectAsState()
+                        LaunchedEffect(state) {
+                            if (state is AuthState.Success) {
+                                val hasRepo = !settings.getRemoteUrl().isNullOrBlank()
+                                when (val action = afterSignIn(hasRepo)) {
+                                    OnboardingAction.Finish -> onFinished()
+                                    is OnboardingAction.Go -> backStack.add(action.step)
+                                }
+                            }
+                        }
+                        // Idle — приветствие с кнопкой; после старта авторизации тот же экран показывает код.
+                        if (state is AuthState.Idle) {
+                            WelcomeScreen(onSignIn = vm::login)
+                        } else {
+                            val uriHandler = LocalUriHandler.current
+                            LoginScreen(state = state, onLogin = vm::login, onOpenUrl = { uriHandler.openUri(it) })
+                        }
+                    }
+                    entry<Step.RepoPicker> {
+                        val vm: RepoPickerViewModel = koinViewModel()
+                        LaunchedEffect(Unit) { vm.load() }
+                        val state by vm.state.collectAsState()
+                        RepoPickerScreen(
+                            state = state,
+                            onChoose = { url -> backStack.add(Step.Validate(url)) },
+                            onRetry = vm::load,
+                            onEnterManually = { backStack.add(Step.ManualUrl) },
+                            onBack = if (backStack.size > 1) ({ backStack.removeLastOrNull(); Unit }) else null,
+                        )
+                    }
+                    entry<Step.ManualUrl> {
+                        ManualUrlScreen(
+                            onSubmit = { url -> backStack.add(Step.Validate(url)) },
+                            onBack = { backStack.removeLastOrNull() },
+                        )
+                    }
+                    entry<Step.Validate> { key ->
+                        val vm: RepoValidationViewModel = koinViewModel()
+                        LaunchedEffect(key.url) { vm.validate(key.url) }
+                        val state by vm.state.collectAsState()
+                        RepoValidationScreen(
+                            state = state,
+                            onContinue = { settings.setRemoteUrl(key.url); onFinished() },
+                            onRetry = { vm.validate(key.url) },
+                            onBack = { backStack.removeLastOrNull() },
+                        )
+                    }
+                },
+            )
         }
-    }
-
-    @Composable
-    override fun RepoPicker(
-        onChosen: (String) -> Unit,
-        onEnterManually: () -> Unit,
-        onBack: (() -> Unit)?,
-    ) {
-        val vm: RepoPickerViewModel = koinViewModel()
-        LaunchedEffect(Unit) { vm.load() }
-        val state by vm.state.collectAsState()
-        RepoPickerScreen(
-            state = state,
-            onChoose = onChosen,
-            onRetry = vm::load,
-            onEnterManually = onEnterManually,
-            onBack = onBack,
-        )
-    }
-
-    @Composable
-    override fun ManualUrl(onSubmit: (String) -> Unit, onBack: () -> Unit) {
-        ManualUrlScreen(onSubmit = onSubmit, onBack = onBack)
-    }
-
-    @Composable
-    override fun RepoValidate(url: String, onContinue: () -> Unit, onBack: () -> Unit) {
-        val vm: RepoValidationViewModel = koinViewModel()
-        LaunchedEffect(url) { vm.validate(url) }
-        val state by vm.state.collectAsState()
-        RepoValidationScreen(
-            state = state,
-            onContinue = onContinue,
-            onRetry = { vm.validate(url) },
-            onBack = onBack,
-        )
     }
 }

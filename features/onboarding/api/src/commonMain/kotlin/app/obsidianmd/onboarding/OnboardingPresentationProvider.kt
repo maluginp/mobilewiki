@@ -3,28 +3,15 @@ package app.obsidianmd.onboarding
 import androidx.compose.runtime.Composable
 
 /**
- * Точка входа UI онбординга/авторизации для навигации основного модуля. Реализация — в :auth:impl
- * (internal), подключается через DI. Основной модуль не знает о конкретных экранах и ViewModel'ях
- * фичи — только даёт навигационные колбэки.
+ * Единственная точка входа онбординга. Весь флоу (вход → выбор репозитория → ручной URL →
+ * валидация) живёт внутри модуля со своим вложенным бэкстеком. Основной модуль знает только
+ * про начало и конец: onFinished вызывается, когда пользователь онбординг завершил (репозиторий
+ * выбран и сохранён).
  */
 interface OnboardingPresentationProvider {
-    /** Вход: в состоянии Idle — приветствие с кнопкой, иначе device-code. onSignedIn — при успехе. */
     @Composable
-    fun Login(onSignedIn: () -> Unit)
-
-    /** Выбор репозитория из GitHub. onChosen получает clone URL. */
-    @Composable
-    fun RepoPicker(
-        onChosen: (url: String) -> Unit,
-        onEnterManually: () -> Unit,
-        onBack: (() -> Unit)?,
-    )
-
-    /** Ручной ввод URL репозитория. */
-    @Composable
-    fun ManualUrl(onSubmit: (url: String) -> Unit, onBack: () -> Unit)
-
-    /** Проверка доступа к выбранному репозиторию; onContinue — когда можно продолжить. */
-    @Composable
-    fun RepoValidate(url: String, onContinue: () -> Unit, onBack: () -> Unit)
+    fun Onboarding(startAt: OnboardingStart, onFinished: () -> Unit)
 }
+
+/** С какого шага начинать флоу. RepoPicker — для сценария «сменить репозиторий из настроек». */
+enum class OnboardingStart { Login, RepoPicker }
