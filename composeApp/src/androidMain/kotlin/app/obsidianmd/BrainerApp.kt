@@ -4,7 +4,8 @@ import android.app.Application
 import io.appmetrica.analytics.AppMetrica
 import io.appmetrica.analytics.AppMetricaConfig
 import app.obsidianmd.ai.di.aiModule
-import app.obsidianmd.auth.di.authModule
+import app.obsidianmd.auth.di.authPlatformModule
+import app.obsidianmd.onboarding.di.onboardingModule
 import app.obsidianmd.di.appModule
 import app.obsidianmd.note.di.noteModule
 import app.obsidianmd.settings.di.settingsModule
@@ -25,6 +26,6 @@ class BrainerApp : Application(), KoinStartup {
     // Koin is started by the androidx App Startup Initializer (KoinInitializer), not in onCreate.
     override fun onKoinStartup() = koinConfiguration {
         androidContext(this@BrainerApp)
-        modules(appModule, vaultModule, authModule(BuildConfig.GITHUB_CLIENT_ID), aiModule, settingsModule, noteModule)
+        modules(appModule, vaultModule, authPlatformModule, onboardingModule(BuildConfig.GITHUB_CLIENT_ID), aiModule, settingsModule, noteModule)
     }
 }

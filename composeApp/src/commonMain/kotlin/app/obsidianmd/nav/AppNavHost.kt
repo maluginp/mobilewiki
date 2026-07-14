@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Psychology
@@ -31,14 +30,13 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import app.obsidianmd.ai.AiPresentationProvider
-import app.obsidianmd.auth.AuthPresentationProvider
+import app.obsidianmd.onboarding.OnboardingPresentationProvider
 import app.obsidianmd.note.NotePresentationProvider
 import app.obsidianmd.resources.Res
 import app.obsidianmd.resources.action_ai
 import app.obsidianmd.resources.detail_empty
 import app.obsidianmd.resources.nav_brain
 import app.obsidianmd.resources.title_notes
-import app.obsidianmd.settings.RepoSettingsStore
 import app.obsidianmd.settings.SettingsPresentationProvider
 import app.obsidianmd.ui.ConflictDialog
 import app.obsidianmd.ui.SyncStatus
@@ -54,10 +52,6 @@ private fun androidx.navigation3.runtime.NavBackStack<NavKey>.resetTo(items: Lis
     clear(); addAll(items)
 }
 
-private val Route.isOnboarding: Boolean
-    get() = this is Route.Login || this is Route.RepoPicker ||
-        this is Route.RepoManualUrl || this is Route.RepoValidate
-
 /**
  * Единый хост навигации. Бэкстек — источник правды для истории: онбординг, папки, заметки,
  * настройки и AI живут в одном стеке. TopAppBar — у каждого экрана свой; общую нижнюю навигацию
@@ -69,9 +63,8 @@ fun AppNavHost(initialStack: List<Route>) {
     val backStack = rememberNavBackStack(navSavedStateConfiguration, *initialStack.toTypedArray())
 
     val vm: VaultViewModel = koinViewModel()
-    val settingsStore = koinInject<RepoSettingsStore>()
     val settingsPresentation = koinInject<SettingsPresentationProvider>()
-    val auth = koinInject<AuthPresentationProvider>()
+    val auth = koinInject<OnboardingPresentationProvider>()
     val vaultPresentation = koinInject<VaultPresentationProvider>()
     val notePresentation = koinInject<NotePresentationProvider>()
     val ai = koinInject<AiPresentationProvider>()
@@ -99,45 +92,14 @@ fun AppNavHost(initialStack: List<Route>) {
             // На широких экранах список + заметка показываются рядом (list-detail).
             sceneStrategies = listOf(rememberListDetailSceneStrategy<NavKey>()),
             entryProvider = entryProvider {
-                entry<Route.Login> {
-                    OnboardingContainer {
-                        auth.Login(onSignedIn = {
-                            backStack.resetTo(startStack(
-                                hasToken = true,
-                                hasRepo = !settingsStore.getRemoteUrl().isNullOrBlank(),
-                            ))
-                        })
-                    }
-                }
-                entry<Route.RepoPicker> {
-                    OnboardingContainer {
-                        auth.RepoPicker(
-                            onChosen = { url -> backStack.add(Route.RepoValidate(url)) },
-                            onEnterManually = { backStack.add(Route.RepoManualUrl) },
-                            onBack = if (backStack.size > 1) ({ backStack.removeLastOrNull(); Unit }) else null,
-                        )
-                    }
-                }
-                entry<Route.RepoManualUrl> {
-                    OnboardingContainer {
-                        auth.ManualUrl(
-                            onSubmit = { url -> backStack.add(Route.RepoValidate(url)) },
-                            onBack = { backStack.removeLastOrNull() },
-                        )
-                    }
-                }
-                entry<Route.RepoValidate> { key ->
-                    OnboardingContainer {
-                        auth.RepoValidate(
-                            url = key.url,
-                            onContinue = {
-                                settingsStore.setRemoteUrl(key.url)
-                                backStack.resetTo(stackAfterRepoChosen())
-                                vm.sync()
-                            },
-                            onBack = { backStack.removeLastOrNull() },
-                        )
-                    }
+                entry<Route.Onboarding> { key ->
+                    auth.Onboarding(
+                        startAt = key.startAt,
+                        onFinished = {
+                            backStack.resetTo(listOf(Route.VaultList()))
+                            vm.sync()
+                        },
+                    )
                 }
                 entry<Route.VaultList>(
                     metadata = ListDetailSceneStrategy.listPane {
@@ -205,12 +167,6 @@ fun AppNavHost(initialStack: List<Route>) {
         // Конфликт синхронизации может всплыть во время sync на любом экране — диалог поверх всего.
         state.pendingConflict?.let { ConflictDialog(it, onChoose = vm::resolveConflict) }
     }
-}
-
-/** Онбординг-экраны рисуются на всю ширину с учётом системных вставок (нет своего Scaffold). */
-@Composable
-private fun OnboardingContainer(content: @Composable () -> Unit) {
-    Box(Modifier.safeDrawingPadding()) { content() }
 }
 
 /** Общая нижняя навигация Brain ↔ AI: видна при aiEnabled и скрыта под клавиатурой. */
