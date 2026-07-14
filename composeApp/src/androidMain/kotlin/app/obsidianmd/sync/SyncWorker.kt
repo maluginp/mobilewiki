@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import app.obsidianmd.auth.EncryptedTokenStore
-import app.obsidianmd.settings.SharedPrefsRepoSettingsStore
+import app.obsidianmd.settings.data.SharedPrefsRepoSettingsStore
 import app.obsidianmd.vault.data.vaultRootPath
 
 class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
