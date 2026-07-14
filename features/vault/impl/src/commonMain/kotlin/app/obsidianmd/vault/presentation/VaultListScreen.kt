@@ -65,7 +65,6 @@ internal fun VaultListScreen(
     onRefresh: () -> Unit,
     onOpenSettings: () -> Unit,
     onBack: (() -> Unit)?,
-    bottomBar: @Composable () -> Unit,
 ) {
     var searching by remember { mutableStateOf(false) }
     val exitSearch = { searching = false; onQueryChange("") }
@@ -122,7 +121,6 @@ internal fun VaultListScreen(
                 },
             )
         },
-        bottomBar = bottomBar,
     ) { padding ->
         // При поиске показываем найденные файлы (плоско, по всему vault), иначе — содержимое папки.
         val shown: List<VaultEntry> =

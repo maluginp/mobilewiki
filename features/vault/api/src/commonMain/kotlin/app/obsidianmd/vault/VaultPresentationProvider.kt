@@ -11,7 +11,6 @@ interface VaultPresentationProvider {
      * Экран списка файлов/папок vault со своим TopAppBar (заголовок, поиск, действие «настройки»).
      * @param title заголовок (имя папки или «Заметки» для корня)
      * @param onBack null на корне; стрелка «назад» для вложенной папки
-     * @param bottomBar общий слот нижней навигации приложения
      */
     @Composable
     fun ListScreen(
@@ -27,6 +26,5 @@ interface VaultPresentationProvider {
         onRefresh: () -> Unit,
         onOpenSettings: () -> Unit,
         onBack: (() -> Unit)?,
-        bottomBar: @Composable () -> Unit,
     )
 }

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
@@ -13,6 +14,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
@@ -58,8 +60,8 @@ private val Route.isOnboarding: Boolean
 
 /**
  * Единый хост навигации. Бэкстек — источник правды для истории: онбординг, папки, заметки,
- * настройки и AI живут в одном стеке. TopAppBar — у каждого экрана свой; хост только
- * прокидывает общий слот нижней навигации (Brain ↔ AI) экранам, где она нужна.
+ * настройки и AI живут в одном стеке. TopAppBar — у каждого экрана свой; общую нижнюю навигацию
+ * (Brain ↔ AI) рисует сам хост по текущему маршруту — экраны фичей о ней не знают.
  */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
@@ -77,7 +79,21 @@ fun AppNavHost(initialStack: List<Route>) {
     val state by vm.state.collectAsState()
 
     Box(Modifier.fillMaxSize()) {
+      // Общий слот нижней навигации живёт только здесь: бар выбирается по верхушке бэкстека.
+      // ponytail: экраны с баром сохраняют свой нижний inset — над баром остаётся полоска в
+      // высоту nav-bar. Убрать её = сообщать экрану о наличии бара, т.е. вернуть связанность.
+      Scaffold(
+        bottomBar = {
+            when (backStack.lastOrNull()) {
+                is Route.AiChat -> BrainAiBottomBar(onAi = true, ai, backStack)
+                is Route.VaultList, is Route.Note -> BrainAiBottomBar(onAi = false, ai, backStack)
+                else -> {}
+            }
+        },
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+      ) { pad ->
         NavDisplay(
+            modifier = Modifier.padding(pad),
             backStack = backStack,
             onBack = { backStack.removeLastOrNull() },
             // На широких экранах список + заметка показываются рядом (list-detail).
@@ -149,7 +165,6 @@ fun AppNavHost(initialStack: List<Route>) {
                         onRefresh = vm::sync,
                         onOpenSettings = { backStack.add(Route.Settings) },
                         onBack = if (backStack.size > 1) ({ backStack.removeLastOrNull(); Unit }) else null,
-                        bottomBar = { BrainAiBottomBar(onAi = false, ai, backStack) },
                     )
                 }
                 entry<Route.Note>(metadata = ListDetailSceneStrategy.detailPane()) { key ->
@@ -163,7 +178,6 @@ fun AppNavHost(initialStack: List<Route>) {
                         onOpenPath = { backStack.add(Route.Note(it)) },
                         onNavigateBack = { backStack.removeLastOrNull() },
                         onSave = { vm.saveFile(key.path, it) },
-                        bottomBar = { BrainAiBottomBar(onAi = false, ai, backStack) },
                     )
                 }
                 entry<Route.Settings> {
@@ -183,11 +197,11 @@ fun AppNavHost(initialStack: List<Route>) {
                     ai.Chat(
                         onOpenFile = { path -> backStack.add(Route.Note(path)) },
                         onOpenSettings = { backStack.removeLastOrNull(); backStack.add(Route.Settings) },
-                        bottomBar = { BrainAiBottomBar(onAi = true, ai, backStack) },
                     )
                 }
             },
         )
+      }
         // Конфликт синхронизации может всплыть во время sync на любом экране — диалог поверх всего.
         state.pendingConflict?.let { ConflictDialog(it, onChoose = vm::resolveConflict) }
     }

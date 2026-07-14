@@ -20,7 +20,6 @@ internal class VaultPresentationProviderImpl : VaultPresentationProvider {
         onRefresh: () -> Unit,
         onOpenSettings: () -> Unit,
         onBack: (() -> Unit)?,
-        bottomBar: @Composable () -> Unit,
     ) = VaultListScreen(
         title = title,
         entries = entries,
@@ -34,6 +33,5 @@ internal class VaultPresentationProviderImpl : VaultPresentationProvider {
         onRefresh = onRefresh,
         onOpenSettings = onOpenSettings,
         onBack = onBack,
-        bottomBar = bottomBar,
     )
 }

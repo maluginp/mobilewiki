@@ -84,7 +84,6 @@ internal fun NoteScreenContent(
     onOpenPath: (String) -> Unit,
     onNavigateBack: () -> Unit,
     onSave: (String) -> Unit,
-    bottomBar: @Composable () -> Unit,
 ) {
     var editing by remember { mutableStateOf(false) }
     var draft by remember { mutableStateOf(content) }
@@ -121,7 +120,6 @@ internal fun NoteScreenContent(
                 },
             )
         },
-        bottomBar = bottomBar,
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
             if (editing) {

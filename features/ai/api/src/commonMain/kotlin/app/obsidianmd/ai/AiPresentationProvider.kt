@@ -11,7 +11,6 @@ interface AiPresentationProvider {
     @Composable fun Chat(
         onOpenFile: (path: String) -> Unit,
         onOpenSettings: () -> Unit,
-        bottomBar: @Composable () -> Unit,
     )
     @Composable fun ModelPicker(onNavigateBack: () -> Unit)
     @Composable fun SettingsSection(onEditModel: () -> Unit)

@@ -39,7 +39,6 @@ internal class AiPresentationProviderImpl : AiPresentationProvider {
     override fun Chat(
         onOpenFile: (String) -> Unit,
         onOpenSettings: () -> Unit,
-        bottomBar: @Composable () -> Unit,
     ) {
         val settingsVm: AiSettingsViewModel = koinViewModel()
         val settings by settingsVm.state.collectAsState()
@@ -60,7 +59,6 @@ internal class AiPresentationProviderImpl : AiPresentationProvider {
                 onReject = aiVm::rejectWrite,
                 files = files,
                 onOpenFile = onOpenFile,
-                bottomBar = bottomBar,
             )
         } else {
             Box(Modifier.safeDrawingPadding()) { AiUnavailable(onOpenSettings) }

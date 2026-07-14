@@ -17,6 +17,5 @@ interface NotePresentationProvider {
         onOpenPath: (String) -> Unit,
         onNavigateBack: () -> Unit,
         onSave: (String) -> Unit,
-        bottomBar: @Composable () -> Unit,
     )
 }

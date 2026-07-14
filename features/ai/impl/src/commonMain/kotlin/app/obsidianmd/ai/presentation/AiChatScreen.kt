@@ -102,7 +102,6 @@ internal fun AiChatScreen(
     onReject: () -> Unit,
     files: List<VaultFile> = emptyList(),
     onOpenFile: (String) -> Unit = {},
-    bottomBar: @Composable () -> Unit = {},
 ) {
     var input by remember { mutableStateOf("") }
     val thinking = status is AiStatus.Thinking
@@ -116,7 +115,6 @@ internal fun AiChatScreen(
 
     Scaffold(
         topBar = { TopAppBar(title = { Text(stringResource(Res.string.title_ai_chat)) }) },
-        bottomBar = bottomBar,
     ) { scaffoldPadding ->
     // Поднимаем поле ввода над клавиатурой (а не уводим весь экран с AppBar вверх).
     // Вычитаем navigationBars: Scaffold уже добавил их в content padding — иначе двойной отступ.

@@ -33,7 +33,7 @@ class VaultListScreenTest {
                 title = "Notes",
                 onQueryChange = {},
                 onOpenFile = {}, onOpenFolder = {}, onRefresh = {},
-                onOpenSettings = {}, onBack = null, bottomBar = {},
+                onOpenSettings = {}, onBack = null,
             )
         }
         onNodeWithText("No files").assertDoesNotExist()
@@ -48,7 +48,7 @@ class VaultListScreenTest {
                 title = "Notes",
                 onQueryChange = {},
                 onOpenFile = {}, onOpenFolder = {}, onRefresh = {},
-                onOpenSettings = {}, onBack = null, bottomBar = {},
+                onOpenSettings = {}, onBack = null,
             )
         }
         onNodeWithText("No files").assertIsDisplayed()
