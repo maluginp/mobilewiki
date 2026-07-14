@@ -35,13 +35,14 @@ import app.obsidianmd.resources.action_ai
 import app.obsidianmd.resources.detail_empty
 import app.obsidianmd.resources.nav_brain
 import app.obsidianmd.resources.title_notes
-import app.obsidianmd.settings.SettingsViewModel
+import app.obsidianmd.settings.RepoSettingsStore
+import app.obsidianmd.settings.SettingsPresentationProvider
 import app.obsidianmd.ui.ConflictDialog
 import app.obsidianmd.ui.MarkdownScreen
-import app.obsidianmd.ui.SettingsScreen
 import app.obsidianmd.ui.SyncStatus
 import app.obsidianmd.ui.VaultViewModel
 import app.obsidianmd.ui.decodeImage
+import app.obsidianmd.ui.syncStatusText
 import app.obsidianmd.vault.VaultPresentationProvider
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
@@ -66,13 +67,13 @@ fun AppNavHost(initialStack: List<Route>) {
     val backStack = rememberNavBackStack(navSavedStateConfiguration, *initialStack.toTypedArray())
 
     val vm: VaultViewModel = koinViewModel()
-    val settingsVm: SettingsViewModel = koinViewModel()
+    val settingsStore = koinInject<RepoSettingsStore>()
+    val settingsPresentation = koinInject<SettingsPresentationProvider>()
     val auth = koinInject<AuthPresentationProvider>()
     val vaultPresentation = koinInject<VaultPresentationProvider>()
     val ai = koinInject<AiPresentationProvider>()
 
     val state by vm.state.collectAsState()
-    val settings by settingsVm.state.collectAsState()
 
     Box(Modifier.fillMaxSize()) {
         NavDisplay(
@@ -84,7 +85,10 @@ fun AppNavHost(initialStack: List<Route>) {
                 entry<Route.Login> {
                     OnboardingContainer {
                         auth.Login(onSignedIn = {
-                            backStack.resetTo(startStack(hasToken = true, hasRepo = settings.url.isNotBlank()))
+                            backStack.resetTo(startStack(
+                                hasToken = true,
+                                hasRepo = !settingsStore.getRemoteUrl().isNullOrBlank(),
+                            ))
                         })
                     }
                 }
@@ -110,7 +114,7 @@ fun AppNavHost(initialStack: List<Route>) {
                         auth.RepoValidate(
                             url = key.url,
                             onContinue = {
-                                settingsVm.save(key.url)
+                                settingsStore.setRemoteUrl(key.url)
                                 backStack.resetTo(stackAfterRepoChosen())
                                 vm.sync()
                             },
@@ -162,10 +166,9 @@ fun AppNavHost(initialStack: List<Route>) {
                     )
                 }
                 entry<Route.Settings> {
-                    SettingsScreen(
-                        state = settings,
-                        onSave = { settingsVm.save(it) },
-                        syncStatus = state.syncStatus,
+                    settingsPresentation.Screen(
+                        syncing = state.syncStatus is SyncStatus.Running,
+                        syncStatusText = syncStatusText(state.syncStatus),
                         onSync = vm::sync,
                         onNavigateBack = { backStack.removeLastOrNull() },
                         onPickFromGitHub = { backStack.resetTo(stackForChangeRepo()) },

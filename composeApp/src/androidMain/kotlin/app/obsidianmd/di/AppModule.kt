@@ -2,8 +2,6 @@ package app.obsidianmd.di
 
 import app.obsidianmd.auth.TokenStore
 import app.obsidianmd.settings.RepoSettingsStore
-import app.obsidianmd.settings.SettingsViewModel
-import app.obsidianmd.settings.SharedPrefsRepoSettingsStore
 import app.obsidianmd.sync.GitSync
 import app.obsidianmd.sync.JGitSync
 import app.obsidianmd.sync.SyncConfig
@@ -23,8 +21,8 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 val appModule = module {
-    // TokenStore регистрируется в authModule (:auth:impl); здесь используется через общий граф.
-    single<RepoSettingsStore> { SharedPrefsRepoSettingsStore(androidContext()) }
+    // TokenStore регистрируется в authModule (:auth:impl), RepoSettingsStore — в settingsModule
+    // (:settings:impl); здесь оба используются через общий граф.
     single<GitSync> { JGitSync() }
     single { UiConflictResolver() }
     // SyncConfig собирается тут (знаем настройки + токен); localPath — из vault-репозитория.
@@ -50,7 +48,6 @@ val appModule = module {
         }
     }
 
-    viewModel { SettingsViewModel(store = get()) }
     // Оболочка заметок: просмотр/поиск/синк поверх VaultRepository (из :vault:impl) и sync-контрактов.
     viewModel {
         VaultViewModel(

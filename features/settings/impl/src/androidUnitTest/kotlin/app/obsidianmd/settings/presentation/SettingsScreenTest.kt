@@ -1,12 +1,10 @@
-package app.obsidianmd.ui
-
+package app.obsidianmd.settings.presentation
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.runComposeUiTest
-import app.obsidianmd.settings.SettingsState
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,12 +30,10 @@ class SettingsScreenTest {
             .set(null, RuntimeEnvironment.getApplication())
     }
 
-    private fun settings(url: String = "") = SettingsState(url = url)
-
     @Test
     fun showsLabelAndDescriptionForEachSetting() = runComposeUiTest {
         setContent {
-            SettingsScreen(settings(), onSave = {}, syncStatus = SyncStatus.Idle, onSync = {}, onNavigateBack = {})
+            SettingsScreen(url = "", onSave = {}, syncing = false, syncStatusText = "", onSync = {}, onNavigateBack = {})
         }
         // Label + description (supportingText) are real semantics nodes; the example is a
         // decorative placeholder Compose doesn't expose to the semantics tree, so it's
@@ -50,8 +46,8 @@ class SettingsScreenTest {
     fun saveShowsConfirmation() = runComposeUiTest {
         var savedUrl: String? = null
         setContent {
-            SettingsScreen(settings(url = "x"), onSave = { savedUrl = it },
-                syncStatus = SyncStatus.Idle, onSync = {}, onNavigateBack = {})
+            SettingsScreen(url = "x", onSave = { savedUrl = it }, syncing = false,
+                syncStatusText = "", onSync = {}, onNavigateBack = {})
         }
         onNodeWithText("Save").performScrollTo().performClick()
         assert(savedUrl == "x")
@@ -62,8 +58,8 @@ class SettingsScreenTest {
     fun syncButtonTriggersSync() = runComposeUiTest {
         var synced = false
         setContent {
-            SettingsScreen(settings(), onSave = {}, syncStatus = SyncStatus.Idle,
-                onSync = { synced = true }, onNavigateBack = {})
+            SettingsScreen(url = "", onSave = {}, syncing = false,
+                syncStatusText = "", onSync = { synced = true }, onNavigateBack = {})
         }
         onNodeWithText("Sync now").performScrollTo().performClick()
         assert(synced)

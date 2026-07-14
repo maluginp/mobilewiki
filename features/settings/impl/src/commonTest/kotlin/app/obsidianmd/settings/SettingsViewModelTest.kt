@@ -1,5 +1,6 @@
 package app.obsidianmd.settings
 
+import app.obsidianmd.settings.presentation.SettingsViewModel
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

@@ -1,5 +1,4 @@
-package app.obsidianmd.ui
-
+package app.obsidianmd.settings.presentation
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,8 +34,6 @@ import app.obsidianmd.resources.action_save
 import app.obsidianmd.resources.action_show
 import app.obsidianmd.resources.action_sync_now
 import app.obsidianmd.resources.cd_back
-import app.obsidianmd.resources.title_settings
-import app.obsidianmd.resources.error_with_reason
 import app.obsidianmd.resources.repo_pick_from_github
 import app.obsidianmd.resources.settings_repo_url_desc
 import app.obsidianmd.resources.settings_repo_url_example
@@ -44,28 +41,24 @@ import app.obsidianmd.resources.settings_repo_url_label
 import app.obsidianmd.resources.settings_saved
 import app.obsidianmd.resources.settings_sync_desc
 import app.obsidianmd.resources.settings_sync_title
-import app.obsidianmd.resources.sync_done_cloned
-import app.obsidianmd.resources.sync_synced
-import app.obsidianmd.resources.sync_synced_conflicts
-import app.obsidianmd.resources.sync_syncing
-import app.obsidianmd.resources.sync_up_to_date
-import app.obsidianmd.settings.SettingsState
-import app.obsidianmd.sync.SyncResult
+import app.obsidianmd.resources.title_settings
 import org.jetbrains.compose.resources.stringResource
 
+// Stateless-экран настроек: статус синка приходит готовой строкой (feature не знает про SyncStatus).
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(
-    state: SettingsState,
+internal fun SettingsScreen(
+    url: String,
     onSave: (String) -> Unit,
-    syncStatus: SyncStatus,
+    syncing: Boolean,
+    syncStatusText: String,
     onSync: () -> Unit,
     onNavigateBack: () -> Unit,
     onPickFromGitHub: () -> Unit = {},
     aiSection: @Composable () -> Unit = {},
 ) {
     // Локальный черновик — правки живут в поле до нажатия «Сохранить».
-    var url by remember(state.url) { mutableStateOf(state.url) }
+    var draft by remember(url) { mutableStateOf(url) }
     var saved by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -96,11 +89,10 @@ fun SettingsScreen(
         )
         Button(
             onClick = onSync,
-            enabled = syncStatus !is SyncStatus.Running,
+            enabled = !syncing,
             modifier = Modifier.padding(top = 8.dp),
         ) { Text(stringResource(Res.string.action_sync_now)) }
-        val status = syncStatusText(syncStatus)
-        if (status.isNotEmpty()) Text(status, Modifier.padding(top = 8.dp))
+        if (syncStatusText.isNotEmpty()) Text(syncStatusText, Modifier.padding(top = 8.dp))
 
         HorizontalDivider(Modifier.padding(vertical = 24.dp))
 
@@ -108,14 +100,14 @@ fun SettingsScreen(
             label = stringResource(Res.string.settings_repo_url_label),
             example = stringResource(Res.string.settings_repo_url_example),
             description = stringResource(Res.string.settings_repo_url_desc),
-            value = url,
-            onValueChange = { url = it; saved = false },
+            value = draft,
+            onValueChange = { draft = it; saved = false },
         )
         TextButton(onClick = onPickFromGitHub) {
             Text(stringResource(Res.string.repo_pick_from_github))
         }
         Button(
-            onClick = { onSave(url); saved = true },
+            onClick = { onSave(draft); saved = true },
             modifier = Modifier.padding(top = 8.dp),
         ) { Text(stringResource(Res.string.action_save)) }
         if (saved) {
@@ -160,21 +152,4 @@ private fun SettingField(
         } else null,
         modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
     )
-}
-
-@Composable
-internal fun syncStatusText(status: SyncStatus): String = when (status) {
-    SyncStatus.Idle -> ""
-    SyncStatus.Running -> stringResource(Res.string.sync_syncing)
-    is SyncStatus.Done -> when (val r = status.result) {
-        is SyncResult.Cloned -> stringResource(Res.string.sync_done_cloned)
-        is SyncResult.UpToDate -> stringResource(Res.string.sync_up_to_date)
-        is SyncResult.Synced ->
-            if (r.conflictsResolved > 0) {
-                stringResource(Res.string.sync_synced_conflicts, r.conflictsResolved)
-            } else {
-                stringResource(Res.string.sync_synced)
-            }
-        is SyncResult.Failed -> stringResource(Res.string.error_with_reason, r.reason)
-    }
 }

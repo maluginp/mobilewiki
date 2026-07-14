@@ -33,6 +33,8 @@ kotlin {
             implementation(project(":features:auth:impl"))
             api(project(":features:ai:api"))
             implementation(project(":features:ai:impl"))
+            api(project(":features:settings:api"))
+            implementation(project(":features:settings:impl"))
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
