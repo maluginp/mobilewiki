@@ -25,6 +25,3 @@ fun authModule(githubClientId: String): Module = module {
     viewModel { RepoPickerViewModel(repos = GitHubRepos(get()), token = get<TokenStore>()::get) }
     viewModel { RepoValidationViewModel(access = GitHubRepoAccess(get()), token = get<TokenStore>()::get) }
 }
-
-/** Платформенные байндинги auth (создание [TokenStore]). */
-expect val authPlatformModule: Module

@@ -24,6 +24,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":core:analytics"))
+            implementation(project(":core:auth"))
             implementation(project(":core:translations"))
             // api-модули фич — через api(), impl-модули — через implementation()
             api(project(":features:sync:api"))

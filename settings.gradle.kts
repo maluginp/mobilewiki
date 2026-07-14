@@ -19,6 +19,7 @@ dependencyResolutionManagement {
 
 include(":composeApp")
 include(":core:analytics")
+include(":core:auth")
 include(":core:translations")
 include(":features:sync:api")
 include(":features:vault:api")

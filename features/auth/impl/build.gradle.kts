@@ -17,6 +17,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":features:auth:api"))
+            implementation(project(":core:auth"))
             implementation(project(":core:analytics"))
             implementation(project(":core:translations"))
             // presentation-слой фичи: экраны онбординга
@@ -37,8 +38,6 @@ kotlin {
         }
         androidMain.dependencies {
             implementation(libs.koin.android)
-            // EncryptedTokenStore
-            implementation(libs.androidx.security.crypto)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
