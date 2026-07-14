@@ -9,13 +9,13 @@
 build-logic/                 convention-плагины (obsidian.feature.api / .impl)
 core/analytics/              общий core-модуль (expect/actual Analytics)
 core/translations/           все строковые ресурсы (единый generated Res)
-sync/api/                    контракты синка + UiConflictResolver
-vault/api/                   контракты vault: модели + interface VaultRepository
-vault/impl/                  data / domain / presentation
-auth/api/                    контракты auth: interface AuthPresentationProvider (онбординг/вход)
-auth/impl/                   data / domain / presentation
-ai/api/                      контракты ai: interface AiPresentationProvider + ApiKeyStore
-ai/impl/                     data / domain / presentation
+features/sync/api/           контракты синка + UiConflictResolver
+features/vault/api/          контракты vault: модели + interface VaultRepository
+features/vault/impl/         data / domain / presentation
+features/auth/api/           контракты auth: interface AuthPresentationProvider (онбординг/вход)
+features/auth/impl/          data / domain / presentation
+features/ai/api/             контракты ai: interface AiPresentationProvider + ApiKeyStore
+features/ai/impl/            data / domain / presentation
 composeApp/                  агрегатор: DI, навигация, зависит от всех :impl
 ```
 
@@ -75,12 +75,12 @@ VM уровня оболочки (навигация между экранами
 
 ## Новый модуль — чеклист
 
-1. `feature/api/build.gradle.kts`: `id("obsidian.feature.api")` + `android { namespace = ... }`
-2. `feature/impl/build.gradle.kts`: `id("obsidian.feature.impl")` + namespace +
-   `implementation(project(":feature:api"))`
+1. `features/<feature>/api/build.gradle.kts`: `id("obsidian.feature.api")` + `android { namespace = ... }`
+2. `features/<feature>/impl/build.gradle.kts`: `id("obsidian.feature.impl")` + namespace +
+   `implementation(project(":features:<feature>:api"))`
 3. Koin-модуль в `impl` → `di/<feature>Module.kt` (commonMain) + `di/<feature>Module.<platform>.kt` (actual)
-4. `settings.gradle.kts`: `include(":feature:api", ":feature:impl")`
-5. `composeApp`: `api(project(":feature:api"))` + `implementation(project(":feature:impl"))`;
+4. `settings.gradle.kts`: `include(":features:<feature>:api", ":features:<feature>:impl")`
+5. `composeApp`: `api(project(":features:<feature>:api"))` + `implementation(project(":features:<feature>:impl"))`;
    в `BrainerApp.onKoinStartup` добавить `<feature>Module`
 
 ## Экраны фичи

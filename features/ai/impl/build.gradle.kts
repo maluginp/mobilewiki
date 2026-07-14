@@ -12,8 +12,8 @@ android {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":ai:api"))
-            implementation(project(":vault:api"))
+            implementation(project(":features:ai:api"))
+            implementation(project(":features:vault:api"))
             implementation(project(":core:analytics"))
             implementation(project(":core:translations"))
             implementation(compose.runtime)

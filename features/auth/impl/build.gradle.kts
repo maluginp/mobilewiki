@@ -16,7 +16,7 @@ android {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":auth:api"))
+            implementation(project(":features:auth:api"))
             implementation(project(":core:analytics"))
             implementation(project(":core:translations"))
             // presentation-слой фичи: экраны онбординга

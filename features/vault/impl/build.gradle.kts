@@ -14,7 +14,7 @@ android {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":vault:api"))
+            implementation(project(":features:vault:api"))
             implementation(project(":core:translations"))
             implementation(libs.okio)
             // presentation-слой фичи: Compose UI (экран списка)
