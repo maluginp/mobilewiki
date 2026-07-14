@@ -112,4 +112,24 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
+    signingConfigs {
+        create("release") {
+            val storePath = localProp("release.storeFile")
+            if (storePath.isNotEmpty()) {
+                storeFile = file(storePath)
+                storePassword = localProp("release.storePassword")
+                keyAlias = localProp("release.keyAlias")
+                keyPassword = localProp("release.keyPassword")
+            }
+        }
+    }
+    buildTypes {
+        getByName("release") {
+            // Подписываем только если ключ настроен в local.properties.
+            if (localProp("release.storeFile").isNotEmpty()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+        }
+    }
 }
