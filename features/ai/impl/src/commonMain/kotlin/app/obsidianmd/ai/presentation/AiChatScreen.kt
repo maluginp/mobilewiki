@@ -12,14 +12,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.exclude
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -115,12 +113,16 @@ internal fun AiChatScreen(
 
     Scaffold(
         topBar = { TopAppBar(title = { Text(stringResource(Res.string.title_ai_chat)) }) },
+        // Экран вложен над внешним таб-баром — не добавляем свой navigationBars снизу.
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { scaffoldPadding ->
     // Поднимаем поле ввода над клавиатурой (а не уводим весь экран с AppBar вверх).
-    // Вычитаем navigationBars: Scaffold уже добавил их в content padding — иначе двойной отступ.
+    // consumeWindowInsets(scaffoldPadding): Scaffold уже применил navigationBars —
+    // помечаем их потреблёнными, чтобы imePadding не добавил их повторно.
     Column(
         Modifier.fillMaxSize().padding(scaffoldPadding)
-            .windowInsetsPadding(WindowInsets.ime.exclude(WindowInsets.navigationBars)),
+            .consumeWindowInsets(scaffoldPadding)
+            .imePadding(),
     ) {
         if (messages.isEmpty() && !thinking && status !is AiStatus.Failed) {
             EmptyState(Modifier.weight(1f))
