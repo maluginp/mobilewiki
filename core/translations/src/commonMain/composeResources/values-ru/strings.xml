@@ -1,0 +1,139 @@
+<resources>
+    <!-- App bar / navigation -->
+    <string name="title_notes">Заметки</string>
+    <string name="title_note">Заметка</string>
+    <string name="detail_empty">Выберите заметку</string>
+    <string name="title_settings">Настройки</string>
+    <string name="title_ai_chat">AI-чат</string>
+    <string name="cd_back">Назад</string>
+    <string name="cd_settings">Настройки</string>
+    <string name="cd_search">Поиск</string>
+    <string name="cd_close_search">Закрыть поиск</string>
+    <string name="search_hint">Поиск по заметкам</string>
+    <string name="action_ai">AI</string>
+    <string name="nav_brain">Brain</string>
+
+    <!-- Common actions -->
+    <string name="action_save">Сохранить</string>
+    <string name="action_cancel">Отмена</string>
+    <string name="action_discard">Не сохранять</string>
+    <string name="link_note_title">Ссылка на заметку</string>
+    <string name="unsaved_title">Несохранённые изменения</string>
+    <string name="unsaved_message">Есть несохранённые изменения. Сохранить перед выходом?</string>
+    <string name="action_edit">Изменить</string>
+    <string name="action_show">Показать</string>
+    <string name="action_hide">Скрыть</string>
+
+    <!-- Notes list -->
+
+    <!-- Settings -->
+    <string name="settings_repo_url_label">URL репозитория</string>
+    <string name="settings_repo_url_example">https://github.com/username/my-vault.git</string>
+    <string name="settings_repo_url_desc">HTTPS-ссылка на Git-репозиторий с вашими заметками. Приложение клонирует его и синхронизирует изменения.</string>
+    <string name="settings_provider_label">AI-провайдер</string>
+    <string name="settings_base_url_label">Base URL</string>
+    <string name="settings_base_url_example">https://api.example.com/v1</string>
+    <string name="settings_base_url_desc">Базовый OpenAI-совместимый endpoint. Приложение добавляет /chat/completions и /models.</string>
+    <string name="settings_key_label">API-ключ</string>
+    <string name="settings_key_desc">API-ключ выбранного AI-провайдера. Хранится в зашифрованном виде только на этом устройстве.</string>
+    <string name="settings_saved">Сохранено ✓</string>
+    <string name="settings_sync_title">Синхронизация</string>
+    <string name="settings_sync_desc">Загрузить свежие заметки из репозитория и отправить локальные изменения.</string>
+    <string name="action_sync_now">Синхронизировать</string>
+    <string name="settings_ai_enable">Включить AI</string>
+    <string name="settings_ai_enable_desc">Включить встроенный AI-чат. После включения выберите провайдера и укажите его API-ключ ниже.</string>
+    <string name="settings_model_label">AI-модель</string>
+    <string name="settings_model_desc">Модель, используемая для чата.</string>
+    <string name="settings_model_loading">Загрузка моделей…</string>
+    <string name="settings_model_none">Не выбрана</string>
+    <string name="cd_edit_model">Сменить модель</string>
+
+    <!-- Model picker -->
+    <string name="title_model_picker">AI-модель</string>
+    <string name="model_search_hint">Поиск моделей</string>
+    <string name="models_empty">Нет доступных моделей. Потяните, чтобы обновить.</string>
+    <string name="model_filter_price">Цена</string>
+    <string name="model_filter_context">Контекст</string>
+    <string name="filter_any">Любой</string>
+    <string name="filter_price_free">Бесплатно</string>
+    <string name="filter_price_under_1">≤ $1/M</string>
+    <string name="filter_price_under_5">≤ $5/M</string>
+    <string name="filter_ctx_32k">≥ 32K</string>
+    <string name="filter_ctx_128k">≥ 128K</string>
+    <string name="filter_ctx_1m">≥ 1M</string>
+    <string name="model_sort">Сортировка</string>
+    <string name="sort_name">Название</string>
+    <string name="sort_price_asc">Цена ↑</string>
+    <string name="sort_price_desc">Цена ↓</string>
+
+    <!-- Sync status -->
+    <string name="sync_syncing">Синхронизация…</string>
+    <string name="sync_done_cloned">Готово: клонировано</string>
+    <string name="sync_up_to_date">Актуально</string>
+    <string name="sync_synced">Синхронизировано</string>
+    <string name="sync_synced_conflicts">Синхронизировано (конфликтов: %1$d)</string>
+    <string name="error_with_reason">Ошибка: %1$s</string>
+
+    <!-- AI chat -->
+    <string name="chat_empty_title">Спросите что угодно о своих заметках</string>
+    <string name="chat_empty_subtitle">Ищите, обобщайте или редактируйте своё хранилище — просто напишите ниже.</string>
+    <string name="chat_input_hint">Написать ассистенту…</string>
+    <string name="cd_ai_avatar">AI-ассистент</string>
+    <string name="cd_send">Отправить сообщение</string>
+    <string name="ai_write_title">AI хочет записать: %1$s</string>
+    <string name="action_apply">Применить</string>
+    <string name="action_reject">Отклонить</string>
+    <string name="ai_unavailable">API-ключ не задан — добавьте его в Настройках.</string>
+    <string name="ai_open_settings">Открыть настройки</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_title">Добро пожаловать в Brainer</string>
+    <string name="onboarding_body">Читайте и редактируйте своё хранилище Markdown прямо из репозитория GitHub. Заметки синхронизируются через git.</string>
+    <string name="onboarding_sign_in">Войти через GitHub</string>
+
+    <!-- Login -->
+    <string name="login_sign_in">Войти через GitHub</string>
+    <string name="login_code">Код: %1$s</string>
+    <string name="login_copy_code">Скопировать код</string>
+    <string name="login_code_copied">Скопировано ✓</string>
+    <string name="login_open_github">Открыть GitHub</string>
+    <string name="login_instructions">Как авторизоваться:\n1. Скопируйте код выше.\n2. Нажмите «Открыть GitHub» и вставьте там код.\n3. Подтвердите доступ — этот экран продолжится автоматически.</string>
+    <string name="login_waiting">Ожидание подтверждения…</string>
+    <string name="login_signed_in">Вход выполнен</string>
+    <string name="login_error">Ошибка входа: %1$s</string>
+    <string name="action_retry">Повторить</string>
+
+    <!-- Repository picker -->
+    <string name="repo_pick_title">Выберите репозиторий</string>
+    <string name="repo_pick_loading">Загрузка ваших репозиториев…</string>
+    <string name="repo_pick_search">Поиск репозиториев</string>
+    <string name="repo_pick_search_hint">напр. username/notes</string>
+    <string name="repo_pick_not_found">Ни один репозиторий не найден.</string>
+    <string name="repo_pick_manual_label">URL репозитория</string>
+    <string name="repo_pick_manual_hint">https://github.com/name/repo.git</string>
+    <string name="repo_pick_manual_title">Введите URL репозитория</string>
+    <string name="repo_pick_enter_manually">Не нашли? Введите URL вручную</string>
+    <string name="repo_pick_from_github">Выбрать из GitHub</string>
+    <string name="repo_pick_error">Не удалось загрузить репозитории</string>
+    <string name="action_continue">Продолжить</string>
+    <string name="action_back">Назад</string>
+
+    <!-- Repository access validation -->
+    <string name="repo_check_checking">Проверка доступа…</string>
+    <string name="repo_check_ok_title">Доступ подтверждён</string>
+    <string name="repo_check_ok_body">У вас есть доступ к этому репозиторию.</string>
+    <string name="repo_check_denied_title">Нет доступа к этому репозиторию</string>
+    <string name="repo_check_denied_body">GitHub вернул ошибку (%1$d). Что стоит проверить:</string>
+    <string name="repo_check_denied_hint1">• URL репозитория указан верно (владелец/название).</string>
+    <string name="repo_check_denied_hint2">• У вашего аккаунта GitHub есть к нему доступ (он может быть приватным или в организации).</string>
+    <string name="repo_check_denied_hint3">• Вы выдали приложению права «repo» при входе.</string>
+    <string name="repo_check_unknown_title">Не удалось проверить доступ</string>
+    <string name="repo_check_unknown_body">Не удалось связаться с GitHub для проверки доступа (нет сети или это не URL GitHub). Можно продолжить в любом случае.</string>
+
+    <!-- Conflict dialog -->
+    <string name="conflict_title">Конфликт: %1$s</string>
+    <string name="conflict_message">Этот файл изменён и локально, и на сервере. Какую версию оставить?</string>
+    <string name="conflict_keep_local">Оставить локальную</string>
+    <string name="conflict_take_server">Взять серверную</string>
+    <string name="notes_empty">Нет файлов</string>
+</resources>
