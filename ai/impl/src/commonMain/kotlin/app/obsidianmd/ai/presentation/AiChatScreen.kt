@@ -1,4 +1,4 @@
-package app.obsidianmd.ui
+package app.obsidianmd.ai
 
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -58,9 +58,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import app.obsidianmd.ai.AiStatus
-import app.obsidianmd.ai.ChatTurn
-import app.obsidianmd.ui.theme.Spacing
 import app.obsidianmd.vault.MdBlock
 import app.obsidianmd.vault.VaultFile
 import app.obsidianmd.vault.renderNote
@@ -83,9 +80,20 @@ import org.jetbrains.compose.resources.stringResource
 private val BUBBLE_RADIUS = 18.dp        // = MaterialTheme.shapes.large
 private val BUBBLE_MAX_WIDTH = 300.dp     // максимальная ширина пузыря сообщения
 
+// ponytail: Spacing скопирован из composeApp (app.obsidianmd.ui.theme); вынести в core-ui,
+// если понадобится третьему потребителю.
+private object Spacing {
+    val xs = 4.dp
+    val sm = 8.dp
+    val md = 12.dp
+    val lg = 16.dp
+    val xl = 24.dp
+    val xxl = 32.dp
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AiChatScreen(
+internal fun AiChatScreen(
     messages: List<ChatTurn>,
     status: AiStatus,
     pendingWrite: Pair<String, String>?,

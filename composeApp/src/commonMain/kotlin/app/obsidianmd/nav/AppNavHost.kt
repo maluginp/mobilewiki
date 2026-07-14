@@ -1,18 +1,14 @@
 package app.obsidianmd.nav
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.isImeVisible
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Psychology
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -25,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -33,22 +28,16 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
-import app.obsidianmd.ai.AiViewModel
-import app.obsidianmd.ai.ApiKeyStore
+import app.obsidianmd.ai.AiPresentationProvider
 import app.obsidianmd.auth.AuthPresentationProvider
 import app.obsidianmd.resources.Res
 import app.obsidianmd.resources.action_ai
-import app.obsidianmd.resources.ai_open_settings
-import app.obsidianmd.resources.ai_unavailable
 import app.obsidianmd.resources.detail_empty
 import app.obsidianmd.resources.nav_brain
 import app.obsidianmd.resources.title_notes
-import app.obsidianmd.settings.SettingsState
 import app.obsidianmd.settings.SettingsViewModel
-import app.obsidianmd.ui.AiChatScreen
 import app.obsidianmd.ui.ConflictDialog
 import app.obsidianmd.ui.MarkdownScreen
-import app.obsidianmd.ui.ModelPickerScreen
 import app.obsidianmd.ui.SettingsScreen
 import app.obsidianmd.ui.SyncStatus
 import app.obsidianmd.ui.VaultViewModel
@@ -57,7 +46,6 @@ import app.obsidianmd.vault.VaultPresentationProvider
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 private fun androidx.navigation3.runtime.NavBackStack<NavKey>.resetTo(items: List<NavKey>) {
     clear(); addAll(items)
@@ -81,10 +69,10 @@ fun AppNavHost(initialStack: List<Route>) {
     val settingsVm: SettingsViewModel = koinViewModel()
     val auth = koinInject<AuthPresentationProvider>()
     val vaultPresentation = koinInject<VaultPresentationProvider>()
+    val ai = koinInject<AiPresentationProvider>()
 
     val state by vm.state.collectAsState()
     val settings by settingsVm.state.collectAsState()
-    val aiVm = rememberAiViewModel(settings)
 
     Box(Modifier.fillMaxSize()) {
         NavDisplay(
@@ -156,7 +144,7 @@ fun AppNavHost(initialStack: List<Route>) {
                         onRefresh = vm::sync,
                         onOpenSettings = { backStack.add(Route.Settings) },
                         onBack = if (backStack.size > 1) ({ backStack.removeLastOrNull(); Unit }) else null,
-                        bottomBar = { BrainAiBottomBar(onAi = false, settings, backStack) },
+                        bottomBar = { BrainAiBottomBar(onAi = false, ai, backStack) },
                     )
                 }
                 entry<Route.Note>(metadata = ListDetailSceneStrategy.detailPane()) { key ->
@@ -170,56 +158,29 @@ fun AppNavHost(initialStack: List<Route>) {
                         onOpenPath = { backStack.add(Route.Note(it)) },
                         onNavigateBack = { backStack.removeLastOrNull() },
                         onSave = { vm.saveFile(key.path, it) },
-                        bottomBar = { BrainAiBottomBar(onAi = false, settings, backStack) },
+                        bottomBar = { BrainAiBottomBar(onAi = false, ai, backStack) },
                     )
                 }
                 entry<Route.Settings> {
                     SettingsScreen(
                         state = settings,
                         onSave = { settingsVm.save(it) },
-                        onSaveKey = { settingsVm.saveKey(it) },
-                        onSetAiEnabled = { settingsVm.setAiEnabled(it) },
-                        onEditModel = { settingsVm.ensureModels(); backStack.add(Route.ModelPicker) },
-                        onSetProvider = { settingsVm.setProvider(it) },
-                        onSetCustomBaseUrl = { settingsVm.setCustomBaseUrl(it) },
                         syncStatus = state.syncStatus,
                         onSync = vm::sync,
                         onNavigateBack = { backStack.removeLastOrNull() },
                         onPickFromGitHub = { backStack.resetTo(stackForChangeRepo()) },
+                        aiSection = { ai.SettingsSection(onEditModel = { backStack.add(Route.ModelPicker) }) },
                     )
                 }
                 entry<Route.ModelPicker> {
-                    ModelPickerScreen(
-                        models = settings.models,
-                        loading = settings.modelsLoading,
-                        selected = settings.aiModel,
-                        onSelect = { settingsVm.setAiModel(it); backStack.removeLastOrNull() },
-                        onRefresh = settingsVm::reloadModels,
-                        onNavigateBack = { backStack.removeLastOrNull() },
-                        showFilters = settings.provider.supportsModelFilters,
-                    )
+                    ai.ModelPicker(onNavigateBack = { backStack.removeLastOrNull() })
                 }
                 entry<Route.AiChat> {
-                    if (aiVm != null) {
-                        val aiState by aiVm.state.collectAsState()
-                        AiChatScreen(
-                            messages = aiState.messages,
-                            status = aiState.status,
-                            pendingWrite = aiState.pendingWrite,
-                            onSend = aiVm::send,
-                            onApprove = aiVm::approveWrite,
-                            onReject = aiVm::rejectWrite,
-                            files = state.allFiles,
-                            onOpenFile = { path -> backStack.add(Route.Note(path)) },
-                            bottomBar = { BrainAiBottomBar(onAi = true, settings, backStack) },
-                        )
-                    } else {
-                        Box(Modifier.safeDrawingPadding()) {
-                            AiUnavailable(onOpenSettings = {
-                                backStack.removeLastOrNull(); backStack.add(Route.Settings)
-                            })
-                        }
-                    }
+                    ai.Chat(
+                        onOpenFile = { path -> backStack.add(Route.Note(path)) },
+                        onOpenSettings = { backStack.removeLastOrNull(); backStack.add(Route.Settings) },
+                        bottomBar = { BrainAiBottomBar(onAi = true, ai, backStack) },
+                    )
                 }
             },
         )
@@ -239,10 +200,10 @@ private fun OnboardingContainer(content: @Composable () -> Unit) {
 @Composable
 private fun BrainAiBottomBar(
     onAi: Boolean,
-    settings: SettingsState,
+    ai: AiPresentationProvider,
     backStack: androidx.navigation3.runtime.NavBackStack<NavKey>,
 ) {
-    if (!settings.aiEnabled || WindowInsets.isImeVisible) return
+    if (!ai.aiEnabled() || WindowInsets.isImeVisible) return
     NavigationBar {
         NavigationBarItem(
             selected = !onAi,
@@ -256,33 +217,5 @@ private fun BrainAiBottomBar(
             icon = { Icon(Icons.Filled.AutoAwesome, contentDescription = null) },
             label = { Text(stringResource(Res.string.action_ai)) },
         )
-    }
-}
-
-/**
- * AI-ViewModel, привязанный к провайдеру/модели/URL: смена любого пересоздаёт клиент.
- * null — если ключ не задан или AI выключен (тогда экран чата покажет заглушку).
- */
-@Composable
-private fun rememberAiViewModel(settings: SettingsState): AiViewModel? {
-    val apiKeyStore: ApiKeyStore = koinInject()
-    val provider = settings.provider
-    val aiModel = settings.aiModel
-    val aiKey = remember(settings.aiEnabled, aiModel, provider, settings.apiKey) {
-        apiKeyStore.getKey(provider.id)?.takeIf { it.isNotBlank() && settings.aiEnabled }
-    }
-    val chatUrl = provider.resolvedChatUrl(settings.customBaseUrl)
-    return aiKey?.let { key ->
-        koinViewModel(key = "${provider.id}:$aiModel:$chatUrl") { parametersOf(aiModel, key, chatUrl) }
-    }
-}
-
-@Composable
-private fun AiUnavailable(onOpenSettings: () -> Unit) {
-    Column(Modifier.padding(16.dp)) {
-        Text(stringResource(Res.string.ai_unavailable), color = MaterialTheme.colorScheme.error)
-        Button(onClick = onOpenSettings, modifier = Modifier.padding(top = 12.dp)) {
-            Text(stringResource(Res.string.ai_open_settings))
-        }
     }
 }

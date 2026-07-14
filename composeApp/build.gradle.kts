@@ -31,6 +31,8 @@ kotlin {
             implementation(project(":vault:impl"))
             api(project(":auth:api"))
             implementation(project(":auth:impl"))
+            api(project(":ai:api"))
+            implementation(project(":ai:impl"))
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)

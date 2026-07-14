@@ -1,10 +1,11 @@
-package app.obsidianmd.ai
+package app.obsidianmd.ai.data
 
 import android.content.Context
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import app.obsidianmd.ai.ApiKeyStore
 
-class EncryptedApiKeyStore(context: Context) : ApiKeyStore {
+internal class EncryptedApiKeyStore(context: Context) : ApiKeyStore {
     private val prefs = EncryptedSharedPreferences.create(
         context,
         "obsidian_secure",

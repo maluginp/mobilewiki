@@ -12,6 +12,10 @@ core/translations/           все строковые ресурсы (един�
 sync/api/                    контракты синка + UiConflictResolver
 vault/api/                   контракты vault: модели + interface VaultRepository
 vault/impl/                  data / domain / presentation
+auth/api/                    контракты auth: interface AuthPresentationProvider (онбординг/вход)
+auth/impl/                   data / domain / presentation
+ai/api/                      контракты ai: interface AiPresentationProvider + ApiKeyStore
+ai/impl/                     data / domain / presentation
 composeApp/                  агрегатор: DI, навигация, зависит от всех :impl
 ```
 

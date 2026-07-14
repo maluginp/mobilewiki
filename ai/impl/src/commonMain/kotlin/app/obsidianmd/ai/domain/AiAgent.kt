@@ -10,11 +10,11 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
-fun interface WriteApprover {
+internal fun interface WriteApprover {
     suspend fun confirm(name: String, content: String): Boolean
 }
 
-sealed interface AiResult {
+internal sealed interface AiResult {
     data class Answer(val text: String) : AiResult
     data class Failed(val reason: String) : AiResult
 }
@@ -40,7 +40,7 @@ private fun buildSystemPrompt(skills: List<app.obsidianmd.vault.SkillMeta>): Str
         list
 }
 
-class AiAgent(
+internal class AiAgent(
     private val client: ChatClient,
     private val repo: VaultRepository,
     private val approver: WriteApprover,

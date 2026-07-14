@@ -10,22 +10,22 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-data class ChatTurn(val role: String, val text: String)
+internal data class ChatTurn(val role: String, val text: String)
 
-sealed interface AiStatus {
+internal sealed interface AiStatus {
     data object Idle : AiStatus
     data object Thinking : AiStatus
     data object Done : AiStatus
     data class Failed(val reason: String) : AiStatus
 }
 
-data class AiState(
+internal data class AiState(
     val messages: List<ChatTurn> = emptyList(),
     val status: AiStatus = AiStatus.Idle,
     val pendingWrite: Pair<String, String>? = null,
 )
 
-class AiViewModel(
+internal class AiViewModel(
     private val runAgent: suspend (List<ChatMessage>, WriteApprover) -> AiResult,
 ) : ViewModel() {
     private val _state = MutableStateFlow(AiState())
