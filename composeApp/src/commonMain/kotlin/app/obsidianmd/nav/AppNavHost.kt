@@ -31,7 +31,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import app.obsidianmd.ai.AiPresentationProvider
-import app.obsidianmd.auth.AuthPresentationProvider
+import app.obsidianmd.onboarding.OnboardingPresentationProvider
 import app.obsidianmd.note.NotePresentationProvider
 import app.obsidianmd.resources.Res
 import app.obsidianmd.resources.action_ai
@@ -71,7 +71,7 @@ fun AppNavHost(initialStack: List<Route>) {
     val vm: VaultViewModel = koinViewModel()
     val settingsStore = koinInject<RepoSettingsStore>()
     val settingsPresentation = koinInject<SettingsPresentationProvider>()
-    val auth = koinInject<AuthPresentationProvider>()
+    val auth = koinInject<OnboardingPresentationProvider>()
     val vaultPresentation = koinInject<VaultPresentationProvider>()
     val notePresentation = koinInject<NotePresentationProvider>()
     val ai = koinInject<AiPresentationProvider>()
