@@ -1,4 +1,4 @@
-package app.obsidianmd.ui
+package app.obsidianmd.note.presentation
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -52,8 +52,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import app.obsidianmd.editor.EditState
-import app.obsidianmd.editor.MdEdit
+import app.obsidianmd.note.domain.EditState
+import app.obsidianmd.note.domain.MdEdit
 import app.obsidianmd.resources.Res
 import app.obsidianmd.resources.action_cancel
 import app.obsidianmd.resources.action_discard
@@ -75,7 +75,7 @@ import org.jetbrains.compose.resources.stringResource
 // Режим правки и черновик — локальный стейт экрана.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MarkdownScreen(
+internal fun NoteScreenContent(
     title: String,
     content: String,
     files: List<VaultFile>,

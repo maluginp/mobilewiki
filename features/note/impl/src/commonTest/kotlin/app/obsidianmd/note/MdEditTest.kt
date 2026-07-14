@@ -1,5 +1,7 @@
-package app.obsidianmd.editor
+package app.obsidianmd.note
 
+import app.obsidianmd.note.domain.EditState
+import app.obsidianmd.note.domain.MdEdit
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

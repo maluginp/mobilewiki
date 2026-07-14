@@ -1,9 +1,9 @@
-package app.obsidianmd.editor
+package app.obsidianmd.note.domain
 
 /** Мини-модель поля ввода (текст + выделение) без зависимости от Compose — тестируется в commonTest. */
-data class EditState(val text: String, val selStart: Int, val selEnd: Int)
+internal data class EditState(val text: String, val selStart: Int, val selEnd: Int)
 
-object MdEdit {
+internal object MdEdit {
     /** Обернуть выделение маркером (bold="**", italic="*"); нет выделения → маркеры с кареткой между. */
     fun wrapInline(s: EditState, marker: String): EditState {
         val pre = s.text.substring(0, s.selStart)

@@ -30,6 +30,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import app.obsidianmd.ai.AiPresentationProvider
 import app.obsidianmd.auth.AuthPresentationProvider
+import app.obsidianmd.note.NotePresentationProvider
 import app.obsidianmd.resources.Res
 import app.obsidianmd.resources.action_ai
 import app.obsidianmd.resources.detail_empty
@@ -38,7 +39,6 @@ import app.obsidianmd.resources.title_notes
 import app.obsidianmd.settings.RepoSettingsStore
 import app.obsidianmd.settings.SettingsPresentationProvider
 import app.obsidianmd.ui.ConflictDialog
-import app.obsidianmd.ui.MarkdownScreen
 import app.obsidianmd.ui.SyncStatus
 import app.obsidianmd.ui.VaultViewModel
 import app.obsidianmd.ui.decodeImage
@@ -71,6 +71,7 @@ fun AppNavHost(initialStack: List<Route>) {
     val settingsPresentation = koinInject<SettingsPresentationProvider>()
     val auth = koinInject<AuthPresentationProvider>()
     val vaultPresentation = koinInject<VaultPresentationProvider>()
+    val notePresentation = koinInject<NotePresentationProvider>()
     val ai = koinInject<AiPresentationProvider>()
 
     val state by vm.state.collectAsState()
@@ -153,7 +154,7 @@ fun AppNavHost(initialStack: List<Route>) {
                 }
                 entry<Route.Note>(metadata = ListDetailSceneStrategy.detailPane()) { key ->
                     LaunchedEffect(key.path) { vm.openNote(key.path); vm.loadDocuments() }
-                    MarkdownScreen(
+                    notePresentation.NoteScreen(
                         title = key.path.substringAfterLast('/'),
                         content = state.content,
                         files = state.allFiles,

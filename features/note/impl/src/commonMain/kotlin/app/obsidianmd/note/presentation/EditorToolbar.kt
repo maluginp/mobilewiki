@@ -1,4 +1,4 @@
-package app.obsidianmd.ui
+package app.obsidianmd.note.presentation
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Row
@@ -19,8 +19,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import app.obsidianmd.editor.EditState
-import app.obsidianmd.editor.MdEdit
+import app.obsidianmd.note.domain.EditState
+import app.obsidianmd.note.domain.MdEdit
 
 private val BAR_HEIGHT = 40.dp
 private val BTN = 40.dp
@@ -28,7 +28,7 @@ private val ICON = 20.dp
 
 /** Панель форматирования: каждая кнопка отдаёт наверх трансформацию над текущим EditState. */
 @Composable
-fun EditorToolbar(
+internal fun EditorToolbar(
     onTransform: ((EditState) -> EditState) -> Unit,
     onPickDocument: () -> Unit,
     modifier: Modifier = Modifier,
