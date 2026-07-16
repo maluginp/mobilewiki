@@ -1,6 +1,8 @@
 package app.obsidianmd.settings.presentation
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -57,10 +59,19 @@ class SettingsScreenTest {
     fun syncButtonTriggersSync() = runComposeUiTest {
         var synced = false
         setContent {
-            SettingsScreen(url = "", syncing = false,
+            SettingsScreen(url = "https://a.git", syncing = false,
                 syncStatusText = "", onSync = { synced = true }, onNavigateBack = {})
         }
         onNodeWithText("Sync now").performScrollTo().performClick()
         assert(synced)
+    }
+
+    @Test
+    fun hidesSyncSectionInLocalMode() = runComposeUiTest {
+        setContent {
+            SettingsScreen(url = "", syncing = false, syncStatusText = "", onSync = {}, onNavigateBack = {})
+        }
+        // В локальном режиме (репозиторий не выбран) синхронизировать нечего.
+        onAllNodesWithText("Sync now").assertCountEquals(0)
     }
 }

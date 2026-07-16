@@ -76,21 +76,24 @@ internal fun SettingsScreen(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState())
                 .padding(padding).padding(16.dp),
         ) {
-        Text(stringResource(Res.string.settings_sync_title), style = MaterialTheme.typography.titleMedium)
-        Text(
-            stringResource(Res.string.settings_sync_desc),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 4.dp),
-        )
-        Button(
-            onClick = onSync,
-            enabled = !syncing,
-            modifier = Modifier.padding(top = 8.dp),
-        ) { Text(stringResource(Res.string.action_sync_now)) }
-        if (syncStatusText.isNotEmpty()) Text(syncStatusText, Modifier.padding(top = 8.dp))
+        // Синхронизировать нечего, пока репозиторий не выбран (локальный режим).
+        if (url.isNotBlank()) {
+            Text(stringResource(Res.string.settings_sync_title), style = MaterialTheme.typography.titleMedium)
+            Text(
+                stringResource(Res.string.settings_sync_desc),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp),
+            )
+            Button(
+                onClick = onSync,
+                enabled = !syncing,
+                modifier = Modifier.padding(top = 8.dp),
+            ) { Text(stringResource(Res.string.action_sync_now)) }
+            if (syncStatusText.isNotEmpty()) Text(syncStatusText, Modifier.padding(top = 8.dp))
 
-        HorizontalDivider(Modifier.padding(vertical = 24.dp))
+            HorizontalDivider(Modifier.padding(vertical = 24.dp))
+        }
 
         Text(stringResource(Res.string.settings_repo_current), style = MaterialTheme.typography.titleMedium)
         Text(
