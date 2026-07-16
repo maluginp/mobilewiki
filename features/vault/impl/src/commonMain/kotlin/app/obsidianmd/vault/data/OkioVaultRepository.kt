@@ -127,6 +127,10 @@ internal class OkioVaultRepository(
 
     override fun pathFor(name: String): String = (root / name).toString()
 
+    override fun createFolder(path: String) {
+        fs.createDirectories(path.toPath())
+    }
+
     // ponytail: наивный полный скан содержимого, без индекса — ок для личного vault;
     // индекс, если станет медленно на больших хранилищах.
     // Ищем по всему дереву (включая подпапки), не только по корню.

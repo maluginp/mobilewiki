@@ -32,5 +32,8 @@ interface VaultRepository {
     fun writeFile(path: String, content: String)
     fun pathFor(name: String): String
 
+    /** Создать папку по пути (вместе с родителями); идемпотентно. */
+    fun createFolder(path: String)
+
     fun search(query: String): List<MdFile>
 }

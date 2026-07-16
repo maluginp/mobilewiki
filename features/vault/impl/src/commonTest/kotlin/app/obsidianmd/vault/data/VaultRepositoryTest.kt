@@ -175,4 +175,28 @@ class VaultRepositoryTest {
         assertEquals("---\nname: summarize\ndescription: Summarize notes\n---\nBody: do the thing.", repo.readSkill("summarize"))
         assertEquals(null, repo.readSkill("missing"))
     }
+
+    @Test
+    fun create_folder_makes_dir_visible_in_entries_and_is_idempotent() {
+        val fs = FakeFileSystem()
+        fs.createDirectories(root)
+        val repo = OkioVaultRepository(fs, root)
+
+        repo.createFolder((root / "Ideas").toString())
+        repo.createFolder((root / "Ideas").toString()) // повторно — не падает
+
+        val entries = repo.listEntries(root.toString())
+        assertEquals(listOf("Ideas"), entries.map { it.name })
+        assertTrue(entries.single().isFolder)
+    }
+
+    @Test
+    fun create_folder_creates_parent_dirs() {
+        val fs = FakeFileSystem()
+        fs.createDirectories(root)
+        val repo = OkioVaultRepository(fs, root)
+
+        repo.createFolder((root / "a" / "b").toString())
+        assertEquals(listOf("b"), repo.listEntries((root / "a").toString()).map { it.name })
+    }
 }

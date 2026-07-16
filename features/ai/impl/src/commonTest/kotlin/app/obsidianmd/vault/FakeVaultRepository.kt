@@ -61,6 +61,10 @@ class FakeVaultRepository(
     override fun writeFile(path: String, content: String) { files[path] = content }
     override fun pathFor(name: String): String = "$rootPath/$name"
 
+    // Папку моделируем маркерным ключом внутри неё — listEntries выводит папки из путей;
+    // ключ на "." отфильтровывается из содержимого, так что папка видна, но пустая.
+    override fun createFolder(path: String) { files["$path/.keep"] = "" }
+
     override fun isRoot(dir: String): Boolean = dir == rootPath
     override fun parentOf(dir: String): String =
         if (dir == rootPath) rootPath else dir.substringBeforeLast('/').ifEmpty { rootPath }
