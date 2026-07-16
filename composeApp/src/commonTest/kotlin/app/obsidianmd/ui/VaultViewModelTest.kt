@@ -100,6 +100,34 @@ class VaultViewModelTest {
         assertEquals("новый текст", model.state.value.content)
     }
 
+    @Test
+    fun create_folder_creates_and_refreshes() = runTest(dispatcher) {
+        val io = StandardTestDispatcher(testScheduler)
+        val repo = FakeVaultRepository(root, mapOf("$root/a.md" to "x"))
+        val model = VaultViewModel(repo, io)
+        model.refresh(); advanceUntilIdle()
+
+        model.createFolder("Ideas"); advanceUntilIdle()
+
+        assertTrue(model.state.value.entries.any { it.name == "Ideas" && it.isFolder })
+    }
+
+    @Test
+    fun create_note_writes_empty_file_and_reports_path() = runTest(dispatcher) {
+        val io = StandardTestDispatcher(testScheduler)
+        val repo = FakeVaultRepository(root, mapOf("$root/a.md" to "x"))
+        val model = VaultViewModel(repo, io)
+        model.refresh(); advanceUntilIdle()
+
+        var created: String? = null
+        model.createNote("todo") { created = it }
+        advanceUntilIdle()
+
+        assertEquals("$root/todo.md", created)
+        assertEquals("", repo.readFile("$root/todo.md"))
+        assertTrue(model.state.value.entries.any { it.name == "todo.md" })
+    }
+
     private class FakeGitSync(val result: app.obsidianmd.sync.SyncResult) : app.obsidianmd.sync.GitSync {
         var called = false
         override suspend fun sync(

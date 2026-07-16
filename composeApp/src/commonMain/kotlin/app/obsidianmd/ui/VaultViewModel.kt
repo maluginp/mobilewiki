@@ -140,6 +140,29 @@ class VaultViewModel(
         }
     }
 
+    /** Создать папку с именем [rawName] в текущем каталоге и обновить список. */
+    fun createFolder(rawName: String) {
+        val dir = _state.value.currentDir.ifBlank { repo.rootPath }
+        val path = "$dir/${rawName.trim()}"
+        Analytics.event("folder_create")
+        viewModelScope.launch {
+            withContext(io) { repo.createFolder(path) }
+            loadDir(dir)
+        }
+    }
+
+    /** Создать пустую .md-заметку в текущем каталоге; [onCreated] получает путь ПОСЛЕ записи. */
+    fun createNote(rawName: String, onCreated: (String) -> Unit) {
+        val dir = _state.value.currentDir.ifBlank { repo.rootPath }
+        val path = "$dir/" + app.obsidianmd.vault.noteFileName(rawName)
+        Analytics.event("note_create")
+        viewModelScope.launch {
+            withContext(io) { repo.writeFile(path, "") }
+            loadDir(dir)
+            onCreated(path)
+        }
+    }
+
     fun search(query: String) {
         // query обновляем сразу (синхронно), результаты догоняют асинхронно —
         // иначе поле ввода отставало бы от набора (прыгала каретка, терялись буквы).
