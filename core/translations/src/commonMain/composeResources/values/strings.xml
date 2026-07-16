@@ -40,7 +40,7 @@
     <string name="settings_repo_current">Current repository</string>
     <string name="settings_repo_local">Local storage (no sync)</string>
     <string name="settings_repo_change">Change repository</string>
-    <string name="settings_repo_change_warning">You\'ll see notes from the new repository. Unsynced notes may be lost.</string>
+    <string name="settings_repo_change_warning">You'll see notes from the new repository. Unsynced notes may be lost.</string>
     <string name="settings_repo_mode_github">GitHub</string>
     <string name="settings_repo_mode_manual">Enter manually</string>
     <string name="settings_repo_mode_local">Local (no sync)</string>
@@ -121,7 +121,7 @@
     <string name="repo_pick_manual_label">Repository URL</string>
     <string name="repo_pick_manual_hint">https://github.com/name/repo.git</string>
     <string name="repo_pick_manual_token_label">Access token / password (optional)</string>
-    <string name="repo_pick_manual_readonly_warning">Without an access token, changes won\'t be pushed to the repository — read-only mode.</string>
+    <string name="repo_pick_manual_readonly_warning">Without an access token, changes won't be pushed to the repository — read-only mode.</string>
     <string name="repo_pick_manual_title">Enter a repository URL</string>
     <string name="repo_pick_enter_manually">Can't find it? Enter a URL manually</string>
     <string name="repo_pick_from_github">Choose from GitHub</string>
