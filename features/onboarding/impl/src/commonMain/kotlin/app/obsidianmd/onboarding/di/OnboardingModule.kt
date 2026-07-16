@@ -3,8 +3,8 @@ package app.obsidianmd.onboarding.di
 import app.obsidianmd.onboarding.OnboardingPresentationProvider
 import app.obsidianmd.onboarding.AuthViewModel
 import app.obsidianmd.onboarding.GitHubDeviceAuth
-import app.obsidianmd.onboarding.GitHubRepoAccess
 import app.obsidianmd.onboarding.GitHubRepos
+import app.obsidianmd.onboarding.ManualConnectViewModel
 import app.obsidianmd.onboarding.RepoPickerViewModel
 import app.obsidianmd.onboarding.RepoValidationViewModel
 import app.obsidianmd.auth.TokenStore
@@ -22,5 +22,6 @@ fun onboardingModule(githubClientId: String): Module = module {
     single<OnboardingPresentationProvider> { OnboardingPresentationProviderImpl() }
     viewModel { AuthViewModel(GitHubDeviceAuth(get(), githubClientId), get()) }
     viewModel { RepoPickerViewModel(repos = GitHubRepos(get()), token = get<TokenStore>()::get) }
-    viewModel { RepoValidationViewModel(access = GitHubRepoAccess(get()), token = get<TokenStore>()::get) }
+    viewModel { RepoValidationViewModel(access = get(), token = get<TokenStore>()::get) }
+    viewModel { ManualConnectViewModel(get<TokenStore>()) }
 }

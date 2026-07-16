@@ -18,11 +18,12 @@ class SettingsViewModelTest {
     }
 
     @Test
-    fun save_persists_and_updates_state() {
-        val store = FakeRepoSettingsStore()
+    fun use_local_clears_remote_and_marks_done() {
+        val store = FakeRepoSettingsStore().apply { setRemoteUrl("https://a.git") }
         val vm = SettingsViewModel(store)
-        vm.save("https://b.git")
-        assertEquals("https://b.git", store.getRemoteUrl())
-        assertEquals("https://b.git", vm.state.value.url)
+        vm.useLocal()
+        assertEquals("", store.getRemoteUrl())
+        assertEquals("", vm.state.value.url)
+        assertEquals(true, store.getOnboardingDone())
     }
 }

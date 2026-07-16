@@ -37,6 +37,13 @@
     <string name="settings_key_label">API key</string>
     <string name="settings_key_desc">API key for the selected AI provider. Stored encrypted on this device only.</string>
     <string name="settings_saved">Saved ✓</string>
+    <string name="settings_repo_current">Current repository</string>
+    <string name="settings_repo_local">Local storage (no sync)</string>
+    <string name="settings_repo_change">Change repository</string>
+    <string name="settings_repo_change_warning">You\'ll see notes from the new repository. Unsynced notes may be lost.</string>
+    <string name="settings_repo_mode_github">GitHub</string>
+    <string name="settings_repo_mode_manual">Enter manually</string>
+    <string name="settings_repo_mode_local">Local (no sync)</string>
     <string name="settings_sync_title">Synchronization</string>
     <string name="settings_sync_desc">Pull the latest notes from the repository and push your local changes.</string>
     <string name="action_sync_now">Sync now</string>
@@ -90,6 +97,8 @@
     <string name="onboarding_title">Welcome to Brainer</string>
     <string name="onboarding_body">Read and edit your Markdown vault straight from a GitHub repository. Notes stay in sync over git.</string>
     <string name="onboarding_sign_in">Sign in with GitHub</string>
+    <string name="onboarding_mode_git">Connect any git repository</string>
+    <string name="onboarding_mode_local">Use locally (no sync)</string>
 
     <!-- Login -->
     <string name="login_sign_in">Sign in with GitHub</string>
@@ -111,6 +120,8 @@
     <string name="repo_pick_not_found">No repositories match your search.</string>
     <string name="repo_pick_manual_label">Repository URL</string>
     <string name="repo_pick_manual_hint">https://github.com/name/repo.git</string>
+    <string name="repo_pick_manual_token_label">Access token / password (optional)</string>
+    <string name="repo_pick_manual_readonly_warning">Without an access token, changes won\'t be pushed to the repository — read-only mode.</string>
     <string name="repo_pick_manual_title">Enter a repository URL</string>
     <string name="repo_pick_enter_manually">Can't find it? Enter a URL manually</string>
     <string name="repo_pick_from_github">Choose from GitHub</string>
@@ -123,7 +134,7 @@
     <string name="repo_check_ok_title">Access confirmed</string>
     <string name="repo_check_ok_body">You have access to this repository.</string>
     <string name="repo_check_denied_title">No access to this repository</string>
-    <string name="repo_check_denied_body">GitHub returned an error (%1$d). Things to check:</string>
+    <string name="repo_check_denied_body">No access to the repository. What to check:</string>
     <string name="repo_check_denied_hint1">• The repository URL is correct (owner/name).</string>
     <string name="repo_check_denied_hint2">• Your GitHub account has access to it (it may be private or in an org).</string>
     <string name="repo_check_denied_hint3">• You granted the app the "repo" scope when signing in.</string>

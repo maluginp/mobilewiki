@@ -72,7 +72,7 @@ internal fun RepoValidationScreen(
                     color = MaterialTheme.colorScheme.error,
                 )
                 Text(
-                    stringResource(Res.string.repo_check_denied_body, state.status),
+                    stringResource(Res.string.repo_check_denied_body),
                     Modifier.padding(top = 12.dp),
                 )
                 Text(stringResource(Res.string.repo_check_denied_hint1), Modifier.padding(top = 8.dp))
@@ -91,7 +91,8 @@ internal fun RepoValidationScreen(
                 )
                 Text(stringResource(Res.string.repo_check_unknown_body), Modifier.padding(top = 12.dp))
                 Spacer(Modifier.weight(1f))
-                PrimaryButton(stringResource(Res.string.action_continue), onContinue)
+                // Доступ не подтверждён → дальше не пускаем, только повтор проверки.
+                PrimaryButton(stringResource(Res.string.action_retry), onRetry)
                 TextButton(onClick = onBack, modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
                     Text(stringResource(Res.string.action_back))
                 }

@@ -19,6 +19,7 @@ kotlin {
             implementation(project(":features:onboarding:api"))
             implementation(project(":core:auth"))
             implementation(project(":features:settings:api"))
+            implementation(project(":features:sync:api"))
             implementation(project(":core:analytics"))
             implementation(project(":core:translations"))
             // вложенный бэкстек флоу онбординга

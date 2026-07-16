@@ -37,6 +37,13 @@
     <string name="settings_key_label">API-ключ</string>
     <string name="settings_key_desc">API-ключ выбранного AI-провайдера. Хранится в зашифрованном виде только на этом устройстве.</string>
     <string name="settings_saved">Сохранено ✓</string>
+    <string name="settings_repo_current">Текущий репозиторий</string>
+    <string name="settings_repo_local">Локальное хранилище (без синхронизации)</string>
+    <string name="settings_repo_change">Изменить репозиторий</string>
+    <string name="settings_repo_change_warning">Будут показаны заметки нового репозитория. Несинхронизированные заметки могут быть потеряны.</string>
+    <string name="settings_repo_mode_github">GitHub</string>
+    <string name="settings_repo_mode_manual">Ввести вручную</string>
+    <string name="settings_repo_mode_local">Локально (без синхронизации)</string>
     <string name="settings_sync_title">Синхронизация</string>
     <string name="settings_sync_desc">Загрузить свежие заметки из репозитория и отправить локальные изменения.</string>
     <string name="action_sync_now">Синхронизировать</string>
@@ -90,6 +97,8 @@
     <string name="onboarding_title">Добро пожаловать в Brainer</string>
     <string name="onboarding_body">Читайте и редактируйте своё хранилище Markdown прямо из репозитория GitHub. Заметки синхронизируются через git.</string>
     <string name="onboarding_sign_in">Войти через GitHub</string>
+    <string name="onboarding_mode_git">Подключить любой git-репозиторий</string>
+    <string name="onboarding_mode_local">Использовать локально (без синхронизации)</string>
 
     <!-- Login -->
     <string name="login_sign_in">Войти через GitHub</string>
@@ -111,6 +120,8 @@
     <string name="repo_pick_not_found">Ни один репозиторий не найден.</string>
     <string name="repo_pick_manual_label">URL репозитория</string>
     <string name="repo_pick_manual_hint">https://github.com/name/repo.git</string>
+    <string name="repo_pick_manual_token_label">Токен доступа / пароль (необязательно)</string>
+    <string name="repo_pick_manual_readonly_warning">Без токена доступа изменения не будут сохраняться в репозиторий — режим только для чтения.</string>
     <string name="repo_pick_manual_title">Введите URL репозитория</string>
     <string name="repo_pick_enter_manually">Не нашли? Введите URL вручную</string>
     <string name="repo_pick_from_github">Выбрать из GitHub</string>
@@ -123,7 +134,7 @@
     <string name="repo_check_ok_title">Доступ подтверждён</string>
     <string name="repo_check_ok_body">У вас есть доступ к этому репозиторию.</string>
     <string name="repo_check_denied_title">Нет доступа к этому репозиторию</string>
-    <string name="repo_check_denied_body">GitHub вернул ошибку (%1$d). Что стоит проверить:</string>
+    <string name="repo_check_denied_body">Нет доступа к репозиторию. Что стоит проверить:</string>
     <string name="repo_check_denied_hint1">• URL репозитория указан верно (владелец/название).</string>
     <string name="repo_check_denied_hint2">• У вашего аккаунта GitHub есть к нему доступ (он может быть приватным или в организации).</string>
     <string name="repo_check_denied_hint3">• Вы выдали приложению права «repo» при входе.</string>

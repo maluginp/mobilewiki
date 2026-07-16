@@ -29,6 +29,7 @@ internal fun afterSignIn(hasRepo: Boolean): OnboardingAction =
 internal fun startStep(start: OnboardingStart): Step = when (start) {
     OnboardingStart.Login -> Step.Login
     OnboardingStart.RepoPicker -> Step.RepoPicker
+    OnboardingStart.ManualUrl -> Step.ManualUrl
 }
 
 /** Полиморфная сериализация шагов для вложенного [androidx.navigation3.runtime.NavBackStack]. */
