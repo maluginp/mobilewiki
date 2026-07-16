@@ -11,6 +11,7 @@ interface SettingsPresentationProvider {
         onSync: () -> Unit,
         onNavigateBack: () -> Unit,
         onPickFromGitHub: () -> Unit,
+        onConnectManually: () -> Unit,
         aiSection: @Composable () -> Unit,
     )
 }

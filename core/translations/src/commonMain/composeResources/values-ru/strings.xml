@@ -37,6 +37,13 @@
     <string name="settings_key_label">API-ключ</string>
     <string name="settings_key_desc">API-ключ выбранного AI-провайдера. Хранится в зашифрованном виде только на этом устройстве.</string>
     <string name="settings_saved">Сохранено ✓</string>
+    <string name="settings_repo_current">Текущий репозиторий</string>
+    <string name="settings_repo_local">Локальное хранилище (без синхронизации)</string>
+    <string name="settings_repo_change">Изменить репозиторий</string>
+    <string name="settings_repo_change_warning">Будут показаны заметки нового репозитория. Несинхронизированные заметки могут быть потеряны.</string>
+    <string name="settings_repo_mode_github">GitHub</string>
+    <string name="settings_repo_mode_manual">Ввести вручную</string>
+    <string name="settings_repo_mode_local">Локально (без синхронизации)</string>
     <string name="settings_sync_title">Синхронизация</string>
     <string name="settings_sync_desc">Загрузить свежие заметки из репозитория и отправить локальные изменения.</string>
     <string name="action_sync_now">Синхронизировать</string>

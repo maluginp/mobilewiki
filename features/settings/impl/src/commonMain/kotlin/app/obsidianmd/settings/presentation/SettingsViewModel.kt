@@ -17,4 +17,11 @@ internal class SettingsViewModel(private val store: RepoSettingsStore) : ViewMod
         store.setRemoteUrl(url)
         _state.update { it.copy(url = url) }
     }
+
+    /** Переключение на локальный режим: сбрасываем remote, помечаем онбординг завершённым. */
+    fun useLocal() {
+        store.setRemoteUrl("")
+        store.setOnboardingDone(true)
+        _state.update { it.copy(url = "") }
+    }
 }

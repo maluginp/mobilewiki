@@ -14,18 +14,20 @@ internal class SettingsPresentationProviderImpl : SettingsPresentationProvider {
         onSync: () -> Unit,
         onNavigateBack: () -> Unit,
         onPickFromGitHub: () -> Unit,
+        onConnectManually: () -> Unit,
         aiSection: @Composable () -> Unit,
     ) {
         val vm: SettingsViewModel = koinViewModel()
         val state by vm.state.collectAsState()
         SettingsScreen(
             url = state.url,
-            onSave = vm::save,
             syncing = syncing,
             syncStatusText = syncStatusText,
             onSync = onSync,
             onNavigateBack = onNavigateBack,
             onPickFromGitHub = onPickFromGitHub,
+            onConnectManually = onConnectManually,
+            onUseLocal = vm::useLocal,
             aiSection = aiSection,
         )
     }

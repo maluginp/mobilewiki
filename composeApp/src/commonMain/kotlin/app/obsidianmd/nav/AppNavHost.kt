@@ -149,6 +149,7 @@ fun AppNavHost(initialStack: List<Route>) {
                         onSync = vm::sync,
                         onNavigateBack = { backStack.removeLastOrNull() },
                         onPickFromGitHub = { backStack.resetTo(stackForChangeRepo()) },
+                        onConnectManually = { backStack.resetTo(stackForChangeRepoManual()) },
                         aiSection = { ai.SettingsSection(onEditModel = { backStack.add(Route.ModelPicker) }) },
                     )
                 }

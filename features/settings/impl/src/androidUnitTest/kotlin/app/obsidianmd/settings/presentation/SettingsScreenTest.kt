@@ -13,8 +13,8 @@ import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
 // Seed Compose-UI test: proves the harness works and guards the settings UX
-// (localized repo label + description + save confirmation + Sync action). AI-часть
-// секции проверяется в :ai:impl (AiSettingsSectionContentTest).
+// (текущий режим репозитория, предупреждение при смене + выбор режима, Sync action).
+// AI-часть секции проверяется в :ai:impl (AiSettingsSectionContentTest).
 @OptIn(ExperimentalTestApi::class)
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
@@ -31,34 +31,33 @@ class SettingsScreenTest {
     }
 
     @Test
-    fun showsLabelAndDescriptionForEachSetting() = runComposeUiTest {
+    fun showsLocalModeWhenNoRepo() = runComposeUiTest {
         setContent {
-            SettingsScreen(url = "", onSave = {}, syncing = false, syncStatusText = "", onSync = {}, onNavigateBack = {})
+            SettingsScreen(url = "", syncing = false, syncStatusText = "", onSync = {}, onNavigateBack = {})
         }
-        // Label + description (supportingText) are real semantics nodes; the example is a
-        // decorative placeholder Compose doesn't expose to the semantics tree, so it's
-        // covered by the manual acceptance case instead.
-        onNodeWithText("Repository URL").assertExists()
-        onNodeWithText("HTTPS link", substring = true).assertExists()
+        onNodeWithText("Current repository").assertExists()
+        onNodeWithText("Local storage (no sync)").assertExists()
     }
 
     @Test
-    fun saveShowsConfirmation() = runComposeUiTest {
-        var savedUrl: String? = null
+    fun changeRepoShowsWarningThenModes() = runComposeUiTest {
         setContent {
-            SettingsScreen(url = "x", onSave = { savedUrl = it }, syncing = false,
-                syncStatusText = "", onSync = {}, onNavigateBack = {})
+            SettingsScreen(url = "https://a.git", syncing = false, syncStatusText = "", onSync = {}, onNavigateBack = {})
         }
-        onNodeWithText("Save").performScrollTo().performClick()
-        assert(savedUrl == "x")
-        onNodeWithText("Saved ✓").assertExists()
+        onNodeWithText("Change repository").performScrollTo().performClick()
+        // Предупреждение о потере несинхронизированных заметок.
+        onNodeWithText("Unsynced notes may be lost", substring = true).assertExists()
+        onNodeWithText("Continue").performClick()
+        // Выбор режима.
+        onNodeWithText("Enter manually").assertExists()
+        onNodeWithText("Local (no sync)").assertExists()
     }
 
     @Test
     fun syncButtonTriggersSync() = runComposeUiTest {
         var synced = false
         setContent {
-            SettingsScreen(url = "", onSave = {}, syncing = false,
+            SettingsScreen(url = "", syncing = false,
                 syncStatusText = "", onSync = { synced = true }, onNavigateBack = {})
         }
         onNodeWithText("Sync now").performScrollTo().performClick()

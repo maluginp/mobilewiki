@@ -11,3 +11,6 @@ fun startStack(onboardingDone: Boolean, hasToken: Boolean): List<Route> = when {
 
 /** Смена репо из настроек: онбординг с шага выбора репо поверх списка (есть куда вернуться). */
 fun stackForChangeRepo(): List<Route> = listOf(Route.VaultList(), Route.Onboarding(OnboardingStart.RepoPicker))
+
+/** Смена репо из настроек через ручной ввод URL — экран ManualUrl поверх списка. */
+fun stackForChangeRepoManual(): List<Route> = listOf(Route.VaultList(), Route.Onboarding(OnboardingStart.ManualUrl))

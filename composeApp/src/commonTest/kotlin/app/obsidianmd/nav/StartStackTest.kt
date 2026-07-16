@@ -34,4 +34,12 @@ class StartStackTest {
             stackForChangeRepo(),
         )
     }
+
+    // Смена репо через ручной ввод — экран ManualUrl поверх списка.
+    @Test fun change_repo_manual_opens_manual_over_vault() {
+        assertEquals(
+            listOf(Route.VaultList(), Route.Onboarding(OnboardingStart.ManualUrl)),
+            stackForChangeRepoManual(),
+        )
+    }
 }
