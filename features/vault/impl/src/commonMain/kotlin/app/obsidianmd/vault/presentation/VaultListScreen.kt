@@ -9,19 +9,26 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
@@ -40,14 +47,28 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import app.obsidianmd.resources.Res
+import app.obsidianmd.resources.action_cancel
+import app.obsidianmd.resources.action_create
+import app.obsidianmd.resources.action_new_folder
+import app.obsidianmd.resources.action_new_note
 import app.obsidianmd.resources.cd_back
 import app.obsidianmd.resources.cd_close_search
+import app.obsidianmd.resources.cd_create
 import app.obsidianmd.resources.cd_search
 import app.obsidianmd.resources.cd_settings
+import app.obsidianmd.resources.create_error_blank
+import app.obsidianmd.resources.create_error_exists
+import app.obsidianmd.resources.create_error_slash
+import app.obsidianmd.resources.create_folder_title
+import app.obsidianmd.resources.create_name_hint
+import app.obsidianmd.resources.create_note_title
 import app.obsidianmd.resources.notes_empty
 import app.obsidianmd.resources.search_hint
 import app.obsidianmd.vault.MdFile
+import app.obsidianmd.vault.NameError
 import app.obsidianmd.vault.VaultEntry
+import app.obsidianmd.vault.entryNameError
+import app.obsidianmd.vault.noteFileName
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,6 +86,8 @@ internal fun VaultListScreen(
     onRefresh: () -> Unit,
     onOpenSettings: () -> Unit,
     onBack: (() -> Unit)?,
+    onCreateNote: (String) -> Unit,
+    onCreateFolder: (String) -> Unit,
 ) {
     var searching by remember { mutableStateOf(false) }
     val exitSearch = { searching = false; onQueryChange("") }
@@ -121,6 +144,39 @@ internal fun VaultListScreen(
                 },
             )
         },
+        floatingActionButton = {
+            // Создание доступно только вне режима поиска.
+            if (!searching) {
+                var menu by remember { mutableStateOf(false) }
+                var dialog by remember { mutableStateOf<Boolean?>(null) } // true=заметка, false=папка, null=закрыт
+                Box {
+                    FloatingActionButton(onClick = { menu = true }) {
+                        Icon(Icons.Filled.Add, contentDescription = stringResource(Res.string.cd_create))
+                    }
+                    DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(Res.string.action_new_note)) },
+                            onClick = { menu = false; dialog = true },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(Res.string.action_new_folder)) },
+                            onClick = { menu = false; dialog = false },
+                        )
+                    }
+                }
+                dialog?.let { isNote ->
+                    CreateEntryDialog(
+                        isNote = isNote,
+                        existingNames = entries.map { it.name },
+                        onDismiss = { dialog = null },
+                        onConfirm = { name ->
+                            dialog = null
+                            if (isNote) onCreateNote(name) else onCreateFolder(name)
+                        },
+                    )
+                }
+            }
+        },
     ) { padding ->
         // При поиске показываем найденные файлы (плоско, по всему vault), иначе — содержимое папки.
         val shown: List<VaultEntry> =
@@ -162,4 +218,47 @@ internal fun VaultListScreen(
             }
         }
     }
+}
+
+/** Диалог создания заметки или папки с живой валидацией имени (пусто / «/» / уже существует). */
+@Composable
+private fun CreateEntryDialog(
+    isNote: Boolean,
+    existingNames: List<String>,
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit,
+) {
+    var text by remember { mutableStateOf("") }
+    val finalName = if (isNote) noteFileName(text) else text.trim()
+    val error = entryNameError(finalName, existingNames)
+    val errorText = when (error) {
+        NameError.Blank -> stringResource(Res.string.create_error_blank)
+        NameError.Slash -> stringResource(Res.string.create_error_slash)
+        NameError.Exists -> stringResource(Res.string.create_error_exists)
+        null -> null
+    }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(stringResource(if (isNote) Res.string.create_note_title else Res.string.create_folder_title))
+        },
+        text = {
+            OutlinedTextField(
+                value = text,
+                onValueChange = { text = it },
+                singleLine = true,
+                label = { Text(stringResource(Res.string.create_name_hint)) },
+                isError = text.isNotEmpty() && error != null,
+                supportingText = { if (text.isNotEmpty() && errorText != null) Text(errorText) },
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = { onConfirm(text) }, enabled = error == null) {
+                Text(stringResource(Res.string.action_create))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(Res.string.action_cancel)) }
+        },
+    )
 }

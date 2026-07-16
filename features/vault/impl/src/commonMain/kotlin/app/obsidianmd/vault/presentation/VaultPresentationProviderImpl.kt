@@ -20,6 +20,8 @@ internal class VaultPresentationProviderImpl : VaultPresentationProvider {
         onRefresh: () -> Unit,
         onOpenSettings: () -> Unit,
         onBack: (() -> Unit)?,
+        onCreateNote: (String) -> Unit,
+        onCreateFolder: (String) -> Unit,
     ) = VaultListScreen(
         title = title,
         entries = entries,
@@ -33,5 +35,7 @@ internal class VaultPresentationProviderImpl : VaultPresentationProvider {
         onRefresh = onRefresh,
         onOpenSettings = onOpenSettings,
         onBack = onBack,
+        onCreateNote = onCreateNote,
+        onCreateFolder = onCreateFolder,
     )
 }

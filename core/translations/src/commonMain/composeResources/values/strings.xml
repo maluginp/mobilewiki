@@ -25,6 +25,16 @@
     <string name="action_hide">Hide</string>
 
     <!-- Notes list -->
+    <string name="action_new_note">New note</string>
+    <string name="action_new_folder">New folder</string>
+    <string name="action_create">Create</string>
+    <string name="cd_create">Create</string>
+    <string name="create_note_title">New note</string>
+    <string name="create_folder_title">New folder</string>
+    <string name="create_name_hint">Name</string>
+    <string name="create_error_blank">Enter a name</string>
+    <string name="create_error_slash">Name can't contain “/”</string>
+    <string name="create_error_exists">Already exists</string>
 
     <!-- Settings -->
     <string name="settings_repo_url_label">Repository URL</string>

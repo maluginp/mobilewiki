@@ -26,5 +26,7 @@ interface VaultPresentationProvider {
         onRefresh: () -> Unit,
         onOpenSettings: () -> Unit,
         onBack: (() -> Unit)?,
+        onCreateNote: (String) -> Unit,
+        onCreateFolder: (String) -> Unit,
     )
 }
