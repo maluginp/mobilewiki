@@ -123,7 +123,7 @@
     <string name="repo_check_ok_title">Доступ подтверждён</string>
     <string name="repo_check_ok_body">У вас есть доступ к этому репозиторию.</string>
     <string name="repo_check_denied_title">Нет доступа к этому репозиторию</string>
-    <string name="repo_check_denied_body">GitHub вернул ошибку (%1$d). Что стоит проверить:</string>
+    <string name="repo_check_denied_body">Нет доступа к репозиторию. Что стоит проверить:</string>
     <string name="repo_check_denied_hint1">• URL репозитория указан верно (владелец/название).</string>
     <string name="repo_check_denied_hint2">• У вашего аккаунта GitHub есть к нему доступ (он может быть приватным или в организации).</string>
     <string name="repo_check_denied_hint3">• Вы выдали приложению права «repo» при входе.</string>

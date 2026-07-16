@@ -123,7 +123,7 @@
     <string name="repo_check_ok_title">Access confirmed</string>
     <string name="repo_check_ok_body">You have access to this repository.</string>
     <string name="repo_check_denied_title">No access to this repository</string>
-    <string name="repo_check_denied_body">GitHub returned an error (%1$d). Things to check:</string>
+    <string name="repo_check_denied_body">No access to the repository. What to check:</string>
     <string name="repo_check_denied_hint1">• The repository URL is correct (owner/name).</string>
     <string name="repo_check_denied_hint2">• Your GitHub account has access to it (it may be private or in an org).</string>
     <string name="repo_check_denied_hint3">• You granted the app the "repo" scope when signing in.</string>
