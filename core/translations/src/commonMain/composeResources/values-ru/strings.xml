@@ -90,6 +90,8 @@
     <string name="onboarding_title">Добро пожаловать в Brainer</string>
     <string name="onboarding_body">Читайте и редактируйте своё хранилище Markdown прямо из репозитория GitHub. Заметки синхронизируются через git.</string>
     <string name="onboarding_sign_in">Войти через GitHub</string>
+    <string name="onboarding_mode_git">Подключить любой git-репозиторий</string>
+    <string name="onboarding_mode_local">Использовать локально (без синхронизации)</string>
 
     <!-- Login -->
     <string name="login_sign_in">Войти через GitHub</string>

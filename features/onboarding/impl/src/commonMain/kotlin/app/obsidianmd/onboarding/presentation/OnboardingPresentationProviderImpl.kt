@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import app.obsidianmd.analytics.Analytics
 import app.obsidianmd.onboarding.AuthState
 import app.obsidianmd.onboarding.AuthViewModel
 import app.obsidianmd.onboarding.ManualConnectViewModel
@@ -51,9 +52,17 @@ internal class OnboardingPresentationProviderImpl : OnboardingPresentationProvid
                                 }
                             }
                         }
-                        // Idle — приветствие с кнопкой; после старта авторизации тот же экран показывает код.
+                        // Idle — приветствие с выбором режима; после старта авторизации тот же экран показывает код.
                         if (state is AuthState.Idle) {
-                            WelcomeScreen(onSignIn = vm::login)
+                            WelcomeScreen(
+                                onSignInGitHub = vm::login,
+                                onConnectByUrl = { backStack.add(Step.ManualUrl) },
+                                onUseLocal = {
+                                    Analytics.event("repo_connected", mapOf("mode" to "local"))
+                                    settings.setOnboardingDone(true)
+                                    onFinished()
+                                },
+                            )
                         } else {
                             val uriHandler = LocalUriHandler.current
                             LoginScreen(state = state, onLogin = vm::login, onOpenUrl = { uriHandler.openUri(it) })
@@ -84,7 +93,11 @@ internal class OnboardingPresentationProviderImpl : OnboardingPresentationProvid
                         val state by vm.state.collectAsState()
                         RepoValidationScreen(
                             state = state,
-                            onContinue = { settings.setRemoteUrl(key.url); onFinished() },
+                            onContinue = {
+                                settings.setRemoteUrl(key.url)
+                                settings.setOnboardingDone(true)
+                                onFinished()
+                            },
                             onRetry = { vm.validate(key.url) },
                             onBack = { backStack.removeLastOrNull() },
                         )
