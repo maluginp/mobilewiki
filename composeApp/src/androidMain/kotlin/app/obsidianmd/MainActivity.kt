@@ -54,9 +54,11 @@ class MainActivity : ComponentActivity() {
                     startRoutes = withContext(Dispatchers.IO) {
                         koin.get<ApiKeyStore>()
                         val hasToken = koin.get<TokenStore>().get() != null
-                        val hasRepo = !koin.get<RepoSettingsStore>().getRemoteUrl().isNullOrBlank()
-                        if (hasToken && hasRepo) AutoSyncScheduler(applicationContext).schedule()
-                        startStack(hasToken = hasToken, hasRepo = hasRepo)
+                        val settings = koin.get<RepoSettingsStore>()
+                        val hasRemote = !settings.getRemoteUrl().isNullOrBlank()
+                        val done = settings.getOnboardingDone()
+                        if (hasRemote) AutoSyncScheduler(applicationContext).schedule()
+                        startStack(onboardingDone = done, hasToken = hasToken)
                     }
                 }
                 AppTheme {
