@@ -4,6 +4,8 @@ import app.obsidianmd.auth.TokenStore
 import app.obsidianmd.settings.RepoSettingsStore
 import app.obsidianmd.sync.GitSync
 import app.obsidianmd.sync.JGitSync
+import app.obsidianmd.sync.JGitRepoAccessCheck
+import app.obsidianmd.sync.RepoAccessCheck
 import app.obsidianmd.sync.SyncConfig
 import app.obsidianmd.sync.SyncConfigProvider
 import app.obsidianmd.sync.UiConflictResolver
@@ -24,6 +26,7 @@ val appModule = module {
     // TokenStore регистрируется в authModule (:auth:impl), RepoSettingsStore — в settingsModule
     // (:settings:impl); здесь оба используются через общий граф.
     single<GitSync> { JGitSync() }
+    single<RepoAccessCheck> { JGitRepoAccessCheck() }
     single { UiConflictResolver() }
     // SyncConfig собирается тут (знаем настройки + токен); localPath — из vault-репозитория.
     single<SyncConfigProvider> {
