@@ -111,6 +111,8 @@
     <string name="repo_pick_not_found">No repositories match your search.</string>
     <string name="repo_pick_manual_label">Repository URL</string>
     <string name="repo_pick_manual_hint">https://github.com/name/repo.git</string>
+    <string name="repo_pick_manual_token_label">Access token / password (optional)</string>
+    <string name="repo_pick_manual_readonly_warning">Without an access token, changes won\'t be pushed to the repository — read-only mode.</string>
     <string name="repo_pick_manual_title">Enter a repository URL</string>
     <string name="repo_pick_enter_manually">Can't find it? Enter a URL manually</string>
     <string name="repo_pick_from_github">Choose from GitHub</string>

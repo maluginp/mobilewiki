@@ -13,6 +13,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import app.obsidianmd.onboarding.AuthState
 import app.obsidianmd.onboarding.AuthViewModel
+import app.obsidianmd.onboarding.ManualConnectViewModel
 import app.obsidianmd.onboarding.OnboardingPresentationProvider
 import app.obsidianmd.onboarding.OnboardingStart
 import app.obsidianmd.onboarding.RepoPickerViewModel
@@ -71,8 +72,9 @@ internal class OnboardingPresentationProviderImpl : OnboardingPresentationProvid
                         )
                     }
                     entry<Step.ManualUrl> {
+                        val vm: ManualConnectViewModel = koinViewModel()
                         ManualUrlScreen(
-                            onSubmit = { url -> backStack.add(Step.Validate(url)) },
+                            onSubmit = { url, token -> backStack.add(Step.Validate(vm.connect(url, token))) },
                             onBack = { backStack.removeLastOrNull() },
                         )
                     }

@@ -111,6 +111,8 @@
     <string name="repo_pick_not_found">Ни один репозиторий не найден.</string>
     <string name="repo_pick_manual_label">URL репозитория</string>
     <string name="repo_pick_manual_hint">https://github.com/name/repo.git</string>
+    <string name="repo_pick_manual_token_label">Токен доступа / пароль (необязательно)</string>
+    <string name="repo_pick_manual_readonly_warning">Без токена доступа изменения не будут сохраняться в репозиторий — режим только для чтения.</string>
     <string name="repo_pick_manual_title">Введите URL репозитория</string>
     <string name="repo_pick_enter_manually">Не нашли? Введите URL вручную</string>
     <string name="repo_pick_from_github">Выбрать из GitHub</string>
