@@ -13,5 +13,5 @@ interface OnboardingPresentationProvider {
     fun Onboarding(startAt: OnboardingStart, onFinished: () -> Unit)
 }
 
-/** С какого шага начинать флоу. RepoPicker — для сценария «сменить репозиторий из настроек». */
-enum class OnboardingStart { Login, RepoPicker }
+/** С какого шага начинать флоу. RepoPicker/ManualUrl — для сценария «сменить репозиторий из настроек». */
+enum class OnboardingStart { Login, RepoPicker, ManualUrl }
