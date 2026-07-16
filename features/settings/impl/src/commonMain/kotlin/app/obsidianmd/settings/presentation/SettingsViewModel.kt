@@ -13,11 +13,6 @@ internal class SettingsViewModel(private val store: RepoSettingsStore) : ViewMod
     private val _state = MutableStateFlow(SettingsState(url = store.getRemoteUrl() ?: ""))
     val state: StateFlow<SettingsState> = _state.asStateFlow()
 
-    fun save(url: String) {
-        store.setRemoteUrl(url)
-        _state.update { it.copy(url = url) }
-    }
-
     /** Переключение на локальный режим: сбрасываем remote, помечаем онбординг завершённым. */
     fun useLocal() {
         store.setRemoteUrl("")
