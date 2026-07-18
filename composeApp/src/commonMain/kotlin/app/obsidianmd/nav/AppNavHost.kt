@@ -127,6 +127,8 @@ fun AppNavHost(initialStack: List<Route>) {
                         onRefresh = vm::sync,
                         onOpenSettings = { backStack.add(Route.Settings) },
                         onBack = if (backStack.size > 1) ({ backStack.removeLastOrNull(); Unit }) else null,
+                        onCreateNote = { name -> vm.createNote(name) { path -> backStack.add(Route.Note(path)) } },
+                        onCreateFolder = vm::createFolder,
                     )
                 }
                 entry<Route.Note>(metadata = ListDetailSceneStrategy.detailPane()) { key ->

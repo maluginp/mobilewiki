@@ -25,6 +25,16 @@
     <string name="action_hide">Скрыть</string>
 
     <!-- Notes list -->
+    <string name="action_new_note">Новая заметка</string>
+    <string name="action_new_folder">Новая папка</string>
+    <string name="action_create">Создать</string>
+    <string name="cd_create">Создать</string>
+    <string name="create_note_title">Новая заметка</string>
+    <string name="create_folder_title">Новая папка</string>
+    <string name="create_name_hint">Имя</string>
+    <string name="create_error_blank">Введите имя</string>
+    <string name="create_error_slash">Имя не может содержать «/»</string>
+    <string name="create_error_exists">Уже существует</string>
 
     <!-- Settings -->
     <string name="settings_repo_url_label">URL репозитория</string>
