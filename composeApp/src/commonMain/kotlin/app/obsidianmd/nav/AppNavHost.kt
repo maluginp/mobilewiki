@@ -148,9 +148,15 @@ fun AppNavHost(initialStack: List<Route>) {
                         syncStatusText = syncStatusText(state.syncStatus),
                         onSync = vm::sync,
                         onNavigateBack = { backStack.removeLastOrNull() },
+                        onChangeRepository = { backStack.add(Route.ChangeRepo) },
+                        aiSection = { ai.SettingsSection(onEditModel = { backStack.add(Route.ModelPicker) }) },
+                    )
+                }
+                entry<Route.ChangeRepo> {
+                    settingsPresentation.ChangeRepoScreen(
                         onPickFromGitHub = { backStack.resetTo(stackForChangeRepo()) },
                         onConnectManually = { backStack.resetTo(stackForChangeRepoManual()) },
-                        aiSection = { ai.SettingsSection(onEditModel = { backStack.add(Route.ModelPicker) }) },
+                        onNavigateBack = { backStack.removeLastOrNull() },
                     )
                 }
                 entry<Route.ModelPicker> {
