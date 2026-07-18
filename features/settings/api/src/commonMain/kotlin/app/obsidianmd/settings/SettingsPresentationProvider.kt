@@ -10,8 +10,15 @@ interface SettingsPresentationProvider {
         syncStatusText: String,
         onSync: () -> Unit,
         onNavigateBack: () -> Unit,
+        onChangeRepository: () -> Unit,
+        aiSection: @Composable () -> Unit,
+    )
+
+    /** Отдельный экран смены репозитория: предупреждение + выбор типа подключения. */
+    @Composable
+    fun ChangeRepoScreen(
         onPickFromGitHub: () -> Unit,
         onConnectManually: () -> Unit,
-        aiSection: @Composable () -> Unit,
+        onNavigateBack: () -> Unit,
     )
 }

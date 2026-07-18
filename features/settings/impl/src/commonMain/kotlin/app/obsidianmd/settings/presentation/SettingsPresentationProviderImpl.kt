@@ -13,8 +13,7 @@ internal class SettingsPresentationProviderImpl : SettingsPresentationProvider {
         syncStatusText: String,
         onSync: () -> Unit,
         onNavigateBack: () -> Unit,
-        onPickFromGitHub: () -> Unit,
-        onConnectManually: () -> Unit,
+        onChangeRepository: () -> Unit,
         aiSection: @Composable () -> Unit,
     ) {
         val vm: SettingsViewModel = koinViewModel()
@@ -25,10 +24,24 @@ internal class SettingsPresentationProviderImpl : SettingsPresentationProvider {
             syncStatusText = syncStatusText,
             onSync = onSync,
             onNavigateBack = onNavigateBack,
+            onChangeRepository = onChangeRepository,
+            aiSection = aiSection,
+        )
+    }
+
+    @Composable
+    override fun ChangeRepoScreen(
+        onPickFromGitHub: () -> Unit,
+        onConnectManually: () -> Unit,
+        onNavigateBack: () -> Unit,
+    ) {
+        val vm: SettingsViewModel = koinViewModel()
+        // «Локально» переключает стор и возвращает на настройки; GitHub/вручную сбрасывают стек навигации.
+        ChangeRepoScreen(
             onPickFromGitHub = onPickFromGitHub,
             onConnectManually = onConnectManually,
-            onUseLocal = vm::useLocal,
-            aiSection = aiSection,
+            onUseLocal = { vm.useLocal(); onNavigateBack() },
+            onNavigateBack = onNavigateBack,
         )
     }
 }

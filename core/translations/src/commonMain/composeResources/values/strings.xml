@@ -54,6 +54,9 @@
     <string name="settings_repo_mode_github">GitHub</string>
     <string name="settings_repo_mode_manual">Enter manually</string>
     <string name="settings_repo_mode_local">Local (no sync)</string>
+    <string name="settings_repo_mode_github_desc">Pick one of your GitHub repositories. Notes sync over git.</string>
+    <string name="settings_repo_mode_manual_desc">Enter any Git repository URL and access token manually.</string>
+    <string name="settings_repo_mode_local_desc">Keep notes only on this device. No sync.</string>
     <string name="settings_sync_title">Synchronization</string>
     <string name="settings_sync_desc">Pull the latest notes from the repository and push your local changes.</string>
     <string name="action_sync_now">Sync now</string>

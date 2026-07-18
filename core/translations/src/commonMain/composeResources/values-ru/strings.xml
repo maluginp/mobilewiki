@@ -54,6 +54,9 @@
     <string name="settings_repo_mode_github">GitHub</string>
     <string name="settings_repo_mode_manual">Ввести вручную</string>
     <string name="settings_repo_mode_local">Локально (без синхронизации)</string>
+    <string name="settings_repo_mode_github_desc">Выберите один из ваших репозиториев GitHub. Заметки синхронизируются через git.</string>
+    <string name="settings_repo_mode_manual_desc">Введите URL любого Git-репозитория и токен доступа вручную.</string>
+    <string name="settings_repo_mode_local_desc">Хранить заметки только на этом устройстве. Без синхронизации.</string>
     <string name="settings_sync_title">Синхронизация</string>
     <string name="settings_sync_desc">Загрузить свежие заметки из репозитория и отправить локальные изменения.</string>
     <string name="action_sync_now">Синхронизировать</string>

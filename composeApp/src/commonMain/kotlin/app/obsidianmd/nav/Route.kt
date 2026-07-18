@@ -18,6 +18,7 @@ sealed interface Route : NavKey {
     @Serializable data class VaultList(val dir: String = "") : Route
     @Serializable data class Note(val path: String) : Route
     @Serializable data object Settings : Route
+    @Serializable data object ChangeRepo : Route
     @Serializable data object ModelPicker : Route
     @Serializable data object AiChat : Route
 }
@@ -32,6 +33,7 @@ val navSerializersModule: SerializersModule = SerializersModule {
         subclass(Route.VaultList::class, Route.VaultList.serializer())
         subclass(Route.Note::class, Route.Note.serializer())
         subclass(Route.Settings::class, Route.Settings.serializer())
+        subclass(Route.ChangeRepo::class, Route.ChangeRepo.serializer())
         subclass(Route.ModelPicker::class, Route.ModelPicker.serializer())
         subclass(Route.AiChat::class, Route.AiChat.serializer())
     }

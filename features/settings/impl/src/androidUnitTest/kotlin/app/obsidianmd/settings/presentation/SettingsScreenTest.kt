@@ -42,17 +42,17 @@ class SettingsScreenTest {
     }
 
     @Test
-    fun changeRepoShowsWarningThenModes() = runComposeUiTest {
+    fun changeRepositoryButtonNavigatesToScreen() = runComposeUiTest {
+        var navigated = false
         setContent {
-            SettingsScreen(url = "https://a.git", syncing = false, syncStatusText = "", onSync = {}, onNavigateBack = {})
+            SettingsScreen(
+                url = "https://a.git", syncing = false, syncStatusText = "", onSync = {}, onNavigateBack = {},
+                onChangeRepository = { navigated = true },
+            )
         }
+        // Кнопка ведёт на отдельный экран смены репозитория, а не открывает диалог.
         onNodeWithText("Change repository").performScrollTo().performClick()
-        // Предупреждение о потере несинхронизированных заметок.
-        onNodeWithText("Unsynced notes may be lost", substring = true).assertExists()
-        onNodeWithText("Continue").performClick()
-        // Выбор режима.
-        onNodeWithText("Enter manually").assertExists()
-        onNodeWithText("Local (no sync)").assertExists()
+        assert(navigated)
     }
 
     @Test
