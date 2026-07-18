@@ -42,17 +42,17 @@ class SettingsScreenTest {
     }
 
     @Test
-    fun changeRepoShowsWarningThenModes() = runComposeUiTest {
+    fun changeRepoShowsSingleDialogWithWarningAndDescribedModes() = runComposeUiTest {
         setContent {
             SettingsScreen(url = "https://a.git", syncing = false, syncStatusText = "", onSync = {}, onNavigateBack = {})
         }
         onNodeWithText("Change repository").performScrollTo().performClick()
-        // Предупреждение о потере несинхронизированных заметок.
+        // Один диалог: предупреждение сверху + все режимы с описаниями, без промежуточного «Continue».
         onNodeWithText("Unsynced notes may be lost", substring = true).assertExists()
-        onNodeWithText("Continue").performClick()
-        // Выбор режима.
-        onNodeWithText("Enter manually").assertExists()
-        onNodeWithText("Local (no sync)").assertExists()
+        onNodeWithText("sync over git", substring = true).assertExists()        // описание GitHub
+        onNodeWithText("access token", substring = true).assertExists()         // описание ручного ввода
+        onNodeWithText("only on this device", substring = true).assertExists()  // описание локального
+        onAllNodesWithText("Continue").assertCountEquals(0)
     }
 
     @Test
