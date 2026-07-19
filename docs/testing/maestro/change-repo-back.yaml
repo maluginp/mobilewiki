@@ -1,4 +1,4 @@
-# TC-RC-04 — «Назад» с выбора репозитория и ввода URL возвращает в Настройки
+# TC-RC-04 — «Назад» с ввода URL возвращает в Настройки
 appId: app.obsidianmd
 ---
 - clearState
@@ -10,15 +10,10 @@ appId: app.obsidianmd
     timeout: 20000
 - tapOn: ".*Use locally.*"
 - tapOn: "Settings"
-# --- Путь «Enter manually» ---
 - tapOn: "Change repository"
 - tapOn: "Enter manually"
 - assertVisible: ".*Enter a repository URL.*"   # экран ManualUrl
 - tapOn: "Back"                                  # стрелка «назад» в топбаре
 - assertVisible: "Current repository"            # вернулись в Настройки
-# --- Путь «GitHub» (пикер репозиториев) ---
-- tapOn: "Change repository"
-- tapOn: "GitHub"
-- assertVisible: ".*Choose a repository.*"       # экран RepoPicker (заголовок виден сразу, до загрузки)
-- tapOn: "Back"                                  # стрелка «назад» в топбаре
-- assertVisible: "Current repository"            # снова вернулись в Настройки
+# Путь «GitHub» → выбор репозитория требует авторизации (см. TC-RC-05); «назад» с самого пикера
+# проверяется вручную (нужен реальный GitHub-токен).

@@ -1,0 +1,16 @@
+# TC-RC-05 — «GitHub» без авторизации ведёт на вход, а не в пустой список репозиториев
+appId: app.obsidianmd
+---
+- clearState
+- launchApp
+- extendedWaitUntil:
+    visible: ".*Welcome to Brainer.*"
+    timeout: 20000
+- tapOn: ".*Use locally.*"                        # локальный режим — токена GitHub нет
+- tapOn: "Settings"
+- tapOn: "Change repository"
+- tapOn: "GitHub"
+- extendedWaitUntil:
+    visible: "Sign in with GitHub"                # требуется авторизация
+    timeout: 15000
+- assertNotVisible: ".*Choose a repository.*"      # НЕ пустой/ошибочный список репозиториев
