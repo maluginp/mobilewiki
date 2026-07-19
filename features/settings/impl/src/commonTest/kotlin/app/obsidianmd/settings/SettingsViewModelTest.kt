@@ -18,6 +18,17 @@ class SettingsViewModelTest {
     }
 
     @Test
+    fun refresh_rereads_url_and_writable_after_change() {
+        val store = FakeRepoSettingsStore()
+        val vm = SettingsViewModel(store)                 // пусто, writable=true (VM переживает экран)
+        assertEquals("", vm.state.value.url)
+        store.setRemoteUrl("https://ro.git"); store.setWritable(false)
+        vm.refresh()
+        assertEquals("https://ro.git", vm.state.value.url)
+        assertEquals(false, vm.state.value.writable)
+    }
+
+    @Test
     fun use_local_clears_remote_and_marks_done() {
         val store = FakeRepoSettingsStore().apply { setRemoteUrl("https://a.git") }
         val vm = SettingsViewModel(store)

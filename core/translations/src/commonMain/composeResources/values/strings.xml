@@ -49,6 +49,8 @@
     <string name="settings_saved">Saved ✓</string>
     <string name="settings_repo_current">Current repository</string>
     <string name="settings_repo_local">Local storage (no sync)</string>
+    <string name="settings_repo_readonly">Read-only</string>
+    <string name="settings_repo_editable">Editable</string>
     <string name="settings_repo_change">Change repository</string>
     <string name="settings_repo_change_warning">You'll see notes from the new repository. Unsynced notes may be lost.</string>
     <string name="settings_repo_mode_github">GitHub</string>
