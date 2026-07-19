@@ -1,0 +1,15 @@
+# TC-SR-01 — Поиск находит заметку по имени
+appId: app.obsidianmd
+---
+- clearState
+- launchApp
+- tapOn: ".*Use locally.*"
+- tapOn: "Create"
+- tapOn: "New note"
+- tapOn: "Name"
+- inputText: "Findable"
+- tapOn: "Create"
+- tapOn: "Back"
+- tapOn: "Search"
+- inputText: "Findable"
+- assertVisible: "Findable.md"

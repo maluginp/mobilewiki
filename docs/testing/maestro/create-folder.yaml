@@ -1,0 +1,14 @@
+# TC-CF-01 — Создание папки: появляется в списке (папки первыми), можно зайти
+appId: app.obsidianmd
+---
+- clearState
+- launchApp
+- tapOn: ".*Use locally.*"
+- tapOn: "Create"
+- tapOn: "New folder"
+- tapOn: "Name"
+- inputText: "AutoFolder"
+- tapOn: "Create"
+- assertVisible: "AutoFolder"   # папка в списке
+- tapOn: "AutoFolder"
+- assertVisible: "No files"      # внутри пустой папки

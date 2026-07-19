@@ -1,0 +1,9 @@
+# TC-OB-02 — Локальный режим: онбординг «Use locally (no sync)» ведёт в пустой волт
+appId: app.obsidianmd
+---
+- clearState
+- launchApp
+- assertVisible: ".*Welcome to Brainer.*"
+- tapOn: ".*Use locally.*"
+- assertVisible: "Notes"      # заголовок экрана списка
+- assertVisible: "No files"   # пустой локальный волт

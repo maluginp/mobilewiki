@@ -1,0 +1,14 @@
+# TC-RC-01 — Экран смены репозитория: предупреждение + типы с описанием, возврат назад
+appId: app.obsidianmd
+---
+- clearState
+- launchApp
+- tapOn: ".*Use locally.*"
+- tapOn: "Settings"
+- tapOn: "Change repository"
+- assertVisible: ".*Unsynced notes.*"                 # warning-плашка
+- assertVisible: ".*GitHub.*"
+- assertVisible: ".*Enter manually.*"
+- assertVisible: ".*only on this device.*"            # описание локального режима
+- tapOn: "Back"
+- assertVisible: "Current repository"                 # вернулись в настройки

@@ -1,0 +1,18 @@
+# TC-NE-01 — Редактирование заметки и сохранение
+appId: app.obsidianmd
+---
+- clearState
+- launchApp
+- tapOn: ".*Use locally.*"
+- tapOn: "Create"
+- tapOn: "New note"
+- tapOn: "Name"
+- inputText: "Editable"
+- tapOn: "Create"
+# редактор открыт в режиме просмотра — включаем правку (карандаш)
+- tapOn: "Edit"
+- tapOn:
+    point: "50%,30%"   # фокус в поле редактора
+- inputText: "hello world"
+- tapOn: "Save"
+- assertVisible: "hello world"   # сохранённый текст виден в просмотре

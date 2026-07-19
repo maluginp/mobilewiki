@@ -1,0 +1,9 @@
+# TC-CN-02 — FAB «+» открывает меню с «New note» и «New folder»
+appId: app.obsidianmd
+---
+- clearState
+- launchApp
+- tapOn: ".*Use locally.*"
+- tapOn: "Create"
+- assertVisible: "New note"
+- assertVisible: "New folder"

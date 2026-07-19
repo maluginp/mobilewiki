@@ -1,0 +1,18 @@
+# TC-CF-02 — Заметка создаётся внутри текущей папки, а не в корне
+appId: app.obsidianmd
+---
+- clearState
+- launchApp
+- tapOn: ".*Use locally.*"
+- tapOn: "Create"
+- tapOn: "New folder"
+- tapOn: "Name"
+- inputText: "AutoSub"
+- tapOn: "Create"
+- tapOn: "AutoSub"          # заходим в папку
+- tapOn: "Create"
+- tapOn: "New note"
+- tapOn: "Name"
+- inputText: "inside"
+- tapOn: "Create"
+- assertVisible: "inside.md"   # заметка создана внутри AutoSub

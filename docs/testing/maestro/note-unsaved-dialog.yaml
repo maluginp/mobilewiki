@@ -1,0 +1,19 @@
+# TC-NE-02 — Предупреждение о несохранённых правках при выходе
+appId: app.obsidianmd
+---
+- clearState
+- launchApp
+- tapOn: ".*Use locally.*"
+- tapOn: "Create"
+- tapOn: "New note"
+- tapOn: "Name"
+- inputText: "Dirty"
+- tapOn: "Create"
+- tapOn: "Edit"
+- tapOn:
+    point: "50%,30%"
+- inputText: "unsaved change"
+- assertVisible: "unsaved change"    # текст введён → черновик «грязный»
+- hideKeyboard
+- tapOn: "Back"
+- assertVisible: "Unsaved changes"   # диалог защиты от потери правок

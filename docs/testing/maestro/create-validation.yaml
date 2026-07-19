@@ -1,0 +1,24 @@
+# TC-CV-01 — Валидация имени: дубликат показывает «Already exists», исправление имени убирает ошибку.
+# (Кейс «пустое имя → Create недоступна» покрыт unit-тестом VaultListScreenTest —
+#  disabled-состояние Compose-кнопки Maestro читает ненадёжно, поэтому здесь проверяем дубликат.)
+appId: app.obsidianmd
+---
+- clearState
+- launchApp
+- tapOn: ".*Use locally.*"
+# создаём Dup.md
+- tapOn: "Create"
+- tapOn: "New note"
+- tapOn: "Name"
+- inputText: "Dup"
+- tapOn: "Create"
+- tapOn: "Back"
+# повторное имя → ошибка «Already exists»
+- tapOn: "Create"
+- tapOn: "New note"
+- tapOn: "Name"
+- inputText: "Dup"
+- assertVisible: "Already exists"
+# дописываем символ → имя уникально → ошибка исчезает
+- inputText: "2"
+- assertNotVisible: "Already exists"

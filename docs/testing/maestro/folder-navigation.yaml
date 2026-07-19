@@ -1,0 +1,15 @@
+# TC-NV-01 — Навигация: вход в папку и возврат в корень
+appId: app.obsidianmd
+---
+- clearState
+- launchApp
+- tapOn: ".*Use locally.*"
+- tapOn: "Create"
+- tapOn: "New folder"
+- tapOn: "Name"
+- inputText: "NavFolder"
+- tapOn: "Create"
+- tapOn: "NavFolder"
+- assertVisible: "NavFolder"   # заголовок = имя папки
+- tapOn: "Back"
+- assertVisible: "Notes"        # вернулись в корень

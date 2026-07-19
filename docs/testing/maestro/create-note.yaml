@@ -1,0 +1,14 @@
+# TC-CN-01 — Создание новой заметки открывает редактор и появляется в списке
+appId: app.obsidianmd
+---
+- clearState
+- launchApp
+- tapOn: ".*Use locally.*"
+- tapOn: "Create"
+- tapOn: "New note"
+- tapOn: "Name"
+- inputText: "AutoNote"
+- tapOn: "Create"
+- assertVisible: "AutoNote.md"   # открылся редактор новой заметки
+- tapOn: "Back"
+- assertVisible: "AutoNote.md"   # заметка видна в списке

@@ -1,0 +1,9 @@
+# TC-ST-01 — Переход на экран настроек
+appId: app.obsidianmd
+---
+- clearState
+- launchApp
+- tapOn: ".*Use locally.*"
+- tapOn: "Settings"
+- assertVisible: "Current repository"
+- assertVisible: ".*Local storage.*"   # текущий режим — локальный (regex: текст = «Local storage (no sync)»)

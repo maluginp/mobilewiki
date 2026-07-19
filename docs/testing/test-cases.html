@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brainer — тест-кейсы</title>
+<style>
+  :root{
+    --bg:#fafafa; --fg:#1a1a1a; --muted:#666; --card:#fff; --border:#e3e3e6;
+    --head:#f2f2f4; --accent:#5b3fa8; --shadow:0 1px 3px rgba(0,0,0,.06);
+    --ok-bg:#e7f6ec; --ok-fg:#1b7a3d; --maybe-bg:#fdf4e3; --maybe-fg:#9a6b12; --no-bg:#f0f0f2; --no-fg:#6a6a70;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#161618; --fg:#e9e9ec; --muted:#a0a0a8; --card:#1e1e21; --border:#33333a;
+      --head:#26262b; --accent:#b9a3f0; --shadow:none;
+      --ok-bg:#12331f; --ok-fg:#6fd694; --maybe-bg:#332815; --maybe-fg:#e2b25a; --no-bg:#26262b; --no-fg:#9a9aa2;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    padding:32px 20px;max-width:1200px;margin:0 auto}
+  h1{font-size:26px;margin:0 0 4px}
+  h2{font-size:19px;margin:36px 0 12px;padding-bottom:6px;border-bottom:2px solid var(--border)}
+  .sub{color:var(--muted);margin:0 0 20px}
+  a{color:var(--accent)}
+  .legend{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0 8px}
+  .summary{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 16px;
+    box-shadow:var(--shadow);display:flex;flex-wrap:wrap;gap:20px;margin:8px 0 4px}
+  .summary b{color:var(--accent);font-size:18px}
+  .tablewrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);margin-bottom:8px}
+  table{border-collapse:collapse;width:100%;min-width:760px;background:var(--card)}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{background:var(--head);font-weight:600;position:sticky;top:0}
+  td.id{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;white-space:nowrap;color:var(--muted);font-size:13px}
+  td.name{font-weight:600;min-width:150px}
+  td.auto{white-space:nowrap}
+  tr:last-child td{border-bottom:none}
+  ol{margin:0;padding-left:18px}
+  .badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12.5px;font-weight:600;white-space:nowrap}
+  .ok{background:var(--ok-bg);color:var(--ok-fg)}
+  .maybe{background:var(--maybe-bg);color:var(--maybe-fg)}
+  .no{background:var(--no-bg);color:var(--no-fg)}
+  .flow{display:block;font-size:12.5px;margin-top:4px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .note{display:block;font-size:12px;color:var(--muted);margin-top:3px}
+</style>
+</head>
+<body>
+<h1>Brainer — тест-кейсы для ручного тестирования</h1>
+<p class="sub">Приложение <code>app.obsidianmd</code> (KMP/Compose). Автотесты — Maestro,
+прогнаны на Pixel&nbsp;9a. Как запускать: <a href="maestro/README.md">maestro/README.md</a>.</p>
+
+<div class="summary">
+  <span>Всего кейсов: <b>36</b></span>
+  <span>Автоматизировано: <b>12</b></span>
+  <span>Доступно к автоматизации: <b>8</b></span>
+  <span>Только вручную: <b>16</b></span>
+</div>
+<div class="legend">
+  <span class="badge ok">✅ Да</span> — есть Maestro-флоу (проверено).
+  <span class="badge maybe">⚙️ Доступно</span> — можно автоматизировать, пока вручную.
+  <span class="badge no">❌ Нет</span> — только вручную (внешняя авторизация/сеть/git/AI).
+</div>
+
+<h2>1. Онбординг и подключение репозитория</h2>
+<div class="tablewrap"><table>
+<thead><tr><th>ID</th><th>Название</th><th>Шаги</th><th>Ожидаемый результат</th><th>Автоматизация</th></tr></thead>
+<tbody>
+<tr><td class="id">TC-OB-01</td><td class="name">Экран приветствия при первом запуске</td><td><ol><li>Сбросить данные приложения.</li><li>Запустить приложение.</li></ol></td><td>Экран «Welcome to Brainer» с тремя вариантами: Sign in with GitHub, Connect any git repository, Use locally (no sync).</td><td class="auto"><span class="badge maybe">⚙️ Доступно</span></td></tr>
+<tr><td class="id">TC-OB-02</td><td class="name">Локальный режим без синхронизации</td><td><ol><li>На приветствии нажать «Use locally (no sync)».</li></ol></td><td>Открывается список волта, заголовок «Notes», пустое состояние «No files».</td><td class="auto"><span class="badge ok">✅ Да</span><a class="flow" href="maestro/onboarding-local.yaml">onboarding-local.yaml</a></td></tr>
+<tr><td class="id">TC-OB-03</td><td class="name">Вход через GitHub (Device Flow)</td><td><ol><li>«Sign in with GitHub».</li><li>Скопировать код.</li><li>На GitHub вставить код, подтвердить.</li></ol></td><td>Экран выбора репозитория; токен сохранён зашифрованно.</td><td class="auto"><span class="badge no">❌ Нет</span><span class="note">внешний GitHub-логин</span></td></tr>
+<tr><td class="id">TC-OB-04</td><td class="name">Выбор репозитория из списка GitHub</td><td><ol><li>Войти через GitHub.</li><li>Выбрать репозиторий (или поиском).</li></ol></td><td>Репозиторий клонируется, открывается его волт.</td><td class="auto"><span class="badge no">❌ Нет</span><span class="note">реальный аккаунт/репо</span></td></tr>
+<tr><td class="id">TC-OB-05</td><td class="name">Ручной ввод URL репозитория</td><td><ol><li>«Connect any git repository».</li><li>Ввести URL и (опц.) токен.</li><li>Продолжить.</li></ol></td><td>Репозиторий подключается; без токена — предупреждение о read-only.</td><td class="auto"><span class="badge no">❌ Нет</span><span class="note">реальный репо</span></td></tr>
+<tr><td class="id">TC-OB-06</td><td class="name">Проверка доступа к репозиторию</td><td><ol><li>Ввести URL без доступа.</li><li>Продолжить.</li></ol></td><td>Экран «No access to this repository» со списком что проверить.</td><td class="auto"><span class="badge no">❌ Нет</span><span class="note">сеть/доступы</span></td></tr>
+<tr><td class="id">TC-OB-07</td><td class="name">Инструкция авторизации на экране кода</td><td><ol><li>Начать GitHub-вход, дойти до экрана кода.</li></ol></td><td>Пошаговая инструкция: скопировать код → открыть GitHub → вставить → подтвердить.</td><td class="auto"><span class="badge no">❌ Нет</span><span class="note">часть device flow</span></td></tr>
+</tbody></table></div>
+
+<h2>2. Список волта и навигация</h2>
+<div class="tablewrap"><table>
+<thead><tr><th>ID</th><th>Название</th><th>Шаги</th><th>Ожидаемый результат</th><th>Автоматизация</th></tr></thead>
+<tbody>
+<tr><td class="id">TC-LS-01</td><td class="name">Пустой волт</td><td><ol><li>Открыть пустой локальный волт.</li></ol></td><td>Показано «No files».</td><td class="auto"><span class="badge ok">✅ Да</span><a class="flow" href="maestro/onboarding-local.yaml">onboarding-local.yaml</a></td></tr>
+<tr><td class="id">TC-LS-02</td><td class="name">Лоадер при загрузке списка</td><td><ol><li>Открыть приложение с уже выбранным репозиторием.</li></ol></td><td>Пока список грузится — индикатор загрузки, а не «No files»; после — список.</td><td class="auto"><span class="badge maybe">⚙️ Доступно</span><span class="note">зависит от тайминга</span></td></tr>
+<tr><td class="id">TC-NV-01</td><td class="name">Вход в папку и возврат в корень</td><td><ol><li>Создать папку.</li><li>Тапнуть по ней.</li><li>Нажать «назад».</li></ol></td><td>В папке — её имя в заголовке; после «назад» — корень (заголовок «Notes»).</td><td class="auto"><span class="badge ok">✅ Да</span><a class="flow" href="maestro/folder-navigation.yaml">folder-navigation.yaml</a></td></tr>
+<tr><td class="id">TC-NV-02</td><td class="name">Сортировка: папки первыми</td><td><ol><li>Создать папку и заметку.</li><li>Посмотреть список.</li></ol></td><td>Папки выше файлов, затем по имени.</td><td class="auto"><span class="badge ok">✅ Да</span><a class="flow" href="maestro/create-folder.yaml">create-folder.yaml</a></td></tr>
+<tr><td class="id">TC-LS-03</td><td class="name">Скрытие поля поиска при скролле</td><td><ol><li>В списке с многими заметками начать прокрутку.</li></ol></td><td>Поле поиска прячется синхронно со скроллом.</td><td class="auto"><span class="badge maybe">⚙️ Доступно</span><span class="note">нужно много заметок</span></td></tr>
+</tbody></table></div>
+
+<h2>3. Создание заметок и папок</h2>
+<div class="tablewrap"><table>
+<thead><tr><th>ID</th><th>Название</th><th>Шаги</th><th>Ожидаемый результат</th><th>Автоматизация</th></tr></thead>
+<tbody>
+<tr><td class="id">TC-CN-01</td><td class="name">Создание заметки открывает редактор</td><td><ol><li>FAB «+».</li><li>«New note».</li><li>Ввести имя.</li><li>«Create».</li></ol></td><td>Создан <code>&lt;имя&gt;.md</code>, открылся редактор; после «назад» заметка в списке.</td><td class="auto"><span class="badge ok">✅ Да</span><a class="flow" href="maestro/create-note.yaml">create-note.yaml</a></td></tr>
+<tr><td class="id">TC-CN-02</td><td class="name">FAB открывает меню создания</td><td><ol><li>Нажать FAB «+».</li></ol></td><td>Меню с «New note» и «New folder».</td><td class="auto"><span class="badge ok">✅ Да</span><a class="flow" href="maestro/fab-menu.yaml">fab-menu.yaml</a></td></tr>
+<tr><td class="id">TC-CF-01</td><td class="name">Создание папки</td><td><ol><li>FAB «+».</li><li>«New folder».</li><li>Ввести имя.</li><li>«Create».</li></ol></td><td>Папка появилась первой, в неё можно зайти.</td><td class="auto"><span class="badge ok">✅ Да</span><a class="flow" href="maestro/create-folder.yaml">create-folder.yaml</a></td></tr>
+<tr><td class="id">TC-CF-02</td><td class="name">Заметка создаётся в текущей папке</td><td><ol><li>Зайти в папку.</li><li>FAB → «New note» → имя → «Create».</li></ol></td><td>Заметка создана внутри папки (<code>&lt;папка&gt;/&lt;имя&gt;.md</code>), не в корне.</td><td class="auto"><span class="badge ok">✅ Да</span><a class="flow" href="maestro/create-note-in-subfolder.yaml">create-note-in-subfolder.yaml</a></td></tr>
+<tr><td class="id">TC-CV-01</td><td class="name">Валидация имени — дубликат</td><td><ol><li>Создать <code>Dup.md</code>.</li><li>Повторно создать с именем <code>Dup</code>.</li></ol></td><td>Ошибка «Already exists», «Create» недоступна; правка имени убирает ошибку.</td><td class="auto"><span class="badge ok">✅ Да</span><a class="flow" href="maestro/create-validation.yaml">create-validation.yaml</a></td></tr>
+<tr><td class="id">TC-CV-02</td><td class="name">Валидация имени — пусто / «/»</td><td><ol><li>Открыть диалог создания.</li><li>Оставить пусто / ввести <code>a/b</code>.</li></ol></td><td>«Create» недоступна; для «/» — ошибка о недопустимом символе.</td><td class="auto"><span class="badge maybe">⚙️ Доступно</span><span class="note">покрыто unit-тестом; disabled Maestro читает ненадёжно</span></td></tr>
+</tbody></table></div>
+
+<h2>4. Просмотр заметки</h2>
+<div class="tablewrap"><table>
+<thead><tr><th>ID</th><th>Название</th><th>Шаги</th><th>Ожидаемый результат</th><th>Автоматизация</th></tr></thead>
+<tbody>
+<tr><td class="id">TC-VW-01</td><td class="name">Открытие и рендер markdown</td><td><ol><li>Открыть заметку с markdown-текстом.</li></ol></td><td>Заголовки/списки/текст отрендерены; заголовок экрана — имя файла.</td><td class="auto"><span class="badge maybe">⚙️ Доступно</span><span class="note">нужна сид-заметка</span></td></tr>
+<tr><td class="id">TC-VW-02</td><td class="name">Кликабельные <code>[[wikilinks]]</code></td><td><ol><li>Открыть заметку со ссылкой <code>[[Другая]]</code>.</li><li>Тапнуть по ссылке.</li></ol></td><td>Переход к целевой заметке; несуществующая ссылка остаётся текстом.</td><td class="auto"><span class="badge no">❌ Нет</span><span class="note">нужны связанные сид-файлы</span></td></tr>
+<tr><td class="id">TC-VW-03</td><td class="name">Эмбед изображений <code>![[img]]</code></td><td><ol><li>Открыть заметку с <code>![[picture.png]]</code>.</li></ol></td><td>Картинка отрисована в просмотре.</td><td class="auto"><span class="badge no">❌ Нет</span><span class="note">нужны файлы изображений</span></td></tr>
+</tbody></table></div>
+
+<h2>5. Редактирование заметки</h2>
+<div class="tablewrap"><table>
+<thead><tr><th>ID</th><th>Название</th><th>Шаги</th><th>Ожидаемый результат</th><th>Автоматизация</th></tr></thead>
+<tbody>
+<tr><td class="id">TC-NE-01</td><td class="name">Правка и сохранение</td><td><ol><li>Открыть заметку.</li><li>«Edit» (карандаш).</li><li>Ввести текст.</li><li>«Save» (✓).</li></ol></td><td>Текст сохранён и виден в просмотре; «Save» активна только при изменениях.</td><td class="auto"><span class="badge ok">✅ Да</span><a class="flow" href="maestro/note-edit-save.yaml">note-edit-save.yaml</a></td></tr>
+<tr><td class="id">TC-NE-02</td><td class="name">Защита от потери правок</td><td><ol><li>Открыть заметку, войти в правку, ввести текст.</li><li>Нажать «назад».</li></ol></td><td>Диалог «Unsaved changes»: Save / Don't save / Cancel.</td><td class="auto"><span class="badge ok">✅ Да</span><a class="flow" href="maestro/note-unsaved-dialog.yaml">note-unsaved-dialog.yaml</a></td></tr>
+<tr><td class="id">TC-NE-03</td><td class="name">Панель форматирования</td><td><ol><li>В правке выделить текст.</li><li>Bold/Italic/Heading/List/Checkbox/Link.</li></ol></td><td>Выделение оборачивается в разметку (или вставляются маркеры с кареткой).</td><td class="auto"><span class="badge maybe">⚙️ Доступно</span><span class="note">покрыто unit-тестами MdEdit; тулбар хрупок</span></td></tr>
+<tr><td class="id">TC-NE-04</td><td class="name">Сохранение из диалога выхода</td><td><ol><li>Внести правки.</li><li>«назад» → в диалоге «Save».</li></ol></td><td>Правки сохранены, выход из редактора.</td><td class="auto"><span class="badge maybe">⚙️ Доступно</span></td></tr>
+</tbody></table></div>
+
+<h2>6. Поиск</h2>
+<div class="tablewrap"><table>
+<thead><tr><th>ID</th><th>Название</th><th>Шаги</th><th>Ожидаемый результат</th><th>Автоматизация</th></tr></thead>
+<tbody>
+<tr><td class="id">TC-SR-01</td><td class="name">Поиск по имени</td><td><ol><li>Создать заметку.</li><li>Иконка поиска.</li><li>Ввести часть имени.</li></ol></td><td>В результатах — совпавшая заметка.</td><td class="auto"><span class="badge ok">✅ Да</span><a class="flow" href="maestro/search.yaml">search.yaml</a></td></tr>
+<tr><td class="id">TC-SR-02</td><td class="name">Поиск по содержимому</td><td><ol><li>Создать заметку с текстом в теле.</li><li>Искать слово из тела.</li></ol></td><td>Заметка найдена по содержимому (без регистра, по всему дереву).</td><td class="auto"><span class="badge maybe">⚙️ Доступно</span><span class="note">нужно наполнить тело</span></td></tr>
+<tr><td class="id">TC-SR-03</td><td class="name">Закрытие поиска</td><td><ol><li>Открыть поиск.</li><li>Нажать «×».</li></ol></td><td>Поле закрывается, показывается полный список.</td><td class="auto"><span class="badge maybe">⚙️ Доступно</span></td></tr>
+</tbody></table></div>
+
+<h2>7. Синхронизация (git)</h2>
+<div class="tablewrap"><table>
+<thead><tr><th>ID</th><th>Название</th><th>Шаги</th><th>Ожидаемый результат</th><th>Автоматизация</th></tr></thead>
+<tbody>
+<tr><td class="id">TC-SY-01</td><td class="name">Синхронизация pull/push</td><td><ol><li>Настроить репозиторий с доступом.</li><li>Settings → «Sync now» (или pull-to-refresh).</li></ol></td><td>Изменения тянутся и пушатся; статус синка обновляется.</td><td class="auto"><span class="badge no">❌ Нет</span><span class="note">реальный remote+токен</span></td></tr>
+<tr><td class="id">TC-SY-02</td><td class="name">Разрешение конфликта <code>.md</code></td><td><ol><li>Создать расхождение одного <code>.md</code> локально и на сервере.</li><li>Синк.</li></ol></td><td>Диалог конфликта (Keep local / Take server); не-<code>.md</code> берётся с сервера.</td><td class="auto"><span class="badge no">❌ Нет</span><span class="note">смоделировать конфликт</span></td></tr>
+<tr><td class="id">TC-SY-03</td><td class="name">Автосинхронизация в фоне</td><td><ol><li>Войти с репозиторием.</li><li>Подождать периодический синк / фон.</li></ol></td><td>Волт синхронизируется в фоне (WorkManager).</td><td class="auto"><span class="badge no">❌ Нет</span><span class="note">фон/время</span></td></tr>
+</tbody></table></div>
+
+<h2>8. Настройки и смена репозитория</h2>
+<div class="tablewrap"><table>
+<thead><tr><th>ID</th><th>Название</th><th>Шаги</th><th>Ожидаемый результат</th><th>Автоматизация</th></tr></thead>
+<tbody>
+<tr><td class="id">TC-ST-01</td><td class="name">Переход в настройки</td><td><ol><li>Иконка «шестерёнка».</li></ol></td><td>Экран «Settings»: текущий репозиторий, «Change repository», секция AI.</td><td class="auto"><span class="badge ok">✅ Да</span><a class="flow" href="maestro/settings-open.yaml">settings-open.yaml</a></td></tr>
+<tr><td class="id">TC-RC-01</td><td class="name">Экран смены репозитория</td><td><ol><li>Settings → «Change repository».</li></ol></td><td>Отдельный экран: warning-плашка сверху; типы (GitHub / Enter manually / Local) с описанием; стрелка «назад».</td><td class="auto"><span class="badge ok">✅ Да</span><a class="flow" href="maestro/change-repo-screen.yaml">change-repo-screen.yaml</a></td></tr>
+<tr><td class="id">TC-RC-02</td><td class="name">Смена на GitHub / ручной ввод</td><td><ol><li>На экране смены выбрать «GitHub» или «Enter manually».</li></ol></td><td>Переход в выбор репозитория / ввод URL (стек сбрасывается).</td><td class="auto"><span class="badge no">❌ Нет</span><span class="note">ведёт во внешний флоу</span></td></tr>
+<tr><td class="id">TC-RC-03</td><td class="name">Переключение на локальный режим</td><td><ol><li>На экране смены выбрать «Local (no sync)».</li></ol></td><td>Стор в локальный режим, возврат в настройки; текущий репозиторий — «Local storage (no sync)».</td><td class="auto"><span class="badge maybe">⚙️ Доступно</span></td></tr>
+<tr><td class="id">TC-AI-01</td><td class="name">Включение AI раскрывает поля</td><td><ol><li>Settings.</li><li>Тумблер «Enable AI».</li></ol></td><td>Появляется поле API-ключа и выбор модели; в навигации появляется AI.</td><td class="auto"><span class="badge maybe">⚙️ Доступно</span><span class="note">тап по Switch хрупок</span></td></tr>
+<tr><td class="id">TC-AI-02</td><td class="name">Выбор AI-модели</td><td><ol><li>Включить AI.</li><li>Открыть пикер, применить фильтры/сортировку, pull-to-refresh.</li></ol></td><td>Список моделей фильтруется/сортируется; модель сохраняется при выборе.</td><td class="auto"><span class="badge no">❌ Нет</span><span class="note">сеть и модели OpenRouter</span></td></tr>
+</tbody></table></div>
+
+<h2>9. AI-режим</h2>
+<div class="tablewrap"><table>
+<thead><tr><th>ID</th><th>Название</th><th>Шаги</th><th>Ожидаемый результат</th><th>Автоматизация</th></tr></thead>
+<tbody>
+<tr><td class="id">TC-AC-01</td><td class="name">AI-чат с инструментами</td><td><ol><li>Включить AI, задать ключ.</li><li>Попросить найти/прочитать/изменить заметку.</li></ol></td><td>Агент ищет/читает; запись — только после подтверждения (Apply/Reject); лимит шагов соблюдается.</td><td class="auto"><span class="badge no">❌ Нет</span><span class="note">API-ключ + сеть, ответы недетерминированы</span></td></tr>
+<tr><td class="id">TC-AC-02</td><td class="name">Нижняя навигация Brain ↔ AI</td><td><ol><li>При включённом AI переключаться между Brain и AI.</li></ol></td><td>Навигация переключает экраны; скрыта под клавиатурой.</td><td class="auto"><span class="badge maybe">⚙️ Доступно</span><span class="note">требует включённого AI</span></td></tr>
+</tbody></table></div>
+
+<h2>10. Общее / локализация</h2>
+<div class="tablewrap"><table>
+<thead><tr><th>ID</th><th>Название</th><th>Шаги</th><th>Ожидаемый результат</th><th>Автоматизация</th></tr></thead>
+<tbody>
+<tr><td class="id">TC-GN-01</td><td class="name">Локализация EN/RU</td><td><ol><li>Сменить язык системы на русский.</li><li>Открыть приложение.</li></ol></td><td>Интерфейс на языке системы; строки из <code>strings.xml</code>.</td><td class="auto"><span class="badge no">❌ Нет</span><span class="note">смена системной локали</span></td></tr>
+<tr><td class="id">TC-GN-02</td><td class="name">Edge-to-edge и иконки AppBar</td><td><ol><li>Осмотреть экраны.</li></ol></td><td>TopAppBar под статус-баром без серой полосы; Material-иконки с contentDescription.</td><td class="auto"><span class="badge no">❌ Нет</span><span class="note">визуальная проверка</span></td></tr>
+<tr><td class="id">TC-GN-03</td><td class="name">Смена URL не теряет другой репо</td><td><ol><li>Сменить Repository URL на другой.</li><li>Синк.</li></ol></td><td>Локальный клон пересоздаётся под новый origin; заметки нового репозитория.</td><td class="auto"><span class="badge no">❌ Нет</span><span class="note">нужны два репо</span></td></tr>
+</tbody></table></div>
+
+</body>
+</html>
