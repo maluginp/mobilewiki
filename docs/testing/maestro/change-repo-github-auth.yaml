@@ -17,3 +17,6 @@ appId: app.obsidianmd
 - assertNotVisible: "Sign in with GitHub"          # НЕТ промежуточной кнопки входа
 - assertNotVisible: ".*Use locally.*"              # НЕ экран приветствия
 - assertNotVisible: ".*Choose a repository.*"      # НЕ пустой/ошибочный список репозиториев
+# У экрана входа есть AppBar со стрелкой «назад» → возврат в Настройки
+- tapOn: "Back"
+- assertVisible: "Current repository"

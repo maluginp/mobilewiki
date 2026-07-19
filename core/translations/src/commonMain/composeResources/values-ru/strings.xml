@@ -124,6 +124,7 @@
     <string name="login_instructions">Как авторизоваться:\n1. Скопируйте код выше.\n2. Нажмите «Открыть GitHub» и вставьте там код.\n3. Подтвердите доступ — этот экран продолжится автоматически.</string>
     <string name="login_waiting">Ожидание подтверждения…</string>
     <string name="login_connecting">Подключение к GitHub…</string>
+    <string name="login_title">Вход в GitHub</string>
     <string name="login_signed_in">Вход выполнен</string>
     <string name="login_error">Ошибка входа: %1$s</string>
     <string name="action_retry">Повторить</string>

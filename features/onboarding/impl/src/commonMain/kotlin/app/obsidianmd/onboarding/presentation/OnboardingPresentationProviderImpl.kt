@@ -64,13 +64,21 @@ internal class OnboardingPresentationProviderImpl : OnboardingPresentationProvid
                                 }
                             }
                         }
+                        // «Назад» с экрана входа: при смене репо (RepoPicker) — выход в Настройки
+                        // (onExit); в обычном онбординге — отмена входа и возврат к приветствию (reset).
+                        val onAuthBack: (() -> Unit)? = when {
+                            startAt == OnboardingStart.RepoPicker -> onExit
+                            state !is AuthState.Idle -> ({ vm.reset() })
+                            else -> null
+                        }
+
                         // Обычный онбординг (Idle) — приветствие с выбором режима. Для смены репо на
                         // GitHub без токена вход запускается сам: показываем индикатор, затем экран с
                         // кодом авторизации — без промежуточной кнопки «Sign in».
                         when {
                             autoStartGitHubAuth(startAt, state) -> {
                                 LaunchedEffect(Unit) { vm.login() }
-                                GitHubAuthLoading()
+                                GitHubAuthLoading(onBack = onAuthBack)
                             }
                             showWelcome(startAt, state) -> WelcomeScreen(
                                 onSignInGitHub = vm::login,
@@ -83,7 +91,12 @@ internal class OnboardingPresentationProviderImpl : OnboardingPresentationProvid
                             )
                             else -> {
                                 val uriHandler = LocalUriHandler.current
-                                LoginScreen(state = state, onLogin = vm::login, onOpenUrl = { uriHandler.openUri(it) })
+                                LoginScreen(
+                                    state = state,
+                                    onLogin = vm::login,
+                                    onOpenUrl = { uriHandler.openUri(it) },
+                                    onBack = onAuthBack,
+                                )
                             }
                         }
                     }

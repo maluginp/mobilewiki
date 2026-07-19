@@ -124,6 +124,7 @@
     <string name="login_instructions">How to authorize:\n1. Copy the code above.\n2. Tap “Open GitHub” and paste the code there.\n3. Approve access — this screen continues automatically.</string>
     <string name="login_waiting">Waiting for confirmation…</string>
     <string name="login_connecting">Connecting to GitHub…</string>
+    <string name="login_title">Sign in to GitHub</string>
     <string name="login_signed_in">Signed in</string>
     <string name="login_error">Sign-in error: %1$s</string>
     <string name="action_retry">Retry</string>

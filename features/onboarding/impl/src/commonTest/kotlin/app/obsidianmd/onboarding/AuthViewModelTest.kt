@@ -59,4 +59,20 @@ class AuthViewModelTest {
         advanceUntilIdle()
         assertTrue(vm.state.value is AuthState.Failed)
     }
+
+    @Test
+    fun reset_cancels_login_and_returns_to_idle() = runTest(dispatcher) {
+        val slow = object : DeviceAuth {
+            override suspend fun requestDeviceCode() =
+                DeviceAuthorization("dc", "UC-9", "https://github.com/login/device", 1, 100)
+            override suspend fun poll(auth: DeviceAuthorization): AuthResult {
+                delay(1000); return AuthResult.Success("t")
+            }
+        }
+        val vm = AuthViewModel(slow, FakeTokenStore())
+        vm.login(); runCurrent()
+        assertTrue(vm.state.value is AuthState.AwaitingUser)
+        vm.reset()
+        assertTrue(vm.state.value is AuthState.Idle)
+    }
 }
