@@ -32,9 +32,17 @@ import org.koin.compose.viewmodel.koinViewModel
 internal class OnboardingPresentationProviderImpl : OnboardingPresentationProvider {
 
     @Composable
-    override fun Onboarding(startAt: OnboardingStart, onFinished: () -> Unit) {
+    override fun Onboarding(startAt: OnboardingStart, onFinished: () -> Unit, onExit: (() -> Unit)?) {
         val settings = koinInject<RepoSettingsStore>()
         val backStack = rememberNavBackStack(onboardingSavedState, startStep(startAt))
+
+        // «Назад» с экрана: если внутри флоу есть куда возвращаться — pop вложенного стека, иначе
+        // (это корневой шаг) — выход наружу через onExit. null → кнопки «назад» нет.
+        val backOrExit: (() -> Unit)? = if (backStack.size > 1) {
+            { backStack.removeLastOrNull(); Unit }
+        } else {
+            onExit
+        }
 
         Box(Modifier.safeDrawingPadding()) {
             NavDisplay(
@@ -78,14 +86,14 @@ internal class OnboardingPresentationProviderImpl : OnboardingPresentationProvid
                             onChoose = { url -> backStack.add(Step.Validate(url)) },
                             onRetry = vm::load,
                             onEnterManually = { backStack.add(Step.ManualUrl) },
-                            onBack = if (backStack.size > 1) ({ backStack.removeLastOrNull(); Unit }) else null,
+                            onBack = backOrExit,
                         )
                     }
                     entry<Step.ManualUrl> {
                         val vm: ManualConnectViewModel = koinViewModel()
                         ManualUrlScreen(
                             onSubmit = { url, token -> backStack.add(Step.Validate(vm.connect(url, token))) },
-                            onBack = { backStack.removeLastOrNull() },
+                            onBack = backOrExit,
                         )
                     }
                     entry<Step.Validate> { key ->

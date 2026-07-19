@@ -104,6 +104,8 @@ fun AppNavHost(initialStack: List<Route>) {
                             backStack.resetTo(listOf(Route.VaultList()))
                             vm.sync()
                         },
+                        // Есть что под онбордингом (смена репо из настроек) → «назад» выходит туда.
+                        onExit = if (backStack.size > 1) ({ backStack.removeLastOrNull(); Unit }) else null,
                     )
                 }
                 entry<Route.VaultList>(

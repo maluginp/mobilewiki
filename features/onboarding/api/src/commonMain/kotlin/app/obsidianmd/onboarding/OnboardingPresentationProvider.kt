@@ -9,8 +9,12 @@ import androidx.compose.runtime.Composable
  * выбран и сохранён).
  */
 interface OnboardingPresentationProvider {
+    /**
+     * @param onExit выход «назад» с корневого шага флоу наружу (в стек-владелец). null — онбординг
+     *   открыт как корень приложения, возвращаться некуда (кнопки «назад» на корневом шаге нет).
+     */
     @Composable
-    fun Onboarding(startAt: OnboardingStart, onFinished: () -> Unit)
+    fun Onboarding(startAt: OnboardingStart, onFinished: () -> Unit, onExit: (() -> Unit)?)
 }
 
 /** С какого шага начинать флоу. RepoPicker/ManualUrl — для сценария «сменить репозиторий из настроек». */

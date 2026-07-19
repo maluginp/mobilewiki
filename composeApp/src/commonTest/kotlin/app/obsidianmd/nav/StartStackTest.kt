@@ -27,18 +27,18 @@ class StartStackTest {
         )
     }
 
-    // Смена репо из настроек — онбординг (выбор репо) поверх списка, чтобы «назад» возвращал в приложение.
-    @Test fun change_repo_keeps_vault_list_underneath() {
+    // Смена репо из настроек — онбординг поверх Настроек (и списка), чтобы «назад» возвращал в Настройки.
+    @Test fun change_repo_keeps_settings_underneath() {
         assertEquals(
-            listOf(Route.VaultList(), Route.Onboarding(OnboardingStart.RepoPicker)),
+            listOf(Route.VaultList(), Route.Settings, Route.Onboarding(OnboardingStart.RepoPicker)),
             stackForChangeRepo(),
         )
     }
 
-    // Смена репо через ручной ввод — экран ManualUrl поверх списка.
-    @Test fun change_repo_manual_opens_manual_over_vault() {
+    // Смена репо через ручной ввод — экран ManualUrl поверх Настроек.
+    @Test fun change_repo_manual_opens_manual_over_settings() {
         assertEquals(
-            listOf(Route.VaultList(), Route.Onboarding(OnboardingStart.ManualUrl)),
+            listOf(Route.VaultList(), Route.Settings, Route.Onboarding(OnboardingStart.ManualUrl)),
             stackForChangeRepoManual(),
         )
     }
