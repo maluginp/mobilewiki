@@ -147,6 +147,12 @@
     <string name="repo_check_ok_title">Access confirmed</string>
     <string name="repo_check_ok_body">You have access to this repository.</string>
     <string name="repo_check_readonly_body">You have read-only access. You can browse notes and use AI, but creating and editing will be disabled.</string>
+    <string name="repo_check_readonly_title">Read-only access</string>
+    <string name="repo_check_item_read">Read access</string>
+    <string name="repo_check_item_write">Write access</string>
+    <string name="repo_check_status_ok">available</string>
+    <string name="repo_check_status_fail">not available</string>
+    <string name="repo_check_status_pending">not checked</string>
     <string name="repo_check_denied_title">No access to this repository</string>
     <string name="repo_check_denied_body">No access to the repository. What to check:</string>
     <string name="repo_check_denied_hint1">• The repository URL is correct (owner/name).</string>

@@ -147,6 +147,12 @@
     <string name="repo_check_ok_title">Доступ подтверждён</string>
     <string name="repo_check_ok_body">У вас есть доступ к этому репозиторию.</string>
     <string name="repo_check_readonly_body">Доступ только на чтение. Просмотр заметок и AI доступны, создание и редактирование — нет.</string>
+    <string name="repo_check_readonly_title">Доступ только на чтение</string>
+    <string name="repo_check_item_read">Доступ на чтение</string>
+    <string name="repo_check_item_write">Доступ на запись</string>
+    <string name="repo_check_status_ok">доступно</string>
+    <string name="repo_check_status_fail">недоступно</string>
+    <string name="repo_check_status_pending">не проверялось</string>
     <string name="repo_check_denied_title">Нет доступа к этому репозиторию</string>
     <string name="repo_check_denied_body">Нет доступа к репозиторию. Что стоит проверить:</string>
     <string name="repo_check_denied_hint1">• URL репозитория указан верно (владелец/название).</string>
