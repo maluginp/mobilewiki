@@ -79,6 +79,34 @@ class VaultListScreenTest {
     }
 
     @Test
+    fun readOnly_hides_create_fab() = runComposeUiTest {
+        setContent {
+            VaultListScreen(
+                entries = emptyList(), loading = false, refreshing = false,
+                query = "", results = emptyList(), title = "Notes",
+                onQueryChange = {}, onOpenFile = {}, onOpenFolder = {}, onRefresh = {},
+                onOpenSettings = {}, onBack = null,
+                onCreateNote = {}, onCreateFolder = {}, readOnly = true,
+            )
+        }
+        onNodeWithContentDescription("Create").assertDoesNotExist()
+    }
+
+    @Test
+    fun readWrite_shows_create_fab() = runComposeUiTest {
+        setContent {
+            VaultListScreen(
+                entries = emptyList(), loading = false, refreshing = false,
+                query = "", results = emptyList(), title = "Notes",
+                onQueryChange = {}, onOpenFile = {}, onOpenFolder = {}, onRefresh = {},
+                onOpenSettings = {}, onBack = null,
+                onCreateNote = {}, onCreateFolder = {}, readOnly = false,
+            )
+        }
+        onNodeWithContentDescription("Create").assertIsDisplayed()
+    }
+
+    @Test
     fun create_button_disabled_for_blank_and_duplicate() = runComposeUiTest {
         setContent {
             VaultListScreen(

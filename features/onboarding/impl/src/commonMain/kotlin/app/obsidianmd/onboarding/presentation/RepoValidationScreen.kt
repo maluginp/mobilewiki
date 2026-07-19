@@ -29,6 +29,7 @@ import app.obsidianmd.resources.repo_check_denied_hint3
 import app.obsidianmd.resources.repo_check_denied_title
 import app.obsidianmd.resources.repo_check_ok_body
 import app.obsidianmd.resources.repo_check_ok_title
+import app.obsidianmd.resources.repo_check_readonly_body
 import app.obsidianmd.resources.repo_check_unknown_body
 import app.obsidianmd.resources.repo_check_unknown_title
 import org.jetbrains.compose.resources.stringResource
@@ -55,13 +56,16 @@ internal fun RepoValidationScreen(
     Column(Modifier.fillMaxSize().padding(24.dp)) {
         Spacer(Modifier.height(48.dp))
         when (state) {
-            ValidationState.Ok -> {
+            is ValidationState.Ok -> {
                 Text(
                     stringResource(Res.string.repo_check_ok_title),
                     style = MaterialTheme.typography.headlineSmall,
                     color = MaterialTheme.colorScheme.primary,
                 )
                 Text(stringResource(Res.string.repo_check_ok_body), Modifier.padding(top = 12.dp))
+                if (!state.canWrite) {
+                    Text(stringResource(Res.string.repo_check_readonly_body), Modifier.padding(top = 8.dp))
+                }
                 Spacer(Modifier.weight(1f))
                 PrimaryButton(stringResource(Res.string.action_continue), onContinue)
             }

@@ -19,6 +19,7 @@ import app.obsidianmd.onboarding.OnboardingPresentationProvider
 import app.obsidianmd.onboarding.OnboardingStart
 import app.obsidianmd.onboarding.RepoPickerViewModel
 import app.obsidianmd.onboarding.RepoValidationViewModel
+import app.obsidianmd.onboarding.ValidationState
 import app.obsidianmd.settings.RepoSettingsStore
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -95,6 +96,7 @@ internal class OnboardingPresentationProviderImpl : OnboardingPresentationProvid
                             state = state,
                             onContinue = {
                                 settings.setRemoteUrl(key.url)
+                                settings.setWritable((state as? ValidationState.Ok)?.canWrite ?: true)
                                 settings.setOnboardingDone(true)
                                 onFinished()
                             },

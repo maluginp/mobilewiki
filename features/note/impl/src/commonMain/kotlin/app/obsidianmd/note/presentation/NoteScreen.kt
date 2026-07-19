@@ -84,6 +84,7 @@ internal fun NoteScreenContent(
     onOpenPath: (String) -> Unit,
     onNavigateBack: () -> Unit,
     onSave: (String) -> Unit,
+    readOnly: Boolean = false,
 ) {
     var editing by remember { mutableStateOf(false) }
     var draft by remember { mutableStateOf(content) }
@@ -108,13 +109,16 @@ internal fun NoteScreenContent(
                     }
                 },
                 actions = {
-                    if (editing) {
-                        IconButton(onClick = { onSave(draft); editing = false }, enabled = dirty) {
-                            Icon(Icons.Filled.Check, contentDescription = stringResource(Res.string.action_save))
-                        }
-                    } else {
-                        IconButton(onClick = { draft = content; editing = true }) {
-                            Icon(Icons.Filled.Edit, contentDescription = stringResource(Res.string.action_edit))
+                    // read-only: правка/сохранение недоступны — только просмотр.
+                    if (!readOnly) {
+                        if (editing) {
+                            IconButton(onClick = { onSave(draft); editing = false }, enabled = dirty) {
+                                Icon(Icons.Filled.Check, contentDescription = stringResource(Res.string.action_save))
+                            }
+                        } else {
+                            IconButton(onClick = { draft = content; editing = true }) {
+                                Icon(Icons.Filled.Edit, contentDescription = stringResource(Res.string.action_edit))
+                            }
                         }
                     }
                 },

@@ -17,6 +17,7 @@ internal class NotePresentationProviderImpl : NotePresentationProvider {
         onOpenPath: (String) -> Unit,
         onNavigateBack: () -> Unit,
         onSave: (String) -> Unit,
+        readOnly: Boolean,
     ) {
         NoteScreenContent(
             title = title,
@@ -27,6 +28,7 @@ internal class NotePresentationProviderImpl : NotePresentationProvider {
             onOpenPath = onOpenPath,
             onNavigateBack = onNavigateBack,
             onSave = onSave,
+            readOnly = readOnly,
         )
     }
 }

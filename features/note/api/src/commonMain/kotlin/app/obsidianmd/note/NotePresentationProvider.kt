@@ -17,5 +17,6 @@ interface NotePresentationProvider {
         onOpenPath: (String) -> Unit,
         onNavigateBack: () -> Unit,
         onSave: (String) -> Unit,
+        readOnly: Boolean,
     )
 }

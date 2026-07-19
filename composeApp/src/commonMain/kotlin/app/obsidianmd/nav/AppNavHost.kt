@@ -37,6 +37,7 @@ import app.obsidianmd.resources.action_ai
 import app.obsidianmd.resources.detail_empty
 import app.obsidianmd.resources.nav_brain
 import app.obsidianmd.resources.title_notes
+import app.obsidianmd.settings.RepoSettingsStore
 import app.obsidianmd.settings.SettingsPresentationProvider
 import app.obsidianmd.ui.ConflictDialog
 import app.obsidianmd.ui.SyncStatus
@@ -68,6 +69,10 @@ fun AppNavHost(initialStack: List<Route>) {
     val vaultPresentation = koinInject<VaultPresentationProvider>()
     val notePresentation = koinInject<NotePresentationProvider>()
     val ai = koinInject<AiPresentationProvider>()
+    val settingsStore = koinInject<RepoSettingsStore>()
+    // read-only репозиторий (нет права записи) → скрываем создание/редактирование. Флаг меняется
+    // только через онбординг/смену репо, что заканчивается resetTo(VaultList) → рекомпозиция.
+    val readOnly = !settingsStore.getWritable()
 
     val state by vm.state.collectAsState()
 
@@ -129,6 +134,7 @@ fun AppNavHost(initialStack: List<Route>) {
                         onBack = if (backStack.size > 1) ({ backStack.removeLastOrNull(); Unit }) else null,
                         onCreateNote = { name -> vm.createNote(name) { path -> backStack.add(Route.Note(path)) } },
                         onCreateFolder = vm::createFolder,
+                        readOnly = readOnly,
                     )
                 }
                 entry<Route.Note>(metadata = ListDetailSceneStrategy.detailPane()) { key ->
@@ -142,6 +148,7 @@ fun AppNavHost(initialStack: List<Route>) {
                         onOpenPath = { backStack.add(Route.Note(it)) },
                         onNavigateBack = { backStack.removeLastOrNull() },
                         onSave = { vm.saveFile(key.path, it) },
+                        readOnly = readOnly,
                     )
                 }
                 entry<Route.Settings> {

@@ -88,6 +88,7 @@ internal fun VaultListScreen(
     onBack: (() -> Unit)?,
     onCreateNote: (String) -> Unit,
     onCreateFolder: (String) -> Unit,
+    readOnly: Boolean = false,
 ) {
     var searching by remember { mutableStateOf(false) }
     val exitSearch = { searching = false; onQueryChange("") }
@@ -145,8 +146,8 @@ internal fun VaultListScreen(
             )
         },
         floatingActionButton = {
-            // Создание доступно только вне режима поиска.
-            if (!searching) {
+            // Создание доступно только вне режима поиска и при праве записи.
+            if (!searching && !readOnly) {
                 var menu by remember { mutableStateOf(false) }
                 var dialog by remember { mutableStateOf<Boolean?>(null) } // true=заметка, false=папка, null=закрыт
                 Box {

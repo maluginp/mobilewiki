@@ -28,5 +28,6 @@ interface VaultPresentationProvider {
         onBack: (() -> Unit)?,
         onCreateNote: (String) -> Unit,
         onCreateFolder: (String) -> Unit,
+        readOnly: Boolean,
     )
 }

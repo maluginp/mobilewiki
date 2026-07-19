@@ -11,4 +11,6 @@ class SharedPrefsRepoSettingsStore(context: Context) : RepoSettingsStore {
     override fun setRemoteUrl(url: String) { prefs.edit().putString("remote_url", url).apply() }
     override fun getOnboardingDone(): Boolean = prefs.getBoolean("onboarding_done", false)
     override fun setOnboardingDone(done: Boolean) { prefs.edit().putBoolean("onboarding_done", done).apply() }
+    override fun getWritable(): Boolean = prefs.getBoolean("writable", true)
+    override fun setWritable(writable: Boolean) { prefs.edit().putBoolean("writable", writable).apply() }
 }
