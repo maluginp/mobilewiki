@@ -19,6 +19,8 @@ import app.obsidianmd.onboarding.OnboardingPresentationProvider
 import app.obsidianmd.onboarding.OnboardingStart
 import app.obsidianmd.onboarding.RepoPickerViewModel
 import app.obsidianmd.onboarding.RepoValidationViewModel
+import app.obsidianmd.onboarding.ValidationState
+import app.obsidianmd.auth.TokenStore
 import app.obsidianmd.settings.RepoSettingsStore
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -31,9 +33,19 @@ import org.koin.compose.viewmodel.koinViewModel
 internal class OnboardingPresentationProviderImpl : OnboardingPresentationProvider {
 
     @Composable
-    override fun Onboarding(startAt: OnboardingStart, onFinished: () -> Unit) {
+    override fun Onboarding(startAt: OnboardingStart, onFinished: () -> Unit, onExit: (() -> Unit)?) {
         val settings = koinInject<RepoSettingsStore>()
-        val backStack = rememberNavBackStack(onboardingSavedState, startStep(startAt))
+        // Выбор GitHub-репо требует авторизации: без токена начинаем со входа, не с пустого списка.
+        val hasToken = !koinInject<TokenStore>().get().isNullOrBlank()
+        val backStack = rememberNavBackStack(onboardingSavedState, initialStep(startAt, hasToken))
+
+        // «Назад» с экрана: если внутри флоу есть куда возвращаться — pop вложенного стека, иначе
+        // (это корневой шаг) — выход наружу через onExit. null → кнопки «назад» нет.
+        val backOrExit: (() -> Unit)? = if (backStack.size > 1) {
+            { backStack.removeLastOrNull(); Unit }
+        } else {
+            onExit
+        }
 
         Box(Modifier.safeDrawingPadding()) {
             NavDisplay(
@@ -46,15 +58,29 @@ internal class OnboardingPresentationProviderImpl : OnboardingPresentationProvid
                         LaunchedEffect(state) {
                             if (state is AuthState.Success) {
                                 val hasRepo = !settings.getRemoteUrl().isNullOrBlank()
-                                when (val action = afterSignIn(hasRepo)) {
+                                when (val action = postSignInAction(startAt, hasRepo)) {
                                     OnboardingAction.Finish -> onFinished()
                                     is OnboardingAction.Go -> backStack.add(action.step)
                                 }
                             }
                         }
-                        // Idle — приветствие с выбором режима; после старта авторизации тот же экран показывает код.
-                        if (state is AuthState.Idle) {
-                            WelcomeScreen(
+                        // «Назад» с экрана входа: при смене репо (RepoPicker) — выход в Настройки
+                        // (onExit); в обычном онбординге — отмена входа и возврат к приветствию (reset).
+                        val onAuthBack: (() -> Unit)? = when {
+                            startAt == OnboardingStart.RepoPicker -> onExit
+                            state !is AuthState.Idle -> ({ vm.reset() })
+                            else -> null
+                        }
+
+                        // Обычный онбординг (Idle) — приветствие с выбором режима. Для смены репо на
+                        // GitHub без токена вход запускается сам: показываем индикатор, затем экран с
+                        // кодом авторизации — без промежуточной кнопки «Sign in».
+                        when {
+                            autoStartGitHubAuth(startAt, state) -> {
+                                LaunchedEffect(Unit) { vm.login() }
+                                GitHubAuthLoading(onBack = onAuthBack)
+                            }
+                            showWelcome(startAt, state) -> WelcomeScreen(
                                 onSignInGitHub = vm::login,
                                 onConnectByUrl = { backStack.add(Step.ManualUrl) },
                                 onUseLocal = {
@@ -63,9 +89,15 @@ internal class OnboardingPresentationProviderImpl : OnboardingPresentationProvid
                                     onFinished()
                                 },
                             )
-                        } else {
-                            val uriHandler = LocalUriHandler.current
-                            LoginScreen(state = state, onLogin = vm::login, onOpenUrl = { uriHandler.openUri(it) })
+                            else -> {
+                                val uriHandler = LocalUriHandler.current
+                                LoginScreen(
+                                    state = state,
+                                    onLogin = vm::login,
+                                    onOpenUrl = { uriHandler.openUri(it) },
+                                    onBack = onAuthBack,
+                                )
+                            }
                         }
                     }
                     entry<Step.RepoPicker> {
@@ -77,14 +109,14 @@ internal class OnboardingPresentationProviderImpl : OnboardingPresentationProvid
                             onChoose = { url -> backStack.add(Step.Validate(url)) },
                             onRetry = vm::load,
                             onEnterManually = { backStack.add(Step.ManualUrl) },
-                            onBack = if (backStack.size > 1) ({ backStack.removeLastOrNull(); Unit }) else null,
+                            onBack = backOrExit,
                         )
                     }
                     entry<Step.ManualUrl> {
                         val vm: ManualConnectViewModel = koinViewModel()
                         ManualUrlScreen(
                             onSubmit = { url, token -> backStack.add(Step.Validate(vm.connect(url, token))) },
-                            onBack = { backStack.removeLastOrNull() },
+                            onBack = backOrExit,
                         )
                     }
                     entry<Step.Validate> { key ->
@@ -95,6 +127,7 @@ internal class OnboardingPresentationProviderImpl : OnboardingPresentationProvid
                             state = state,
                             onContinue = {
                                 settings.setRemoteUrl(key.url)
+                                settings.setWritable((state as? ValidationState.Ok)?.canWrite ?: true)
                                 settings.setOnboardingDone(true)
                                 onFinished()
                             },

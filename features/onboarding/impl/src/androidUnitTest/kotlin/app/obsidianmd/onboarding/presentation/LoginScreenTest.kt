@@ -2,7 +2,9 @@ package app.obsidianmd.onboarding.presentation
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
 import app.obsidianmd.onboarding.AuthState
 import org.junit.Before
@@ -42,5 +44,26 @@ class LoginScreenTest {
         }
         onNodeWithText("Sign in with GitHub").assertIsDisplayed()
         onNodeWithText("How to authorize", substring = true).assertDoesNotExist()
+    }
+
+    @Test
+    fun shows_back_arrow_when_onBack_provided() = runComposeUiTest {
+        var backed = false
+        setContent {
+            LoginScreen(
+                state = AuthState.AwaitingUser(userCode = "AB-12", verificationUri = "https://github.com/login/device"),
+                onLogin = {}, onOpenUrl = {}, onBack = { backed = true },
+            )
+        }
+        onNodeWithContentDescription("Back").assertExists().performClick()
+        assert(backed)
+    }
+
+    @Test
+    fun no_back_arrow_without_onBack() = runComposeUiTest {
+        setContent {
+            LoginScreen(state = AuthState.Idle, onLogin = {}, onOpenUrl = {})
+        }
+        onNodeWithContentDescription("Back").assertDoesNotExist()
     }
 }

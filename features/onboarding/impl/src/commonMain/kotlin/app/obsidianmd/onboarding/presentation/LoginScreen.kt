@@ -4,12 +4,19 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,23 +31,61 @@ import androidx.compose.ui.unit.dp
 import app.obsidianmd.onboarding.AuthState
 import app.obsidianmd.resources.Res
 import app.obsidianmd.resources.action_retry
+import app.obsidianmd.resources.cd_back
 import app.obsidianmd.resources.login_code_copied
+import app.obsidianmd.resources.login_connecting
 import app.obsidianmd.resources.login_copy_code
 import app.obsidianmd.resources.login_error
 import app.obsidianmd.resources.login_instructions
 import app.obsidianmd.resources.login_open_github
 import app.obsidianmd.resources.login_sign_in
+import app.obsidianmd.resources.login_title
 import app.obsidianmd.resources.login_waiting
 import org.jetbrains.compose.resources.stringResource
 
+/** Общий AppBar экранов входа: заголовок + стрелка «назад» (если есть куда). */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AuthTopBar(onBack: (() -> Unit)?) {
+    TopAppBar(
+        title = { Text(stringResource(Res.string.login_title)) },
+        navigationIcon = {
+            if (onBack != null) {
+                IconButton(onClick = onBack) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.cd_back))
+                }
+            }
+        },
+    )
+}
+
+/** Индикатор, пока запускается device-flow GitHub (вход стартовал сам, без кнопки). */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun GitHubAuthLoading(onBack: (() -> Unit)? = null) {
+    Scaffold(topBar = { AuthTopBar(onBack) }) { padding ->
+        Column(
+            Modifier.fillMaxSize().padding(padding).padding(24.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            CircularProgressIndicator()
+            Text(stringResource(Res.string.login_connecting), Modifier.padding(top = 16.dp))
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun LoginScreen(
     state: AuthState,
     onLogin: () -> Unit,
     onOpenUrl: (String) -> Unit,
+    onBack: (() -> Unit)? = null,
 ) {
+    Scaffold(topBar = { AuthTopBar(onBack) }) { padding ->
     Column(
-        Modifier.fillMaxSize().padding(24.dp),
+        Modifier.fillMaxSize().padding(padding).padding(24.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -84,5 +129,6 @@ internal fun LoginScreen(
                 }
             }
         }
+    }
     }
 }

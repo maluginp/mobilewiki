@@ -5,6 +5,7 @@ import app.obsidianmd.auth.TokenStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.obsidianmd.analytics.Analytics
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,10 +24,19 @@ class AuthViewModel(
 ) : ViewModel() {
     private val _state = MutableStateFlow<AuthState>(AuthState.Idle)
     val state: StateFlow<AuthState> = _state.asStateFlow()
+    private var job: Job? = null
+
+    /** Отмена входа: останавливаем опрос и возвращаемся к исходному состоянию (экран приветствия). */
+    fun reset() {
+        job?.cancel()
+        job = null
+        _state.value = AuthState.Idle
+    }
 
     fun login() {
         Analytics.event("login_start")
-        viewModelScope.launch {
+        job?.cancel()
+        job = viewModelScope.launch {
             try {
                 val da = auth.requestDeviceCode()
                 _state.value = AuthState.AwaitingUser(da.userCode, da.verificationUri)

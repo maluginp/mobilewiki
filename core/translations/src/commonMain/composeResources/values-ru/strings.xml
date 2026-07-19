@@ -49,6 +49,8 @@
     <string name="settings_saved">Сохранено ✓</string>
     <string name="settings_repo_current">Текущий репозиторий</string>
     <string name="settings_repo_local">Локальное хранилище (без синхронизации)</string>
+    <string name="settings_repo_readonly">Только чтение</string>
+    <string name="settings_repo_editable">Доступно для редактирования</string>
     <string name="settings_repo_change">Изменить репозиторий</string>
     <string name="settings_repo_change_warning">Будут показаны заметки нового репозитория. Несинхронизированные заметки могут быть потеряны.</string>
     <string name="settings_repo_mode_github">GitHub</string>
@@ -121,6 +123,8 @@
     <string name="login_open_github">Открыть GitHub</string>
     <string name="login_instructions">Как авторизоваться:\n1. Скопируйте код выше.\n2. Нажмите «Открыть GitHub» и вставьте там код.\n3. Подтвердите доступ — этот экран продолжится автоматически.</string>
     <string name="login_waiting">Ожидание подтверждения…</string>
+    <string name="login_connecting">Подключение к GitHub…</string>
+    <string name="login_title">Вход в GitHub</string>
     <string name="login_signed_in">Вход выполнен</string>
     <string name="login_error">Ошибка входа: %1$s</string>
     <string name="action_retry">Повторить</string>
@@ -146,6 +150,13 @@
     <string name="repo_check_checking">Проверка доступа…</string>
     <string name="repo_check_ok_title">Доступ подтверждён</string>
     <string name="repo_check_ok_body">У вас есть доступ к этому репозиторию.</string>
+    <string name="repo_check_readonly_body">Доступ только на чтение. Просмотр заметок и AI доступны, создание и редактирование — нет.</string>
+    <string name="repo_check_readonly_title">Доступ только на чтение</string>
+    <string name="repo_check_item_read">Доступ на чтение</string>
+    <string name="repo_check_item_write">Доступ на запись</string>
+    <string name="repo_check_status_ok">доступно</string>
+    <string name="repo_check_status_fail">недоступно</string>
+    <string name="repo_check_status_pending">не проверялось</string>
     <string name="repo_check_denied_title">Нет доступа к этому репозиторию</string>
     <string name="repo_check_denied_body">Нет доступа к репозиторию. Что стоит проверить:</string>
     <string name="repo_check_denied_hint1">• URL репозитория указан верно (владелец/название).</string>

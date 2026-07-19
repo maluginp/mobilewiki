@@ -22,10 +22,18 @@ class RepoValidationViewModelTest {
     @BeforeTest fun setUp() = Dispatchers.setMain(dispatcher)
     @AfterTest fun tearDown() = Dispatchers.resetMain()
 
-    @Test fun validate_ok() = runTest(dispatcher) {
-        val vm = RepoValidationViewModel(FakeAccessCheck(AccessResult.Ok), { "t" })
+    @Test fun validate_ok_readwrite() = runTest(dispatcher) {
+        val vm = RepoValidationViewModel(FakeAccessCheck(AccessResult.Ok(canWrite = true)), { "t" })
         vm.validate("https://gitlab.com/me/notes.git"); advanceUntilIdle()
-        assertTrue(vm.state.value is ValidationState.Ok)
+        val s = vm.state.value
+        assertTrue(s is ValidationState.Ok && s.canWrite)
+    }
+
+    @Test fun validate_ok_readonly() = runTest(dispatcher) {
+        val vm = RepoValidationViewModel(FakeAccessCheck(AccessResult.Ok(canWrite = false)), { "t" })
+        vm.validate("https://gitlab.com/me/notes.git"); advanceUntilIdle()
+        val s = vm.state.value
+        assertTrue(s is ValidationState.Ok && !s.canWrite)
     }
 
     @Test fun validate_denied() = runTest(dispatcher) {

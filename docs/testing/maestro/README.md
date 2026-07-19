@@ -48,4 +48,6 @@ maestro test docs/testing/maestro/create-note.yaml
 | `search.yaml` | TC-SR-01 — поиск по имени |
 | `settings-open.yaml` | TC-ST-01 — переход в настройки |
 | `change-repo-screen.yaml` | TC-RC-01 — экран смены репозитория |
+| `change-repo-back.yaml` | TC-RC-04 — «назад» с ввода URL возвращает в настройки |
+| `change-repo-github-auth.yaml` | TC-RC-05 — «GitHub» без авторизации ведёт на вход |
 | `folder-navigation.yaml` | TC-NV-01 — вход в папку и назад |

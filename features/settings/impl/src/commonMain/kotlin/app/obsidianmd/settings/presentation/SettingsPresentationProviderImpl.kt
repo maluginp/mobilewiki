@@ -1,6 +1,7 @@
 package app.obsidianmd.settings.presentation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import app.obsidianmd.settings.SettingsPresentationProvider
@@ -17,9 +18,12 @@ internal class SettingsPresentationProviderImpl : SettingsPresentationProvider {
         aiSection: @Composable () -> Unit,
     ) {
         val vm: SettingsViewModel = koinViewModel()
+        // VM переживает экран (ретейнится), а репозиторий/доступ мог смениться — перечитываем при показе.
+        LaunchedEffect(Unit) { vm.refresh() }
         val state by vm.state.collectAsState()
         SettingsScreen(
             url = state.url,
+            writable = state.writable,
             syncing = syncing,
             syncStatusText = syncStatusText,
             onSync = onSync,

@@ -4,6 +4,11 @@ plugins {
 
 android {
     namespace = "app.obsidianmd.note.impl"
+    testOptions {
+        unitTests { isIncludeAndroidResources = true } // Robolectric + Compose UI tests
+    }
+    // Debug-only host activity for Compose UI tests under Robolectric.
+    sourceSets.getByName("debug").manifest.srcFile("src/androidDebug/AndroidManifest.xml")
 }
 
 kotlin {
@@ -23,6 +28,12 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
+        }
+        androidUnitTest.dependencies {
+            @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
+            implementation(compose.uiTest)
+            implementation(libs.compose.ui.test.manifest)
+            implementation(libs.robolectric)
         }
     }
 }

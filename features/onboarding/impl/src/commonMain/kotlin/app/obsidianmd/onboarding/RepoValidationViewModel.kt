@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 
 sealed interface ValidationState {
     data object Checking : ValidationState
-    data object Ok : ValidationState
+    data class Ok(val canWrite: Boolean) : ValidationState
     data class Denied(val reason: String) : ValidationState
     data class Unknown(val reason: String) : ValidationState
 }
@@ -29,8 +29,8 @@ class RepoValidationViewModel(
             _state.value = ValidationState.Checking
             _state.value = when (val r = access.check(url, token())) {
                 is AccessResult.Ok -> {
-                    Analytics.event("repo_connected", mapOf("mode" to "git"))
-                    ValidationState.Ok
+                    Analytics.event("repo_connected", mapOf("mode" to "git", "writable" to r.canWrite.toString()))
+                    ValidationState.Ok(r.canWrite)
                 }
                 is AccessResult.Denied -> ValidationState.Denied(r.reason)
                 is AccessResult.Unknown -> ValidationState.Unknown(r.reason)

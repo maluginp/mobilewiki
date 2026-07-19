@@ -42,6 +42,26 @@ class SettingsScreenTest {
     }
 
     @Test
+    fun shows_repo_path_and_readonly_badge() = runComposeUiTest {
+        setContent {
+            SettingsScreen(url = "https://ro.git", writable = false, syncing = false,
+                syncStatusText = "", onSync = {}, onNavigateBack = {})
+        }
+        onNodeWithText("https://ro.git").assertExists()
+        onNodeWithText("Read-only").assertExists()
+    }
+
+    @Test
+    fun shows_editable_badge_when_writable() = runComposeUiTest {
+        setContent {
+            SettingsScreen(url = "https://rw.git", writable = true, syncing = false,
+                syncStatusText = "", onSync = {}, onNavigateBack = {})
+        }
+        onNodeWithText("https://rw.git").assertExists()
+        onNodeWithText("Editable").assertExists()
+    }
+
+    @Test
     fun changeRepositoryButtonNavigatesToScreen() = runComposeUiTest {
         var navigated = false
         setContent {

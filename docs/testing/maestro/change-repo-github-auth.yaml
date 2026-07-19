@@ -1,0 +1,22 @@
+# TC-RC-05 — «GitHub» без токена сразу запускает авторизацию GitHub (без кнопки/приветствия)
+appId: app.obsidianmd
+---
+- clearState
+- launchApp
+- extendedWaitUntil:
+    visible: ".*Welcome to Brainer.*"
+    timeout: 20000
+- tapOn: ".*Use locally.*"                        # локальный режим — токена GitHub нет
+- tapOn: "Settings"
+- tapOn: "Change repository"
+- tapOn: "GitHub"
+# device-flow стартует сам: сперва индикатор «Connecting…», затем экран кода
+- extendedWaitUntil:
+    visible: ".*Connecting to GitHub.*|.*How to authorize.*|.*Waiting for confirmation.*"
+    timeout: 25000
+- assertNotVisible: "Sign in with GitHub"          # НЕТ промежуточной кнопки входа
+- assertNotVisible: ".*Use locally.*"              # НЕ экран приветствия
+- assertNotVisible: ".*Choose a repository.*"      # НЕ пустой/ошибочный список репозиториев
+# У экрана входа есть AppBar со стрелкой «назад» → возврат в Настройки
+- tapOn: "Back"
+- assertVisible: "Current repository"

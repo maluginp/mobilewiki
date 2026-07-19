@@ -49,6 +49,8 @@
     <string name="settings_saved">Saved ✓</string>
     <string name="settings_repo_current">Current repository</string>
     <string name="settings_repo_local">Local storage (no sync)</string>
+    <string name="settings_repo_readonly">Read-only</string>
+    <string name="settings_repo_editable">Editable</string>
     <string name="settings_repo_change">Change repository</string>
     <string name="settings_repo_change_warning">You'll see notes from the new repository. Unsynced notes may be lost.</string>
     <string name="settings_repo_mode_github">GitHub</string>
@@ -121,6 +123,8 @@
     <string name="login_open_github">Open GitHub</string>
     <string name="login_instructions">How to authorize:\n1. Copy the code above.\n2. Tap “Open GitHub” and paste the code there.\n3. Approve access — this screen continues automatically.</string>
     <string name="login_waiting">Waiting for confirmation…</string>
+    <string name="login_connecting">Connecting to GitHub…</string>
+    <string name="login_title">Sign in to GitHub</string>
     <string name="login_signed_in">Signed in</string>
     <string name="login_error">Sign-in error: %1$s</string>
     <string name="action_retry">Retry</string>
@@ -146,6 +150,13 @@
     <string name="repo_check_checking">Checking access…</string>
     <string name="repo_check_ok_title">Access confirmed</string>
     <string name="repo_check_ok_body">You have access to this repository.</string>
+    <string name="repo_check_readonly_body">You have read-only access. You can browse notes and use AI, but creating and editing will be disabled.</string>
+    <string name="repo_check_readonly_title">Read-only access</string>
+    <string name="repo_check_item_read">Read access</string>
+    <string name="repo_check_item_write">Write access</string>
+    <string name="repo_check_status_ok">available</string>
+    <string name="repo_check_status_fail">not available</string>
+    <string name="repo_check_status_pending">not checked</string>
     <string name="repo_check_denied_title">No access to this repository</string>
     <string name="repo_check_denied_body">No access to the repository. What to check:</string>
     <string name="repo_check_denied_hint1">• The repository URL is correct (owner/name).</string>

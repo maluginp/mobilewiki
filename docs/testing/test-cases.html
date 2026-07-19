@@ -52,8 +52,8 @@
 прогнаны на Pixel&nbsp;9a. Как запускать: <a href="maestro/README.md">maestro/README.md</a>.</p>
 
 <div class="summary">
-  <span>Всего кейсов: <b>36</b></span>
-  <span>Автоматизировано: <b>12</b></span>
+  <span>Всего кейсов: <b>38</b></span>
+  <span>Автоматизировано: <b>14</b></span>
   <span>Доступно к автоматизации: <b>8</b></span>
   <span>Только вручную: <b>16</b></span>
 </div>
@@ -142,7 +142,9 @@
 <tbody>
 <tr><td class="id">TC-ST-01</td><td class="name">Переход в настройки</td><td><ol><li>Иконка «шестерёнка».</li></ol></td><td>Экран «Settings»: текущий репозиторий, «Change repository», секция AI.</td><td class="auto"><span class="badge ok">✅ Да</span><a class="flow" href="maestro/settings-open.yaml">settings-open.yaml</a></td></tr>
 <tr><td class="id">TC-RC-01</td><td class="name">Экран смены репозитория</td><td><ol><li>Settings → «Change repository».</li></ol></td><td>Отдельный экран: warning-плашка сверху; типы (GitHub / Enter manually / Local) с описанием; стрелка «назад».</td><td class="auto"><span class="badge ok">✅ Да</span><a class="flow" href="maestro/change-repo-screen.yaml">change-repo-screen.yaml</a></td></tr>
-<tr><td class="id">TC-RC-02</td><td class="name">Смена на GitHub / ручной ввод</td><td><ol><li>На экране смены выбрать «GitHub» или «Enter manually».</li></ol></td><td>Переход в выбор репозитория / ввод URL (стек сбрасывается).</td><td class="auto"><span class="badge no">❌ Нет</span><span class="note">ведёт во внешний флоу</span></td></tr>
+<tr><td class="id">TC-RC-02</td><td class="name">Смена на GitHub / ручной ввод</td><td><ol><li>На экране смены выбрать «GitHub» или «Enter manually».</li></ol></td><td>Переход в выбор репозитория / ввод URL; в топбаре есть стрелка «назад».</td><td class="auto"><span class="badge no">❌ Нет</span><span class="note">GitHub ведёт во внешний флоу</span></td></tr>
+<tr><td class="id">TC-RC-04</td><td class="name">«Назад» с ввода URL возвращает в настройки</td><td><ol><li>Settings → «Change repository» → «Enter manually» → стрелка «назад».</li></ol></td><td>Экран «Enter a repository URL» показывает стрелку «назад»; нажатие возвращает в «Settings». «Назад» с пикера GitHub (с токеном) — вручную.</td><td class="auto"><span class="badge ok">✅ Да</span><a class="flow" href="maestro/change-repo-back.yaml">change-repo-back.yaml</a></td></tr>
+<tr><td class="id">TC-RC-05</td><td class="name">«GitHub» без токена сразу запускает авторизацию</td><td><ol><li>Локальный режим.</li><li>Settings → «Change repository» → «GitHub».</li></ol></td><td>Сразу запускается авторизация GitHub (device-flow: код + «Open GitHub» + «Waiting for confirmation…») — без промежуточной кнопки «Sign in» и без экрана приветствия; не пустой список репозиториев. После подтверждения откроется выбор репозитория. У экрана входа есть AppBar со стрелкой «назад» → возврат в Настройки.</td><td class="auto"><span class="badge ok">✅ Да</span><a class="flow" href="maestro/change-repo-github-auth.yaml">change-repo-github-auth.yaml</a></td></tr>
 <tr><td class="id">TC-RC-03</td><td class="name">Переключение на локальный режим</td><td><ol><li>На экране смены выбрать «Local (no sync)».</li></ol></td><td>Стор в локальный режим, возврат в настройки; текущий репозиторий — «Local storage (no sync)».</td><td class="auto"><span class="badge maybe">⚙️ Доступно</span></td></tr>
 <tr><td class="id">TC-AI-01</td><td class="name">Включение AI раскрывает поля</td><td><ol><li>Settings.</li><li>Тумблер «Enable AI».</li></ol></td><td>Появляется поле API-ключа и выбор модели; в навигации появляется AI.</td><td class="auto"><span class="badge maybe">⚙️ Доступно</span><span class="note">тап по Switch хрупок</span></td></tr>
 <tr><td class="id">TC-AI-02</td><td class="name">Выбор AI-модели</td><td><ol><li>Включить AI.</li><li>Открыть пикер, применить фильтры/сортировку, pull-to-refresh.</li></ol></td><td>Список моделей фильтруется/сортируется; модель сохраняется при выборе.</td><td class="auto"><span class="badge no">❌ Нет</span><span class="note">сеть и модели OpenRouter</span></td></tr>
