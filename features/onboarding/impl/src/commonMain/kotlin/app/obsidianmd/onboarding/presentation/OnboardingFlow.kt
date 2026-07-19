@@ -32,6 +32,21 @@ internal fun startStep(start: OnboardingStart): Step = when (start) {
     OnboardingStart.ManualUrl -> Step.ManualUrl
 }
 
+/**
+ * С какого шага реально начинать. Для выбора GitHub-репо ([OnboardingStart.RepoPicker]) сперва
+ * нужна авторизация: если токена нет — начинаем со входа, иначе сразу с выбора репо.
+ */
+internal fun initialStep(start: OnboardingStart, hasToken: Boolean): Step =
+    if (start == OnboardingStart.RepoPicker && !hasToken) Step.Login else startStep(start)
+
+/**
+ * Куда идти после успешного входа. Если онбординг открыт ради выбора GitHub-репо — всегда к выбору
+ * репо (даже если репозиторий уже задан, ведь пользователь пришёл его менять); иначе обычная
+ * развилка [afterSignIn].
+ */
+internal fun postSignInAction(start: OnboardingStart, hasRepo: Boolean): OnboardingAction =
+    if (start == OnboardingStart.RepoPicker) OnboardingAction.Go(Step.RepoPicker) else afterSignIn(hasRepo)
+
 /** Полиморфная сериализация шагов для вложенного [androidx.navigation3.runtime.NavBackStack]. */
 internal val onboardingSavedState: SavedStateConfiguration = SavedStateConfiguration {
     serializersModule = SerializersModule {

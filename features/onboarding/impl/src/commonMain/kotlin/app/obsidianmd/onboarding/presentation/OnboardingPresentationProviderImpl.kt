@@ -20,6 +20,7 @@ import app.obsidianmd.onboarding.OnboardingStart
 import app.obsidianmd.onboarding.RepoPickerViewModel
 import app.obsidianmd.onboarding.RepoValidationViewModel
 import app.obsidianmd.onboarding.ValidationState
+import app.obsidianmd.auth.TokenStore
 import app.obsidianmd.settings.RepoSettingsStore
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -34,7 +35,9 @@ internal class OnboardingPresentationProviderImpl : OnboardingPresentationProvid
     @Composable
     override fun Onboarding(startAt: OnboardingStart, onFinished: () -> Unit, onExit: (() -> Unit)?) {
         val settings = koinInject<RepoSettingsStore>()
-        val backStack = rememberNavBackStack(onboardingSavedState, startStep(startAt))
+        // Выбор GitHub-репо требует авторизации: без токена начинаем со входа, не с пустого списка.
+        val hasToken = !koinInject<TokenStore>().get().isNullOrBlank()
+        val backStack = rememberNavBackStack(onboardingSavedState, initialStep(startAt, hasToken))
 
         // «Назад» с экрана: если внутри флоу есть куда возвращаться — pop вложенного стека, иначе
         // (это корневой шаг) — выход наружу через onExit. null → кнопки «назад» нет.
@@ -55,7 +58,7 @@ internal class OnboardingPresentationProviderImpl : OnboardingPresentationProvid
                         LaunchedEffect(state) {
                             if (state is AuthState.Success) {
                                 val hasRepo = !settings.getRemoteUrl().isNullOrBlank()
-                                when (val action = afterSignIn(hasRepo)) {
+                                when (val action = postSignInAction(startAt, hasRepo)) {
                                     OnboardingAction.Finish -> onFinished()
                                     is OnboardingAction.Go -> backStack.add(action.step)
                                 }
