@@ -104,8 +104,8 @@ android {
         applicationId = "app.obsidianmd"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.compileSdk.get().toInt()
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.2.0"
         buildConfigField("String", "GITHUB_CLIENT_ID", "\"${localProp("github.clientId")}\"")
     }
     compileOptions {
