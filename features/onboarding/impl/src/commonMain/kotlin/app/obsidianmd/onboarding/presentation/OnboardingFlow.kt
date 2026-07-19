@@ -2,6 +2,7 @@ package app.obsidianmd.onboarding.presentation
 
 import androidx.navigation3.runtime.NavKey
 import androidx.savedstate.serialization.SavedStateConfiguration
+import app.obsidianmd.onboarding.AuthState
 import app.obsidianmd.onboarding.OnboardingStart
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
@@ -46,6 +47,14 @@ internal fun initialStep(start: OnboardingStart, hasToken: Boolean): Step =
  */
 internal fun postSignInAction(start: OnboardingStart, hasRepo: Boolean): OnboardingAction =
     if (start == OnboardingStart.RepoPicker) OnboardingAction.Go(Step.RepoPicker) else afterSignIn(hasRepo)
+
+/**
+ * Показывать ли экран приветствия (с выбором режима: GitHub / URL / локально). Только для обычного
+ * онбординга в состоянии [AuthState.Idle]. Если онбординг открыт ради выбора GitHub-репо
+ * ([OnboardingStart.RepoPicker]) — приветствие не показываем, сразу ведём на вход в GitHub.
+ */
+internal fun showWelcome(start: OnboardingStart, state: AuthState): Boolean =
+    state is AuthState.Idle && start != OnboardingStart.RepoPicker
 
 /** Полиморфная сериализация шагов для вложенного [androidx.navigation3.runtime.NavBackStack]. */
 internal val onboardingSavedState: SavedStateConfiguration = SavedStateConfiguration {

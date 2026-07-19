@@ -4,8 +4,11 @@ import app.obsidianmd.onboarding.presentation.OnboardingAction
 import app.obsidianmd.onboarding.presentation.Step
 import app.obsidianmd.onboarding.presentation.initialStep
 import app.obsidianmd.onboarding.presentation.postSignInAction
+import app.obsidianmd.onboarding.presentation.showWelcome
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class OnboardingAuthGateTest {
 
@@ -33,5 +36,17 @@ class OnboardingAuthGateTest {
     @Test fun after_login_for_initial_flow_uses_has_repo() {
         assertEquals(OnboardingAction.Finish, postSignInAction(OnboardingStart.Login, hasRepo = true))
         assertEquals(OnboardingAction.Go(Step.RepoPicker), postSignInAction(OnboardingStart.Login, hasRepo = false))
+    }
+
+    // Экран приветствия (с выбором режима) — только для обычного онбординга. Для смены репо на
+    // GitHub (start == RepoPicker) сразу показываем экран входа в GitHub, без приветствия.
+    @Test fun welcome_shown_only_for_initial_onboarding_idle() {
+        assertTrue(showWelcome(OnboardingStart.Login, AuthState.Idle))
+        assertFalse(showWelcome(OnboardingStart.RepoPicker, AuthState.Idle))
+    }
+
+    @Test fun welcome_never_shown_once_login_started() {
+        assertFalse(showWelcome(OnboardingStart.Login, AuthState.Success))
+        assertFalse(showWelcome(OnboardingStart.RepoPicker, AuthState.Success))
     }
 }

@@ -11,6 +11,7 @@ appId: app.obsidianmd
 - tapOn: "Change repository"
 - tapOn: "GitHub"
 - extendedWaitUntil:
-    visible: "Sign in with GitHub"                # требуется авторизация
+    visible: "Sign in with GitHub"                # сразу экран входа в GitHub
     timeout: 15000
 - assertNotVisible: ".*Choose a repository.*"      # НЕ пустой/ошибочный список репозиториев
+- assertNotVisible: ".*Use locally.*"              # НЕ экран приветствия (без выбора локального режима)

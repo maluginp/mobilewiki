@@ -64,8 +64,9 @@ internal class OnboardingPresentationProviderImpl : OnboardingPresentationProvid
                                 }
                             }
                         }
-                        // Idle — приветствие с выбором режима; после старта авторизации тот же экран показывает код.
-                        if (state is AuthState.Idle) {
+                        // Обычный онбординг (Idle) — приветствие с выбором режима. Для смены репо на
+                        // GitHub сразу показываем вход в GitHub (LoginScreen), без приветствия.
+                        if (showWelcome(startAt, state)) {
                             WelcomeScreen(
                                 onSignInGitHub = vm::login,
                                 onConnectByUrl = { backStack.add(Step.ManualUrl) },
