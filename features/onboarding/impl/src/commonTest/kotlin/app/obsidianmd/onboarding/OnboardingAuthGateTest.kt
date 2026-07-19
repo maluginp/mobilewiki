@@ -4,6 +4,7 @@ import app.obsidianmd.onboarding.presentation.OnboardingAction
 import app.obsidianmd.onboarding.presentation.Step
 import app.obsidianmd.onboarding.presentation.initialStep
 import app.obsidianmd.onboarding.presentation.postSignInAction
+import app.obsidianmd.onboarding.presentation.autoStartGitHubAuth
 import app.obsidianmd.onboarding.presentation.showWelcome
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -48,5 +49,12 @@ class OnboardingAuthGateTest {
     @Test fun welcome_never_shown_once_login_started() {
         assertFalse(showWelcome(OnboardingStart.Login, AuthState.Success))
         assertFalse(showWelcome(OnboardingStart.RepoPicker, AuthState.Success))
+    }
+
+    // Смена репо на GitHub без токена: авторизацию запускаем сразу (без кнопки «Sign in»).
+    @Test fun auto_start_github_auth_only_for_repo_picker_idle() {
+        assertTrue(autoStartGitHubAuth(OnboardingStart.RepoPicker, AuthState.Idle))
+        assertFalse(autoStartGitHubAuth(OnboardingStart.Login, AuthState.Idle))          // обычный онбординг — приветствие
+        assertFalse(autoStartGitHubAuth(OnboardingStart.RepoPicker, AuthState.Success))  // уже пошло — не перезапускаем
     }
 }

@@ -25,6 +25,7 @@ import app.obsidianmd.onboarding.AuthState
 import app.obsidianmd.resources.Res
 import app.obsidianmd.resources.action_retry
 import app.obsidianmd.resources.login_code_copied
+import app.obsidianmd.resources.login_connecting
 import app.obsidianmd.resources.login_copy_code
 import app.obsidianmd.resources.login_error
 import app.obsidianmd.resources.login_instructions
@@ -32,6 +33,19 @@ import app.obsidianmd.resources.login_open_github
 import app.obsidianmd.resources.login_sign_in
 import app.obsidianmd.resources.login_waiting
 import org.jetbrains.compose.resources.stringResource
+
+/** Индикатор, пока запускается device-flow GitHub (вход стартовал сам, без кнопки). */
+@Composable
+internal fun GitHubAuthLoading() {
+    Column(
+        Modifier.fillMaxSize().padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        CircularProgressIndicator()
+        Text(stringResource(Res.string.login_connecting), Modifier.padding(top = 16.dp))
+    }
+}
 
 @Composable
 internal fun LoginScreen(

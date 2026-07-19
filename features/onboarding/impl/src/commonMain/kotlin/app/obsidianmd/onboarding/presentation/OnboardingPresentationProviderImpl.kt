@@ -65,9 +65,14 @@ internal class OnboardingPresentationProviderImpl : OnboardingPresentationProvid
                             }
                         }
                         // Обычный онбординг (Idle) — приветствие с выбором режима. Для смены репо на
-                        // GitHub сразу показываем вход в GitHub (LoginScreen), без приветствия.
-                        if (showWelcome(startAt, state)) {
-                            WelcomeScreen(
+                        // GitHub без токена вход запускается сам: показываем индикатор, затем экран с
+                        // кодом авторизации — без промежуточной кнопки «Sign in».
+                        when {
+                            autoStartGitHubAuth(startAt, state) -> {
+                                LaunchedEffect(Unit) { vm.login() }
+                                GitHubAuthLoading()
+                            }
+                            showWelcome(startAt, state) -> WelcomeScreen(
                                 onSignInGitHub = vm::login,
                                 onConnectByUrl = { backStack.add(Step.ManualUrl) },
                                 onUseLocal = {
@@ -76,9 +81,10 @@ internal class OnboardingPresentationProviderImpl : OnboardingPresentationProvid
                                     onFinished()
                                 },
                             )
-                        } else {
-                            val uriHandler = LocalUriHandler.current
-                            LoginScreen(state = state, onLogin = vm::login, onOpenUrl = { uriHandler.openUri(it) })
+                            else -> {
+                                val uriHandler = LocalUriHandler.current
+                                LoginScreen(state = state, onLogin = vm::login, onOpenUrl = { uriHandler.openUri(it) })
+                            }
                         }
                     }
                     entry<Step.RepoPicker> {

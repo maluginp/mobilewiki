@@ -56,6 +56,14 @@ internal fun postSignInAction(start: OnboardingStart, hasRepo: Boolean): Onboard
 internal fun showWelcome(start: OnboardingStart, state: AuthState): Boolean =
     state is AuthState.Idle && start != OnboardingStart.RepoPicker
 
+/**
+ * Запускать ли вход в GitHub сразу, без экрана с кнопкой «Sign in». Так для смены репо на GitHub
+ * ([OnboardingStart.RepoPicker]) в состоянии [AuthState.Idle] мы ведём прямо к экрану авторизации
+ * (device-flow с кодом), а не показываем промежуточную кнопку.
+ */
+internal fun autoStartGitHubAuth(start: OnboardingStart, state: AuthState): Boolean =
+    state is AuthState.Idle && start == OnboardingStart.RepoPicker
+
 /** Полиморфная сериализация шагов для вложенного [androidx.navigation3.runtime.NavBackStack]. */
 internal val onboardingSavedState: SavedStateConfiguration = SavedStateConfiguration {
     serializersModule = SerializersModule {
